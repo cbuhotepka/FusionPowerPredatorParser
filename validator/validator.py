@@ -1,11 +1,12 @@
 import re
-from hash_identifer import identify_hashes
+from validator.hash_identifer import identify_hashes
+from collections import OrderedDict
 
 class Validator:
 
     def __init__(self, keys_and_cols_name, num_columns, delimiter):
         self.input_columns_name = keys_and_cols_name
-        self.output_data = {}
+        self.output_data = OrderedDict()
         self.num_columns = num_columns
         self.delimiter = delimiter
         self.columns_name_index = self.handler_keys()
@@ -27,13 +28,18 @@ class Validator:
                             'password': [3],
                             'tel': [4, 5]}
         """
-        result = {}
+        result = OrderedDict()
         for item in sorted(self.input_columns_name, key=lambda i: i[0]):
             result.setdefault(item[1], [])
             result[item[1]].extend([int(item[0]) - 1])
         return result
 
     def _umn_handler(self, value: str) -> dict:
+        """
+        Проверяет является ли поле username или usermail
+        @param value: проверяемое значение
+        @return: {имя_столбца: значение}
+        """
         result = {}
         _value = value
         name = 'usermail' if self._is_usermail(_value) else 'username'
@@ -43,6 +49,11 @@ class Validator:
         return result
 
     def _p_handler(self, value: str) -> dict:
+        """
+        Проверяет является ли поле userpass_plain или hash
+        @param value: проверяемое значение
+        @return: {имя_столбца: значение}
+        """
         result = {}
         _value = value
         algorithm = self._get_hash_type(_value) or ''
@@ -55,6 +66,11 @@ class Validator:
         return result
 
     def _un_handler(self, value: str) -> dict:
+        """
+        Проверяет является ли поле username
+        @param value: проверяемое значение
+        @return: {имя_столбца: значение}
+        """
         result = {}
         _value = value
         name = 'username'
@@ -64,6 +80,11 @@ class Validator:
         return result
 
     def _um_handler(self, value: str) -> dict:
+        """
+        Проверяет является ли поле usermail
+        @param value: проверяемое значение
+        @return: {имя_столбца: значение}
+        """
         result = {}
         _value = value
         name = 'usermail'
@@ -71,6 +92,11 @@ class Validator:
         return result
 
     def _h_handler(self, value: str) -> dict:
+        """
+        Вычисляет алгоритм хэша
+        @param value: проверяемое значение
+        @return: {имя_столбца: значение, algorithm: 'md5'}
+        """
         result = {}
         _value = value
         name = 'hash'
@@ -135,7 +161,7 @@ class Validator:
     def handler_fields(self, fields) -> list:
         _result_fields = []
         for generete_fields in self.generator.get_generate_fields(fields):
-            output_data = {}
+            output_data = OrderedDict()
             for cols_name, value in generete_fields.items():
                 if cols_name in self.handlers_dict.keys():
                     output_data.update(self.handlers_dict[cols_name](value))
