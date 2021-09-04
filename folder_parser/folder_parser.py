@@ -5,7 +5,7 @@ from datetime import time
 import enum
 
 from store import ERROR_EXTENSIONS
-from . import utils
+import utils
 from rich.prompt import Prompt, IntPrompt
 import shutil
 
@@ -42,6 +42,18 @@ class Direcotry:
     def iterate(self):
         for file in self.all_files:
             yield file
+
+    def write_commands(self, commands: dict):
+        """ Принимает команды в виде словаря {rewrite_file: command} """
+        if not self.command_file:
+            raise AttributeError("У папки нет command-файла. Проверьте статус папки (PARSE)")
+        for f_name, command in commands:
+            self.command_file.write(f_name)
+            self.command_file.write(command)
+
+    def close(self):
+        if self.command_file:
+            self.command_file.close()
 
     def move_to(self, destination):
         # path_source = C:\Source\db\database\item1
@@ -218,3 +230,24 @@ class FolderParser:
             self.current_folder = Direcotry(folder, self.base_type)
 
             yield self.current_folder
+
+    def close_folder(self):
+        self.current_folder.close()
+
+    def skip_folder(self, move_to=None):
+        self.passed_dirs.append(str(self.current_folder.path))
+        self.passed_dirs_file.write(str(self.current_folder.path) + '\n')
+        self.current_folder.status = Status.SKIP
+        self.current_folder.close()
+        if move_to:
+            self.current_folder.move_to(move_to)
+
+    def done_folder(self):
+        self.complete_dirs.append(str(self.current_folder.path))
+        self.complete_dirs_file.write(str(self.current_folder.path) + '\n')
+        self.current_folder.status = Status.DONE
+        self.current_folder.close()
+
+    def finish(self):
+        self.complete_dirs_file.close()
+        self.passed_dirs_file.close()

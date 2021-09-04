@@ -143,7 +143,7 @@ class Writer:
         self.rewrite_files[file_id].write(data)
 
     @property
-    def all_commands(self):
+    def iterate_commands(self):
         for file_path, command in self.commands.items():
             yield (file_path, command)
 
