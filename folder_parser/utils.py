@@ -17,3 +17,12 @@ def check_bad_symbol(string: str):
         if ch in string:
             return False
     return True
+
+def is_escape_file(file_name: str):
+    file_name = file_name.lower()
+    return any(
+        file_name.startswith('_'),
+        file_name.endswith('_rewrite.txt'),
+        file_name.endswith('.rewrite'),
+        file_name == 'readme.txt',
+    )

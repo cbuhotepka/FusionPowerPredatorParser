@@ -2,10 +2,12 @@ import os
 import re
 from pathlib import Path
 from datetime import time
+import enum
 
 from store import ERROR_EXTENSIONS
 from . import utils
 from rich.prompt import Prompt, IntPrompt
+import shutil
 
 
 USER = os.environ.get('USER_NAME', 'er')
@@ -16,31 +18,85 @@ SOURCE_DISK = os.environ.get('SOURCE_DISK_NAME', 'W')
 BASE_TYPES = ['db', 'combo']
 
 
-def is_escape_file(file_name: str):
-    file_name = file_name.lower()
-    return any(
-        file_name.startswith('_'),
-        file_name.endswith('_rewrite.txt'),
-        file_name == 'readme.txt',
-    )
+class Status(enum):
+    PARSE = 'for parsing'
+    DONE = 'done'
+    SKIP = 'skipped'
 
 
 class Direcotry:
-    def __init__(self, path, base_type):
+
+    def __init__(self, path, base_type, status=Status.PARSE):
         if base_type not in BASE_TYPES:
             raise ValueError(f"Wrong base type provided: {base_type}")
         self.path = path if isinstance(path, Path) else Path(path)
         self.name = self.path.name
         self.base_type = base_type
+        self.status = status
 
-        self.all_files = self._get_all_files()
-        self.base_info = self._get_base_info()
+        if self.status == Status.Parse:
+            self.command_file = open(os.path.join(self.path, '_command_.txt'), 'w', encoding='utf-8', errors='replace')
+            self.all_files = self._get_all_files()
+            self.base_info = self._get_base_info()
+
+    def iterate(self):
+        for file in self.all_files:
+            yield file
+
+    def move_to(self, destination):
+        # path_source = C:\Source\db\database\item1
+        # path_source = C:\Source\combo\database
+        path_source = str(self.path)
+        if not os.path.exists(path_source):
+            return "Папка не существует"
+        # base_source = S:\Source\db\database\item1
+        base_source = path_source.replace(f'{PARSING_DISK}:', f'{SOURCE_DISK}:')
+
+        # basedir = C:\Source\db\database
+        base_dir = os.path.join(*Path(path_source).parts[:4])
+
+        if self.type_base == 'combo':
+            # base = database
+            base = Path(path_source).parts[3]
+
+            # base_dest = S:\Error\combo
+            base_dest = os.path.join(f'{SOURCE_DISK}:\\', destination.capitalize(), self.type_base)
+
+            # path_move = C:\Error\combo
+            path_move = os.path.join(f'{PARSING_DISK}:\\', destination.capitalize(), self.type_base)
+
+        else:
+            # C:\Souce\db\database\item1
+            # _database = item1
+            base = Path(path_source).parts[4]
+            # base = database
+            _database = Path(path_source).parts[3]
+
+            # path_move = C:\Error\db\database
+            path_move = Path(os.path.join(f'{PARSING_DISK}:\\', destination.capitalize(), self.type_base, _database))
+
+            # base_dest = S:\Error\db\database
+            base_dest = os.path.join(f'{SOURCE_DISK}:\\', destination.capitalize(), self.type_base, _database)
+
+        os.makedirs(str(path_move), exist_ok=True)
+        if os.path.exists(os.path.join(path_move, base)):
+            shutil.rmtree(os.path.join(path_move, base))
+        # Перемещение
+        shutil.move(str(path_source), str(path_move))
+        shutil.move(base_source, base_dest)
+        # Чистка пустых папок
+        if os.path.exists(base_dir) and not os.listdir(base_dir):
+            shutil.rmtree(base_dir)
+        _base_rm = os.path.join(*Path(base_source).parts[:4])
+        if os.path.exists(_base_rm) and not os.listdir(_base_rm):
+            shutil.rmtree(_base_rm)
+
 
     def _get_all_files(self):
         """ Возвращает все файлы кроме readme, _command_ и т.п. """
         all_files: list[Path] = []
         for root, dirs, files in os.walk(self.path):
-            files = list(filter(lambda x: not is_escape_file(x), files))
+            files = list(filter(lambda x: not utils.is_escape_file(x), files))
             return [Path(os.path.join(root, f)) for f in files]
 
     def _get_base_info(self):
@@ -156,9 +212,9 @@ class FolderParser:
     def iterate(self):
         for folder in self.all_folder_paths:
             if str(folder.absolute()) in self.complete_dirs:
-                # console.print(f'[bold green]{folder.absolute()}')
-                continue
+                self.current_folder = Direcotry(folder, self.base_type, status=Status.DONE)
             elif str(folder.absolute()) in self.passed_dirs:
-                # console.print(f'[bold yellow]{folder.absolute()}')
-                continue
+                self.current_folder = Direcotry(folder, self.base_type, status=Status.SKIP)
             self.current_folder = Direcotry(folder, self.base_type)
+
+            yield self.current_folder
