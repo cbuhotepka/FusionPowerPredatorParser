@@ -1,7 +1,8 @@
 import os
 import re
 from pathlib import Path
-from datetime import time
+import datetime
+import time
 import enum
 
 from store import ERROR_EXTENSIONS
@@ -18,10 +19,11 @@ SOURCE_DISK = os.environ.get('SOURCE_DISK_NAME', 'W')
 BASE_TYPES = ['db', 'combo']
 
 
-class Status(enum):
+class Status(enum.Enum):
     PARSE = 'for parsing'
     DONE = 'done'
     SKIP = 'skipped'
+    ERROR = 'error folder'
 
 
 class Direcotry:
@@ -34,10 +36,18 @@ class Direcotry:
         self.base_type = base_type
         self.status = status
 
-        if self.status == Status.Parse:
+        self.base_info = None
+        self.all_files = self._get_all_files()
+        self.files_count = len(self.all_files)
+
+        if self.status == Status.PARSE:
             self.command_file = open(os.path.join(self.path, '_command_.txt'), 'w', encoding='utf-8', errors='replace')
-            self.all_files = self._get_all_files()
-            self.base_info = self._get_base_info()
+            if not self.all_files:
+                self.status = Status.ERROR
+            try:
+                self.base_info = self._get_base_info()
+            except:
+                self.status = Status.ERROR
 
     def iterate(self):
         for file in self.all_files:
@@ -47,9 +57,9 @@ class Direcotry:
         """ Принимает команды в виде словаря {rewrite_file: command} """
         if not self.command_file:
             raise AttributeError("У папки нет command-файла. Проверьте статус папки (PARSE)")
-        for f_name, command in commands:
-            self.command_file.write(f_name)
-            self.command_file.write(command)
+        for f_name, command in commands.items():
+            self.command_file.write(f"{f_name}\n")
+            self.command_file.write(f"{command}\n\n")
 
     def close(self):
         if self.command_file:
@@ -109,30 +119,32 @@ class Direcotry:
         all_files: list[Path] = []
         for root, dirs, files in os.walk(self.path):
             files = list(filter(lambda x: not utils.is_escape_file(x), files))
-            return [Path(os.path.join(root, f)) for f in files]
+            all_files += [Path(os.path.join(root, f)) for f in files]
+        return all_files
 
     def _get_base_info(self):
         source = ''
         date = ''
-        name, source, date = self._get_info_from_readme()
-        if not name:
-            name = self._get_base_name_from_folder()
+        name = self._get_base_name_from_folder()
+        _name, source, date = self._get_info_from_readme()
+        name = _name if not name else name
         if not source:
             source = 'OLD DATABASE' if self.base_type == 'db' else 'OLD COMBO'
-        if not date and self.base_type == 'combo':
-            date = self._get_date_from_folder(self)
+        if not date:
+            if self.base_type == 'combo':
+                date = self._get_date_from_folder()
 
         # Если дата в неверном формате, то взять дату создания файла
-        if not re.search(r'\d{4}-\d{2}-\d{2}', date):
+        if not date or not re.search(r'\d{4}-\d{2}-\d{2}', date):
             date = self._get_oldest_file_date()
         return {'name': name, 'date': date, 'source': source}
 
     def _get_base_name_from_folder(self):
-        if utils.check_base_name(self.path.absolute().parent.name):
+        if utils.check_bad_symbol(self.path.absolute().parent.name):
             if self.base_type == 'db':
                 return self.path.absolute().parent.name
             else:
-                name = self.name.split('_', 2)[2].replace('_', ' ')
+                return self.name.split('_', 2)[2].replace('_', ' ')
         return None
 
     def _get_date_from_folder(self):
@@ -144,7 +156,7 @@ class Direcotry:
             file = Path(file_path)
             create_date = file.stat().st_mtime
             str_date = time.ctime(create_date)
-            date = time.strptime(str_date)
+            date = datetime.datetime(*(time.strptime(str_date)[0:6]))
             dates.append(date.strftime("%Y-%m-%d"))
         date = min(dates)
         return date
@@ -153,11 +165,11 @@ class Direcotry:
         path_to_readme = os.path.join(self.path, 'readme.txt')
         if not os.path.exists(path_to_readme):
             return None, None, None
-        encoding = utils.get_encodinging_file(path_to_readme)
+        encoding = utils.get_encoding_file(path_to_readme)
         readme_string = open(os.path.join(self.path, 'readme.txt'), encoding=encoding).readlines()
         _date = readme_string[0].replace("\n", "")
         _source = None
-        _name = readme_string[0].replace("\n", "")
+        _name = readme_string[1].replace("\n", "")
         for line in readme_string:
             if re.match(r'https?://', line):
                 _source = re.match(r'https?://[\w\d\-=\\/\._\?]+', line.replace("\n", "")).group(0)
@@ -167,21 +179,25 @@ class Direcotry:
                 break
         return _name, _source, _date
 
+    def __str__(self):
+        return f"[{self.status.value}] {self.path}"
+
 
 class FolderParser:
     def __init__(self, base_type):
         if base_type not in BASE_TYPES:
             raise ValueError(f"Wrong base type provided: {base_type}")
         self.base_type = base_type
-        self.path = os.path.join(PARSING_DISK, 'Source')
+        self.path = os.path.join(f"{PARSING_DISK}:\\", 'Source', self.base_type)
+        self.current_folder = None
         
         self.get_complete_dirs()    # устанавливает: complete_dirs_name, complete_dirs, complete_dirs_file
         self.get_passed_dirs()      # устанавливает: passed_dirs_name, passed_dirs, passed_dirs_file
 
 
     def get_complete_dirs(self):
-        """ Читаем из файла все завершённые папки, открываем dirs_complete.txt для записи """
-        self.complete_dirs_name = Path(os.path.join(self.path, 'dirs_complete.txt'))
+        """ Читаем из файла все завершённые папки, открываем _dirs_complete_.txt для записи """
+        self.complete_dirs_name = Path(os.path.join(self.path, '_dirs_complete_.txt'))
         if self.complete_dirs_name.exists():
             with open(self.complete_dirs_name, 'r', encoding='utf-8', errors='replace') as f:
                 self.complete_dirs = list(map(lambda x: x.strip(), f.readlines()))
@@ -190,8 +206,8 @@ class FolderParser:
         self.complete_dirs_file = open(self.complete_dirs_name, 'a+', encoding='utf-8', errors='replace')
 
     def get_passed_dirs(self):
-        """ Читаем из файла все пропущенные папки, открываем dirs_passed.txt для записи """
-        self.passed_dirs_name = Path(os.path.join(self.path, 'dirs_passed.txt'))
+        """ Читаем из файла все пропущенные папки, открываем _dirs_passed_.txt для записи """
+        self.passed_dirs_name = Path(os.path.join(self.path, '_dirs_passed_.txt'))
         if self.passed_dirs_name.exists():
             with open(self.passed_dirs_name, 'r', encoding='utf-8', errors='replace') as f:
                 self.passed_dirs = list(map(lambda x: x.strip(), f.readlines()))
@@ -227,7 +243,8 @@ class FolderParser:
                 self.current_folder = Direcotry(folder, self.base_type, status=Status.DONE)
             elif str(folder.absolute()) in self.passed_dirs:
                 self.current_folder = Direcotry(folder, self.base_type, status=Status.SKIP)
-            self.current_folder = Direcotry(folder, self.base_type)
+            else:
+                self.current_folder = Direcotry(folder, self.base_type)
 
             yield self.current_folder
 
@@ -235,19 +252,67 @@ class FolderParser:
         self.current_folder.close()
 
     def skip_folder(self, move_to=None):
-        self.passed_dirs.append(str(self.current_folder.path))
-        self.passed_dirs_file.write(str(self.current_folder.path) + '\n')
+        self.passed_dirs.append(str(self.current_folder.path.absolute()))
+        self.passed_dirs_file.write(str(self.current_folder.path.absolute()) + '\n')
         self.current_folder.status = Status.SKIP
         self.current_folder.close()
         if move_to:
             self.current_folder.move_to(move_to)
 
     def done_folder(self):
-        self.complete_dirs.append(str(self.current_folder.path))
-        self.complete_dirs_file.write(str(self.current_folder.path) + '\n')
+        self.complete_dirs.append(str(self.current_folder.path.absolute()))
+        self.complete_dirs_file.write(str(self.current_folder.path.absolute()) + '\n')
         self.current_folder.status = Status.DONE
         self.current_folder.close()
 
     def finish(self):
         self.complete_dirs_file.close()
         self.passed_dirs_file.close()
+
+    def __str__(self):
+        return f"Fusion-Power-Predator-{self.base_type.upper()}-Parser"
+
+
+if __name__ == '__main__':
+    print('\n'*20)
+    folder_parser = FolderParser(base_type='db')
+    # Читает или создаёт complete_dirs, passed_dirs
+    print(folder_parser)
+
+    print(folder_parser.complete_dirs)
+    print(folder_parser.passed_dirs)
+
+    for i, dir in enumerate(folder_parser.iterate()):
+    # Смотрит все папки, устанавливает self.current_folder на текущую инициализирует и возвращает Directory()
+    # dir.name, dir.path, dir.base_type, dir.status
+    # если статус PARSE:
+    # создаёт и открывает self.command_file, инициализирует self.all_files (пути), self.base_info - {name: '', date: '', source: ''}
+        print()
+        print('___'*30, '\nNEW DIRECTORY')
+        print('CURRENT FOLDER:', folder_parser.current_folder)
+        print('BASE INFO:', dir.base_info)
+        print('FILES COUNT:', dir.files_count)
+
+        if dir.status == Status.PARSE:
+            for file in dir.iterate():
+            # возвращает путь до файла
+                print('  >', file)
+
+            dir.write_commands({'rewrite_file_path': 'command 1', f'file {i}': f'command {i}'})
+            # dir.write_commands(commands: {rewrite_file: command})
+
+            if dir.name == 'item2':
+                folder_parser.skip_folder()
+            elif dir.name == 'item4':
+                folder_parser.done_folder()
+
+        elif dir.status == Status.ERROR:
+            folder_parser.skip_folder()
+
+        print('OUTCOME:', folder_parser.current_folder)
+        # folder_parser.skip_folder(move_to='')
+        # # записывает папку в passed_dirs, закрывает папку
+        # # если указан move_to - перемещает папку
+
+        # folder_parser.done_folder()
+        # # записывает папку в complete_dirs, закрывает папку, перемещает в Imported

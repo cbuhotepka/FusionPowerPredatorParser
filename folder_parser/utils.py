@@ -1,5 +1,5 @@
 from chardet.universaldetector import UniversalDetector
-from .store import BANNED_SYMBOL
+from store import BANNED_SYMBOL
 
 
 def get_encoding_file(path):
@@ -20,9 +20,9 @@ def check_bad_symbol(string: str):
 
 def is_escape_file(file_name: str):
     file_name = file_name.lower()
-    return any(
+    return any([
         file_name.startswith('_'),
         file_name.endswith('_rewrite.txt'),
         file_name.endswith('.rewrite'),
         file_name == 'readme.txt',
-    )
+    ])
