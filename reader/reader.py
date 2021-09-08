@@ -21,6 +21,7 @@ class Reader:
     def __init__(self, path: str, encoding=None, skip=0):
 
         self._path = Path(path)
+        self.file_path = path
         self._check_path()
         _encoding = encoding or self._encoding
         self._file = self._path.open(encoding=_encoding)

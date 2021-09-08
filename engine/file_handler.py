@@ -1,20 +1,23 @@
 import re
 import csv
 from rich.console import Console
-from .store import ASSERT_NAME
+from .store import ASSERT_NAME, COLUMN_NAME_TRIGGERS
 from .interface import UserInterface
+from normalize_col_names import normalize_col_names
 
 console = Console()
 
 class FileHandler:
 
-    def __init__(self, file):
+    def __init__(self, file, file_path):
         self.file = file
+        self.file_path = file_path
         self.delimiter = None
         self.num_columns = None
         self.interface = UserInterface()
         self.keys = None
         self.cols_name = None
+        self.column_names = None
 
     def handle_file(self):
         self.delimiter = self.get_delimiter()
@@ -99,3 +102,32 @@ class FileHandler:
             self.num_columns = _result
             return _result
         return 0
+
+
+    def get_column_names(self, auto: bool) -> str:
+        """Get column names from first string of file
+        Args:
+            file_path (Path): parsing file
+            auto (bool, optional): mode parsing auto or No
+        Returns:
+            _colsname (str): 1=un,2=upp,3=h or None
+        """
+        column_names_line = None
+        for i, line in enumerate(self.file):
+
+            # Finding line with column names
+            if i < 6 and not column_names_line:
+                _new_line = line.lower()
+                for trigger in COLUMN_NAME_TRIGGERS:
+                    if re.search(trigger, _new_line):
+                        column_names_line = re.sub(r'\n$', '', line)
+                        break
+                    else:
+                        column_names_line = ''
+            # Printing and copying possible column names
+            if column_names_line and not auto:
+                self.column_names = normalize_col_names(string=column_names_line, delimiter=self.delimiter)
+                _answer = self.interface.ask_column_names(self.column_names)
+                if _answer == 'y':
+                    return self.column_names
+            return ''

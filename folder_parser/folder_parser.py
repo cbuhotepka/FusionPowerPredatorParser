@@ -194,7 +194,6 @@ class FolderParser:
         self.get_complete_dirs()    # устанавливает: complete_dirs_name, complete_dirs, complete_dirs_file
         self.get_passed_dirs()      # устанавливает: passed_dirs_name, passed_dirs, passed_dirs_file
 
-
     def get_complete_dirs(self):
         """ Читаем из файла все завершённые папки, открываем _dirs_complete_.txt для записи """
         self.complete_dirs_name = Path(os.path.join(self.path, '_dirs_complete_.txt'))

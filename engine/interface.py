@@ -22,8 +22,17 @@ class UserInterface:
         return input_num_columns
 
     def ask_cols_keys(self, find_keys):
-        keys = Prompt.ask(f'[cyan]Колонки {find_keys}')
+        if find_keys:
+            _keys = Prompt.ask(f'[cyan]Колонки {find_keys}')
+            keys = f'{find_keys},{_keys}'
+        else:
+            keys = Prompt.ask(f'[cyan]Колонки ')
         return keys
+
+    def ask_column_names(self, column_names):
+        console.print(f'[magenta]Определены столбцы[/magenta]: "[green]{column_names}[/green]"')
+        _answer = Prompt.ask('[magenta]Все правильно?', choices=['y', 'n'], default='y')
+        return _answer
 
     def ask_mode_handle(self):
         answer = Prompt.ask(f"[green]Если все ОК нажмите Enter",
