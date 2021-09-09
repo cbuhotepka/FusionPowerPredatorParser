@@ -27,6 +27,12 @@ class Reader:
         self._file = self._path.open(encoding=_encoding)
         self._skip_rows(skip)
 
+    def open(self, encoding=None, skip=0):
+        _encoding = encoding or self._encoding
+        self._file = self._path.open(encoding=_encoding)
+        self._skip_rows(skip)
+        return self
+
     def readline(self):
         try:
             _line = self._readline()
@@ -36,15 +42,16 @@ class Reader:
         return _res_line
 
     def _readline(self):
-        _line = self.fix_nulls(self._file, hit=1)
+        _line = self._fix_nulls(self._file, hit=1)
         return next(_line)
 
     def _skip_rows(self, skip: int):
         for _ in range(skip):
             self.readline()
+        return skip
 
     @staticmethod
-    def fix_nulls(f, hit=math.inf):
+    def _fix_nulls(f, hit=math.inf):
         if f.mode == 'rb':
             count = 0
             while count <= hit:
