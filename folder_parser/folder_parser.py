@@ -5,8 +5,8 @@ import datetime
 import time
 import enum
 
-from store import ERROR_EXTENSIONS
-import utils
+from .store import ERROR_EXTENSIONS
+from folder_parser import utils
 from rich.prompt import Prompt, IntPrompt
 import shutil
 

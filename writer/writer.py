@@ -1,5 +1,5 @@
 import os
-from store import COLS_SHORT, COLS_LONG
+from writer.store import COLS_SHORT, COLS_LONG
 
 USER = os.environ.get('USER_NAME', 'er')
 PASSWORD = os.environ.get('USER_PASSWORD', 'qwerty123')
@@ -79,7 +79,7 @@ class WriterFile:
 
 
 class Writer:
-    def __init__(self, base_type, base_name, base_source, base_date, ):
+    def __init__(self, base_type, base_name, base_source, base_date):
         if base_type not in BASE_TYPES:
             raise ValueError(f"Wrong base type provided: {base_type}")
         self.base_type = base_type
@@ -119,9 +119,10 @@ class Writer:
         self.current_file = full_path
         self.current_delimiter = delimiter
 
-    def write(self, data: dict, algorithm=None):
+    def write(self, data: dict):
         """ Записывает информацию из словаря в соответствующий rewrite файл """
         # Проверка текущего файла и делимитра
+        algorithm = data.get('algorithm')
         if not all(self.current_file or self.current_delimiter):
             raise ChildProcessError("You have to start_new_file before calling write method")
 

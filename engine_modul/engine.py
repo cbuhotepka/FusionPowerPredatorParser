@@ -6,12 +6,12 @@ import subprocess
 import os
 
 from folder_parser.folder_parser import Direcotry, FolderParser
-from interface import UserInterface
+from engine_modul.interface import UserInterface
 from reader.reader import Reader
 from validator.validator import Validator
-from writer.writer import Writer, WriterFile
-from file_handler import FileHandler
-from store import PATTERN_TEL_PASS, PATTERN_USERMAIL_USERNAME_PASS
+from writer.writer import Writer
+from engine_modul.file_handler import FileHandler
+from engine_modul.store import PATTERN_TEL_PASS, PATTERN_USERMAIL_USERNAME_PASS
 
 user = os.environ.get('USER_NAME')
 password = os.environ.get('USER_PASSWORD')
@@ -48,8 +48,6 @@ class Engine:
 
     def rehandle_file_parameters(self):
         self.file_handler.handle_file()
-        self.file_handler.get_delimiter()
-        self.file_handler.get_num_columns()
         self.file_handler.get_column_names(self.full_auto)
         self.interface.show_file(self.file_handler.file)
         self.interface.show_delimiter(self.file_handler.delimiter)
@@ -117,10 +115,11 @@ class Engine:
         for line in  track(read_file, description='[bold blue]Парсинг файла...', total=count_rows_in_file):
 
             for fields_data in validator.get_fields(line):
-
+                self.writer.write(fields_data)
 
 
     def start(self):
+        self.type_base = self.interface.ask_type_base()
         self.handler_folders = FolderParser(self.type_base)
         for dir in self.handler_folders.iterate():
             self.all_files_status.clear()
@@ -128,4 +127,10 @@ class Engine:
             for file in dir.iterate():
                 read_file = Reader(file)
                 self.parsing_file(read_file)
-                self.writer = Writer(dir.base_type, dir.name,)
+                writer_data = {
+                    'base_type': dir.base_type,
+                    'base_name': dir.base_info['name'],
+                    'base_source': dir.base_info['source'],
+                    'base_date': dir.base_info['date']
+                }
+                self.writer = Writer(**writer_data)

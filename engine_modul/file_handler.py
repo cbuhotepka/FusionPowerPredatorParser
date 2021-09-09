@@ -1,9 +1,10 @@
 import re
 import csv
 from rich.console import Console
+
 from .store import ASSERT_NAME, COLUMN_NAME_TRIGGERS
 from .interface import UserInterface
-from normalize_col_names import normalize_col_names
+from engine_modul.normalize_col_names import normalize_col_names
 
 console = Console()
 

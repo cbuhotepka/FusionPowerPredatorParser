@@ -54,7 +54,7 @@ class UserInterface:
             Args:
                 file (Reader()): file for parsing
             """
-        console.print(f'[bold magenta]{file.absolute()}')
+        console.print(f'[bold magenta]{file.file_path}')
         console.print("[magenta]" + '-' * 200, overflow='crop')
         for i, line in enumerate(file):
             line_to_show = line[:1000] if len(line) > 3000 else line

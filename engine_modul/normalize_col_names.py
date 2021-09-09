@@ -1,7 +1,7 @@
 import clipboard
 from rich.console import Console
 
-from store import POSSIBLE_EXCHANGES
+from engine_modul.store import POSSIBLE_EXCHANGES
 
 console = Console()
 

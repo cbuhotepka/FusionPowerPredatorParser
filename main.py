@@ -3,13 +3,13 @@ from rich.prompt import Prompt
 from rich.console import Console
 from pathlib import Path
 import argparse
-from dotenv import load_dotenv
+from py_dotenv import read_dotenv
 
 dotenv_path = Path('CONFIG.env')
 assert dotenv_path.exists()
-load_dotenv(dotenv_path)
+read_dotenv(dotenv_path)
 
-from engine.engine import Engine
+from engine_modul.engine import Engine
 
 
 console = Console()
