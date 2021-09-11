@@ -26,7 +26,7 @@ if __name__ == '__main__':
     parser.add_argument("--auto-parse", dest="auto_parse", action='store_true')
     parser.add_argument("--full-auto", dest="full_auto", action='store_true')
 
-    args = parser.parse_args(["--auto-parse"])
+    args = parser.parse_args()
     try:
         start_parsing(auto_parse=args.auto_parse, full_auto=args.full_auto)
     except KeyboardInterrupt:

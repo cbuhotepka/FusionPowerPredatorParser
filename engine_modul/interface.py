@@ -21,6 +21,10 @@ class UserInterface:
         input_num_columns = IntPrompt.ask('Количество столбцов', default=num_columns + 1) - 1
         return input_num_columns
 
+    def ask_skip_lines(self, skip):
+        answer = IntPrompt.ask('Пропустить строк', default=skip)
+        return answer
+
     def ask_cols_keys(self, find_keys):
         if find_keys:
             _keys = Prompt.ask(f'[cyan]Колонки {find_keys}')
@@ -37,7 +41,7 @@ class UserInterface:
     def ask_mode_handle(self):
         answer = Prompt.ask(f"[green]Если все ОК нажмите Enter",
                             choices=['p', 'l', 'o', 'n', 'd', 'e', 't'],
-                            default='')
+                            default='start')
         return answer
 
     def show_delimiter(self, delimiter):
@@ -47,7 +51,7 @@ class UserInterface:
             console.print(f'[magenta]Разделитель[/magenta]: [red]Отсутствует![/red]')
 
     def show_num_columns(self, num_columns):
-        console.print(f'[magenta]Количество столбцов[/magenta]: "[green]{num_columns}[/green]"')
+        console.print(f'[magenta]Количество столбцов[/magenta]: "[green]{num_columns + 1}[/green]"')
 
     def show_file(self, file):
         """Print 15 line from parsing file
@@ -56,6 +60,7 @@ class UserInterface:
             """
         console.print(f'[bold magenta]{file.file_path}')
         console.print("[magenta]" + '-' * 200, overflow='crop')
+        file.open()
         for i, line in enumerate(file):
             line_to_show = line[:1000] if len(line) > 3000 else line
             try:

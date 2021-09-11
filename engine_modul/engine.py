@@ -19,6 +19,7 @@ PD = os.environ.get('PARSING_DISK_NAME')
 SD = os.environ.get('SOURCE_DISK_NAME')
 console = Console()
 
+
 class Engine:
 
     def __init__(self, auto_parse, full_auto):
@@ -45,15 +46,25 @@ class Engine:
             return True
         else:
             return False
+        # TODO Протестировать автопарсинг
 
     def rehandle_file_parameters(self):
+        """
+        Получение параметров файла: разделитель, количество столбцов, название столбцов
+        @return:
+        """
+        self.interface.show_file(self.file_handler.file)
         self.file_handler.handle_file()
         self.file_handler.get_column_names(self.full_auto)
-        self.interface.show_file(self.file_handler.file)
+        self.file_handler.get_keys()
         self.interface.show_delimiter(self.file_handler.delimiter)
         self.interface.show_num_columns(self.file_handler.num_columns)
 
     def manual_parsing_menu(self):
+        """
+        Ручной парсинг
+        @return:
+        """
         mode = self.interface.ask_mode_handle()
         while True:
             if mode == 'p':
@@ -96,10 +107,15 @@ class Engine:
                     if answer == 'y':
                         mode = 'p'
                         break
+            elif mode == 'start':
+                self.all_files_status.add('parse')
+                break
             else:
                 mode = self.interface.ask_mode_handle()
         self.interface.show_num_columns(self.file_handler.num_columns + 1)
-        self.interface.ask_num_cols(self.file_handler.num_columns + 1)
+        self.interface.ask_num_cols(self.file_handler.num_columns)
+        self.file_handler.skip = self.interface.ask_skip_lines(self.file_handler.skip)
+        # TODO Протестировать пункты меню: Последовательность, достаточность, ошибки при вводе
 
     def parsing_file(self, read_file):
         self.file_handler = FileHandler(read_file, read_file.file_path)
@@ -111,12 +127,13 @@ class Engine:
             count_rows_in_file = self.file_handler.get_count_rows()
             console.print(f'[yellow]Строк в файле: {count_rows_in_file}')
         validator = Validator(self.file_handler.keys, self.file_handler.num_columns, self.file_handler.delimiter)
-
+        read_file.open(skip=self.file_handler.skip)
         for line in  track(read_file, description='[bold blue]Парсинг файла...', total=count_rows_in_file):
 
             for fields_data in validator.get_fields(line):
                 self.writer.write(fields_data)
-
+                # TODO протестить запись в файл
+                # TODO протестить создание комманд файла
 
     def start(self):
         self.type_base = self.interface.ask_type_base()

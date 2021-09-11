@@ -1,15 +1,20 @@
 import re
 import csv
+from collections import Counter
+
 from rich.console import Console
 
-from .store import ASSERT_NAME, COLUMN_NAME_TRIGGERS
-from .interface import UserInterface
+from engine_modul.store import ASSERT_NAME, COLUMN_NAME_TRIGGERS
+from engine_modul.interface import UserInterface
 from engine_modul.normalize_col_names import normalize_col_names
 
 console = Console()
 
-class FileHandler:
 
+class FileHandler:
+    """
+    Класс для хранения параметров и методов файла
+    """
     def __init__(self, file, file_path):
         self.file = file
         self.file_path = file_path
@@ -19,6 +24,7 @@ class FileHandler:
         self.keys = None
         self.cols_name = None
         self.column_names = None
+        self.skip = 0
 
     def handle_file(self):
         self.delimiter = self.get_delimiter()
@@ -32,6 +38,7 @@ class FileHandler:
         :return: dialect
         """
         list_line = []
+        self.file.open()
         for i, line in enumerate(self.file):
             list_line.append(line)
             if i > 25:
@@ -45,6 +52,13 @@ class FileHandler:
             return None
 
     def is_simple_file(self, pattern, file):
+        """
+        Метод для автопарсинга
+
+        @param pattern:
+        @param file:
+        @return:
+        """
         result = 0
         for i, line in enumerate(file):
             if i > 10 and re.match(pattern, line):
@@ -53,11 +67,16 @@ class FileHandler:
             return True
         return False
 
-    def get_keys(self, input_keys):
+    def get_keys(self, input_keys=None):
         """
-        :param inp: "1=usermail, 3=username"
+        Функция преобразования введенных ключей
+
+        @param input_keys: "1=usermail, 3=username"
         :return: keys [(tuple)]: (, colsname_plain  Порядок для бд, ключи для fix.py
+
         """
+        if not input_keys:
+            input_keys = self.column_names
         args_inp = input_keys.split(',')
         key_res = []
         keys = []
@@ -84,29 +103,40 @@ class FileHandler:
         return keys, colsname_plain
 
     def get_count_rows(self):
+        self.file.open()
         count = sum(1 for _ in self.file)
         return count
 
     def get_num_columns(self):
+        """
+        Расчет количества разделителей в строке
+        @return:
+        """
         _sum_delimiter = 0
         _sum_lines = 0
-
+        _counter = Counter()
         pat = re.compile(f'{self.delimiter}')
-        for i, line in enumerate(self.file):
-            if i > 10 and (line != '' or line != '\n'):
+        self.file.open()
+        lines = [line for i, line in enumerate(self.file) if i < 25]
+        n = 0 if len(lines) < 10 else 5
+        for i, line in enumerate(lines):
+            if i > n and (line != '' or line != '\n'):
                 line = re.sub(r'(\"[^\"]*?\")', '', line)
                 _sum_delimiter += len(re.findall(pat, line))
+                _counter[_sum_delimiter] += 1
                 _sum_lines += 1
+            _sum_delimiter = 0
 
-        if _sum_delimiter and _sum_lines:
-            _result = _sum_delimiter // _sum_lines
-            self.num_columns = _result
-            return _result
-        return 0
+        _result = max(dict(_counter).items(), key=lambda item: item[1])[0]
+        # if _sum_delimiter and _sum_lines:
+        #     _result = _sum_delimiter // _sum_lines
+        self.num_columns = _result
+        return _result or 1
 
 
     def get_column_names(self, auto: bool) -> str:
-        """Get column names from first string of file
+        """
+        Поиск заголовков столбцов
         Args:
             file_path (Path): parsing file
             auto (bool, optional): mode parsing auto or No
@@ -114,6 +144,7 @@ class FileHandler:
             _colsname (str): 1=un,2=upp,3=h or None
         """
         column_names_line = None
+        self.file.open()
         for i, line in enumerate(self.file):
 
             # Finding line with column names
@@ -130,5 +161,6 @@ class FileHandler:
                 self.column_names = normalize_col_names(string=column_names_line, delimiter=self.delimiter)
                 _answer = self.interface.ask_column_names(self.column_names)
                 if _answer == 'y':
+                    self.skip = 1
                     return self.column_names
             return ''
