@@ -91,10 +91,10 @@ class Directory:
             _database = Path(path_source).parts[3]
 
             # path_move = C:\Error\db\database
-            path_move = Path(os.path.join(f'{PARSING_DISK}:\\', destination.capitalize(), self.type_base, _database))
+            path_move = Path(os.path.join(f'{PARSING_DISK}:\\', destination.capitalize(), self.base_type, _database))
 
             # base_dest = S:\Error\db\database
-            base_dest = os.path.join(f'{SOURCE_DISK}:\\', destination.capitalize(), self.type_base, _database)
+            base_dest = os.path.join(f'{SOURCE_DISK}:\\', destination.capitalize(), self.base_type, _database)
 
         os.makedirs(str(path_move), exist_ok=True)
         if os.path.exists(os.path.join(path_move, base)):
