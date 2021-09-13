@@ -90,7 +90,7 @@ class Engine:
                 self.all_files_status.add('error')
                 try:
                     self.handler_folders.skip_folder(move_to='Error')
-                    break
+                    return mode
                 except Exception as ex:
                     console.print(f'[magenta]Не могу переместить[/magenta]: "[red]{ex}[/red]"')
                     answer = Prompt.ask(f"[green]Если все ОК нажмите Enter", choices=['y', 'n'], default='y')
@@ -123,8 +123,8 @@ class Engine:
         self.rehandle_file_parameters()
         if not self.auto_parse or not self.autoparse(read_file):
             mode = self.manual_parsing_menu()
-            if mode in ['p', 'l']:
-                return
+            if mode in ['l', 'p', 't', 'e']:
+                return mode
         self.writer.start_new_file(self.file_handler.file_path, self.file_handler.delimiter)
         with console.status('[bold blue]Подсчет строк...', spinner='point', spinner_style="bold blue") as status:
             count_rows_in_file = self.file_handler.get_count_rows()
@@ -157,7 +157,18 @@ class Engine:
                 for file in dir.iterate():
                     read_file = Reader(file)
 
-                    self.parsing_file(read_file)
+                    mode = self.parsing_file(read_file)
+                    if mode in ['p', 't', 'e']:
+                        break
+                if self.all_files_status == {'trash'}:
+                    try:
+                        self.handler_folders.skip_folder(move_to='Trash')
+                    except Exception as ex:
+                        console.print(f'[magenta]Не могу переместить[/magenta]: "[red]{ex}[/red]"')
+                        answer = Prompt.ask(f"[green]Если все ОК нажмите Enter", choices=['y', 'n'], default='y')
+                        if answer != 'y':
+                            raise ex
+
                 self.writer.finish()
             else:
                 self.interface.print_dirs_status(str(dir.path), dir.status)

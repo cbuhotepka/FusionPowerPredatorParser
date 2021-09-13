@@ -77,15 +77,15 @@ class Direcotry:
         # basedir = C:\Source\db\database
         base_dir = os.path.join(*Path(path_source).parts[:4])
 
-        if self.type_base == 'combo':
+        if self.base_type == 'combo':
             # base = database
             base = Path(path_source).parts[3]
 
             # base_dest = S:\Error\combo
-            base_dest = os.path.join(f'{SOURCE_DISK}:\\', destination.capitalize(), self.type_base)
+            base_dest = os.path.join(f'{SOURCE_DISK}:\\', destination.capitalize(), self.base_type)
 
             # path_move = C:\Error\combo
-            path_move = os.path.join(f'{PARSING_DISK}:\\', destination.capitalize(), self.type_base)
+            path_move = os.path.join(f'{PARSING_DISK}:\\', destination.capitalize(), self.base_type)
 
         else:
             # C:\Souce\db\database\item1
