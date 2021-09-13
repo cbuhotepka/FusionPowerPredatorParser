@@ -135,6 +135,19 @@ class Engine:
 
             for fields_data in validator.get_fields(line):
 
+                # Пропуск записи если в полях меньше 2 не пустых значений
+                count_not_empty_values = sum(map(lambda x: bool(x), fields_data.values()))
+                if fields_data['algorithm']:
+                    if count_not_empty_values < 3:
+                        input(fields_data.values())
+                        continue
+                else:
+                    if count_not_empty_values < 2:
+                        input(fields_data.values())
+                        continue
+                input(str(fields_data.values()) + '\t - это пишется')
+
+                # Запись полей в файл
                 self.writer.write(fields_data)
                 # TODO протестить запись в файл
                 # TODO протестить создание комманд файла
