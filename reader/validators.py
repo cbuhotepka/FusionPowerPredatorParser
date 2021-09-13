@@ -9,5 +9,5 @@ def validate_http_https(line):
 
 
 def validate_repeat_one_character_all_line(line):
-    re_exp = r'^\s*(.)'
+    re_exp = r'^\s*(.)(\1)+\s*$'
     return '' if re.search(re_exp, line) else line
