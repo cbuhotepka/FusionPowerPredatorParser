@@ -115,7 +115,7 @@ class Validator:
     def split_line_to_fields(self, line: str) -> list:
         _fields = []
         pattern_fields = re.compile(f'^' +
-                             f'(?:((?:\"[^\"]*?\")|(?:[^{self.delimiter}]*)){self.delimiter})' * (self.num_columns - 1) +
+                             f'(?:((?:\"[^\"]*?\")|(?:[^{self.delimiter}]*)){self.delimiter})' * self.num_columns +
                              f'((?:\"[^\"]*?\")|(?:[^{self.delimiter}]*))')
         match_fields = re.match(pattern_fields, line)
         if match_fields:
@@ -161,27 +161,22 @@ class Validator:
     def handler_fields(self, fields) -> list:
         _result_fields = []
         for generete_fields in self.generator.get_generate_fields(fields):
-            output_data = OrderedDict()
+            output_data = OrderedDict({'algorithm': None})
             for cols_name, value in generete_fields.items():
                 if cols_name in self.handlers_dict.keys():
                     output_data.update(self.handlers_dict[cols_name](value))
                 else:
                     output_data.update({cols_name: value})
+            self.output_data = output_data
             yield output_data
 
     def get_fields(self, line: str) -> dict:
-        """
-        Return dict{field_name: field_value}
-        """
-        return self.run(line)
-
-
-    def run(self, line):
         new_line = self._delete_blank_of_line(line)
         fields = self.split_line_to_fields(new_line)
-        self.handler_fields(fields)
-        return self.output_data
-
+        if not fields:
+            return []
+        for output_data in self.handler_fields(fields):
+            yield output_data
 
 
 class FieldsGenerator:
