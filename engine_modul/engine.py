@@ -8,7 +8,7 @@ from rich.prompt import Prompt
 from engine_modul.file_handler import FileHandler
 from engine_modul.interface import UserInterface
 from engine_modul.store import PATTERN_TEL_PASS, PATTERN_USERMAIL_USERNAME_PASS
-from folder_parser.folder_parser import FolderParser
+from folder_parser.folder_parser import FolderParser, Status
 from reader.reader import Reader
 from validator.validator import Validator
 from writer.writer import Writer
@@ -153,7 +153,7 @@ class Engine:
         self.type_base = self.interface.ask_type_base()
         self.handler_folders = FolderParser(self.type_base)
         for dir in self.handler_folders.iterate():
-            if dir.status.value == 'for parsing':
+            if dir.status == Status.PARSE:
                 self.interface.print_dirs_status(str(dir.path), dir.status)
                 self.all_files_status.clear()
                 writer_data = {
@@ -169,7 +169,8 @@ class Engine:
                     mode = self.parsing_file(read_file)
                     if mode in ['p', 't', 'e']:
                         break
-                if self.all_files_status == {'trash'}:
+                # Если все файлы пропущены, то в треш
+                if self.all_files_status == {'trash'} and self.handler_folders.current_folder.status != Status.SKIP:
                     try:
                         self.handler_folders.skip_folder(move_to='Trash')
                     except Exception as ex:
@@ -179,7 +180,7 @@ class Engine:
                             raise ex
                         break
                 self.writer.finish()
-                if ('error' not in self.all_files_status) and ('trash' not in self.all_files_status):
+                if self.handler_folders.current_folder.status == Status.PARSE:
                     dir.write_commands(self.writer.commands)
                     self.handler_folders.done_folder()
             else:
