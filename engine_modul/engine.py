@@ -116,7 +116,6 @@ class Engine:
         self.file_handler.num_columns = self.interface.ask_num_cols(self.file_handler.num_columns)
         self.file_handler.column_names = self.interface.ask_cols_keys(self.file_handler.column_names)
         self.file_handler.skip = self.interface.ask_skip_lines(self.file_handler.skip)
-        self.file_handler.get_keys()
 
     def parsing_file(self, read_file):
         self.file_handler = FileHandler(read_file, read_file.file_path)
@@ -125,6 +124,7 @@ class Engine:
             mode = self.manual_parsing_menu()
             if mode in ['l', 'p', 't', 'e']:
                 return mode
+        self.file_handler.get_keys()
         self.writer.start_new_file(self.file_handler.file_path, self.file_handler.delimiter)
         with console.status('[bold blue]Подсчет строк...', spinner='point', spinner_style="bold blue") as status:
             count_rows_in_file = self.file_handler.get_count_rows()

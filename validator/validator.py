@@ -57,7 +57,7 @@ class Validator:
         @return: {имя_столбца: значение}
         """
         result = {}
-        _value = value
+        _value = value.strip(' \t')
         algorithm = self._get_hash_type(_value) or ''
         if not algorithm:
             name = 'userpass_plain'
