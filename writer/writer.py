@@ -123,7 +123,7 @@ class Writer:
         """ Записывает информацию из словаря в соответствующий rewrite файл """
         # Проверка текущего файла и делимитра
         algorithm = data.get('algorithm')
-        if not all(self.current_file or self.current_delimiter):
+        if not self.current_file or not self.current_delimiter:
             raise ChildProcessError("You have to start_new_file before calling write method")
 
         # Создание уникального ключа исходя из колонок и алгоритма
