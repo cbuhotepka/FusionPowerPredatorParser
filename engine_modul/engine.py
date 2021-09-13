@@ -170,5 +170,7 @@ class Engine:
                             raise ex
 
                 self.writer.finish()
+                dir.write_commands(self.writer.commands)
+                self.handler_folders.done_folder()
             else:
                 self.interface.print_dirs_status(str(dir.path), dir.status)

@@ -1,15 +1,13 @@
+import datetime
+import enum
+import json
 import os
 import re
-from pathlib import Path
-import datetime
-import time
-import enum
-
-from .store import ERROR_EXTENSIONS
-from folder_parser import utils
-from rich.prompt import Prompt, IntPrompt
 import shutil
+import time
+from pathlib import Path
 
+from folder_parser import utils
 
 USER = os.environ.get('USER_NAME', 'er')
 PASSWORD = os.environ.get('USER_PASSWORD', 'qwerty123')
@@ -26,7 +24,7 @@ class Status(enum.Enum):
     ERROR = 'error folder'
 
 
-class Direcotry:
+class Directory:
 
     def __init__(self, path, base_type, status=Status.PARSE):
         if base_type not in BASE_TYPES:
@@ -57,9 +55,7 @@ class Direcotry:
         """ Принимает команды в виде словаря {rewrite_file: command} """
         if not self.command_file:
             raise AttributeError("У папки нет command-файла. Проверьте статус папки (PARSE)")
-        for f_name, command in commands.items():
-            self.command_file.write(f"{f_name}\n")
-            self.command_file.write(f"{command}\n\n")
+        json.dump(commands, self.command_file)
 
     def close(self):
         if self.command_file:
@@ -112,7 +108,6 @@ class Direcotry:
         _base_rm = os.path.join(*Path(base_source).parts[:4])
         if os.path.exists(_base_rm) and not os.listdir(_base_rm):
             shutil.rmtree(_base_rm)
-
 
     def _get_all_files(self):
         """ Возвращает все файлы кроме readme, _command_ и т.п. """
@@ -190,9 +185,9 @@ class FolderParser:
         self.base_type = base_type
         self.path = os.path.join(f"{PARSING_DISK}:\\", 'Source', self.base_type)
         self.current_folder = None
-        
-        self.get_complete_dirs()    # устанавливает: complete_dirs_name, complete_dirs, complete_dirs_file
-        self.get_passed_dirs()      # устанавливает: passed_dirs_name, passed_dirs, passed_dirs_file
+
+        self.get_complete_dirs()  # устанавливает: complete_dirs_name, complete_dirs, complete_dirs_file
+        self.get_passed_dirs()  # устанавливает: passed_dirs_name, passed_dirs, passed_dirs_file
 
     def get_complete_dirs(self):
         """ Читаем из файла все завершённые папки, открываем _dirs_complete_.txt для записи """
@@ -235,15 +230,15 @@ class FolderParser:
                     if combo_dir.is_dir():
                         self._all_folder_paths.append(combo_dir)
             return self._all_folder_paths
-    
+
     def iterate(self):
         for folder in self.all_folder_paths:
             if str(folder.absolute()) in self.complete_dirs:
-                self.current_folder = Direcotry(folder, self.base_type, status=Status.DONE)
+                self.current_folder = Directory(folder, self.base_type, status=Status.DONE)
             elif str(folder.absolute()) in self.passed_dirs:
-                self.current_folder = Direcotry(folder, self.base_type, status=Status.SKIP)
+                self.current_folder = Directory(folder, self.base_type, status=Status.SKIP)
             else:
-                self.current_folder = Direcotry(folder, self.base_type)
+                self.current_folder = Directory(folder, self.base_type)
 
             yield self.current_folder
 
@@ -273,7 +268,7 @@ class FolderParser:
 
 
 if __name__ == '__main__':
-    print('\n'*20)
+    print('\n' * 20)
     folder_parser = FolderParser(base_type='db')
     # Читает или создаёт complete_dirs, passed_dirs
     print(folder_parser)
@@ -282,19 +277,19 @@ if __name__ == '__main__':
     print(folder_parser.passed_dirs)
 
     for i, dir in enumerate(folder_parser.iterate()):
-    # Смотрит все папки, устанавливает self.current_folder на текущую инициализирует и возвращает Directory()
-    # dir.name, dir.path, dir.base_type, dir.status
-    # если статус PARSE:
-    # создаёт и открывает self.command_file, инициализирует self.all_files (пути), self.base_info - {name: '', date: '', source: ''}
+        # Смотрит все папки, устанавливает self.current_folder на текущую инициализирует и возвращает Directory()
+        # dir.name, dir.path, dir.base_type, dir.status
+        # если статус PARSE:
+        # создаёт и открывает self.command_file, инициализирует self.all_files (пути), self.base_info - {name: '', date: '', source: ''}
         print()
-        print('___'*30, '\nNEW DIRECTORY')
+        print('___' * 30, '\nNEW DIRECTORY')
         print('CURRENT FOLDER:', folder_parser.current_folder)
         print('BASE INFO:', dir.base_info)
         print('FILES COUNT:', dir.files_count)
 
         if dir.status == Status.PARSE:
             for file in dir.iterate():
-            # возвращает путь до файла
+                # возвращает путь до файла
                 print('  >', file)
 
             dir.write_commands({'rewrite_file_path': 'command 1', f'file {i}': f'command {i}'})
