@@ -33,14 +33,14 @@ class Engine:
 
     def autoparse(self, file):
         if self.auto_parse and self.file_handler.delimiter and (
-        self.file_handler.is_simple_file(PATTERN_TEL_PASS, file)):
+                self.file_handler.is_simple_file(PATTERN_TEL_PASS, file)):
             self.file_handler.get_keys('1=tel, 2=password')
             self.all_files_status.add('pass')
             self.file_handler.num_columns = 1
             console.print('[cyan]' + 'Автопарсинг tel password')
             return True
         elif self.auto_parse and self.file_handler.delimiter and (
-        self.file_handler.is_simple_file(PATTERN_USERMAIL_USERNAME_PASS, file)):
+                self.file_handler.is_simple_file(PATTERN_USERMAIL_USERNAME_PASS, file)):
             self.file_handler.get_keys(f'1=user_mail_name, 2=password')
             self.all_files_status.add('pass')
             self.file_handler.num_columns = 1
@@ -149,7 +149,6 @@ class Engine:
                 # TODO протестить запись в файл
                 # TODO протестить создание комманд файла
 
-
     def start(self):
         self.type_base = self.interface.ask_type_base()
         self.handler_folders = FolderParser(self.type_base)
@@ -178,9 +177,10 @@ class Engine:
                         answer = Prompt.ask(f"[green]Если все ОК нажмите Enter", choices=['y', 'n'], default='y')
                         if answer != 'y':
                             raise ex
-
+                        break
                 self.writer.finish()
-                dir.write_commands(self.writer.commands)
-                self.handler_folders.done_folder()
+                if ('error' not in self.all_files_status) and ('trash' not in self.all_files_status):
+                    dir.write_commands(self.writer.commands)
+                    self.handler_folders.done_folder()
             else:
                 self.interface.print_dirs_status(str(dir.path), dir.status)
