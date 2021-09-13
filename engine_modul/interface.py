@@ -1,8 +1,22 @@
+from rich.highlighter import RegexHighlighter
 from rich.prompt import Prompt, IntPrompt, Confirm
 from rich.console import Console
 import os
 
+from rich.theme import Theme
+
+
+class DelimiterHighlighter(RegexHighlighter):
+    base_style = "text."
+    highlights = [r"(?P<all>.)", r"(?P<delimiter>[,:;|])",
+    r"(?P<email>[a-zA-Z0-9_]+([a-zA-Z0-9_.-]+)?[a-zA-Z0-9_]+\@[a-zA-Z0-9]([a-zA-Z0-9._-]+)?\.[a-zA-Z]+)"]
+
+
+theme = Theme({"text.delimiter": "bold red",
+                "text.email": "bold cyan",
+                "text.all": "yellow"})
 console = Console()
+console_for_show = Console(highlighter=DelimiterHighlighter(), theme=theme)
 
 
 class UserInterface:
@@ -14,7 +28,7 @@ class UserInterface:
     def ask_delimiter(self):
         _delimiter = Prompt.ask('[magenta]Разделитель', choices=[':', ',', ';', r'\t', '|'])
         _delimiter = '\t' if _delimiter == '\\t' else _delimiter
-        console.print(f'[magenta]Разделитель[/magenta]: [red]Отсутствует![/red]')
+        console.print(f'[magenta]Разделитель[/magenta]: "[red]{_delimiter}[/red]"')
         return _delimiter
 
     def ask_num_cols(self, num_columns):
@@ -77,7 +91,7 @@ class UserInterface:
         for i, line in enumerate(file):
             line_to_show = line[:1000] if len(line) > 3000 else line
             try:
-                console.print(line_to_show, end='', )
+                console_for_show.print(line_to_show)
                 if i > 15:
                     break
             except:

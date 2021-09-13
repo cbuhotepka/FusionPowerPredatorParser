@@ -113,7 +113,7 @@ class Engine:
             mode = self.interface.ask_mode_handle()
         self.file_handler.get_column_names(self.full_auto)
         self.interface.show_num_columns(self.file_handler.num_columns + 1)
-        self.interface.ask_num_cols(self.file_handler.num_columns)
+        self.file_handler.num_columns = self.interface.ask_num_cols(self.file_handler.num_columns)
         self.file_handler.column_names = self.interface.ask_cols_keys(self.file_handler.column_names)
         self.file_handler.skip = self.interface.ask_skip_lines(self.file_handler.skip)
         self.file_handler.get_keys()

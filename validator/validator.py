@@ -1,6 +1,8 @@
 import re
-from validator.hash_identifer import identify_hashes
 from collections import OrderedDict
+
+from validator.hash_identifer import identify_hashes
+
 
 class Validator:
 
@@ -12,13 +14,13 @@ class Validator:
         self.columns_name_index = self.handler_keys()
         self.generator = FieldsGenerator(self.columns_name_index)
         self.handlers_dict = {
-                                'user_mail_name': self._umn_handler,
-                                'usermail': self._um_handler,
-                                'username': self._un_handler,
-                                'password': self._p_handler,
-                                'hash': self._h_handler,
-                                'tel': self._t_handler,
-                            }
+            'user_mail_name': self._umn_handler,
+            'usermail': self._um_handler,
+            'username': self._un_handler,
+            'password': self._p_handler,
+            'hash': self._h_handler,
+            'tel': self._t_handler,
+        }
 
     def handler_keys(self):
         """
@@ -115,8 +117,8 @@ class Validator:
     def split_line_to_fields(self, line: str) -> list:
         _fields = []
         pattern_fields = re.compile(f'^' +
-                             f'(?:((?:\"[^\"]*?\")|(?:[^{self.delimiter}]*)){self.delimiter})' * self.num_columns +
-                             f'((?:\"[^\"]*?\")|(?:[^{self.delimiter}]*))')
+                                    f'(?:((?:\"[^\"]*?\")|(?:[^{self.delimiter}]*)){self.delimiter})' * (self.num_columns - 1) +
+                                    f'((?:\"[^\"]*?\")|(?:[^{self.delimiter}]*))')
         match_fields = re.match(pattern_fields, line)
         if match_fields:
             _fields = list(match_fields.groups())
@@ -240,9 +242,5 @@ class FieldsGenerator:
             output_data = {}
             count_result += 1
             for cols_name, indexes in self.columns_name_index.items():
-
                 output_data[cols_name] = next(self.handlers[cols_name])
             yield output_data
-
-
-

@@ -1,5 +1,6 @@
 import os
-from writer.store import COLS_SHORT, COLS_LONG
+
+from writer.store import COLS_LONG
 
 USER = os.environ.get('USER_NAME', 'er')
 PASSWORD = os.environ.get('USER_PASSWORD', 'qwerty123')
@@ -38,7 +39,8 @@ class WriterFile:
         try:
             return self._name
         except AttributeError:
-            self._name = self.initial_name.split('.')[0] + '_' + '_'.join(COLS_LONG[a] for a in self.cols if a != 'algorithm')
+            self._name = self.initial_name.split('.')[0] + '_' + '_'.join(
+                COLS_LONG[a] for a in self.cols if a != 'algorithm')
             if self.algorithm:
                 self._name += '_' + self.algorithm
             self._name += '.rewrite'
@@ -58,25 +60,26 @@ class WriterFile:
             return self._command
         except AttributeError:
             self._command = f"python3 {FIXPY}" \
-                f" --date {self.base_info['date']}" \
-                f" --delimiter" \
-                f" '{self.delimiter}'" \
-                f" --name '{self.base_info['name']}'" \
-                f" --source '{self.base_info['source']}'" \
-                f" --type {'database' if self.base_info['type'] == 'db' else 'combo'}" \
-                f" --user {USER}" \
-                f" --password {PASSWORD}" \
-                f" --database db_{USER}" \
-                f" --src '../files/{self.name}'" \
-                f" --colsname '{','.join(self.cols)}'" \
-                f" --quotes"
+                            f" --date {self.base_info['date']}" \
+                            f" --delimiter" \
+                            f" '{self.delimiter}'" \
+                            f" --name '{self.base_info['name']}'" \
+                            f" --source '{self.base_info['source']}'" \
+                            f" --type {'database' if self.base_info['type'] == 'db' else 'combo'}" \
+                            f" --user {USER}" \
+                            f" --password {PASSWORD}" \
+                            f" --database db_{USER}" \
+                            f" --src '../files/{self.name}'" \
+                            f" --colsname '{','.join(self.cols)}'" \
+                            f" --quotes"
             if self.algorithm:
                 self._command += f" --algorithm '{self.algorithm}'"
             return self._command
 
     def write(self, data):
         if set(self.cols) != set(data.keys()):
-            raise ValueError(f"Not matching columns in data provided!\nFile cols: {self.cols}\nData keys: {data.keys()}")
+            raise ValueError(
+                f"Not matching columns in data provided!\nFile cols: {self.cols}\nData keys: {data.keys()}")
         self.file.write(self.delimiter.join([data[col] for col in self.cols]) + '\n')
 
 
@@ -89,22 +92,23 @@ class Writer:
         self.base_source = base_source.replace("'", '')
         self.base_date = base_date
 
-        self.current_file = None        # Путь + имя текущего файла
+        self.current_file = None  # Путь + имя текущего файла
         self.current_delimiter = ';'
         self.rewrite_files = {}
         self.written_files = []
-        self.commands = {}      # Словарь {путь_файла: комманда}
+        self.commands = {}  # Словарь {путь_файла: комманда}
 
     def __del__(self):
         for file in self.rewrite_files:
-            del(file)
+            del (file)
 
     @property
     def base_info(self):
         try:
             return self._base_info
         except AttributeError:
-            self._base_info = {'name': self.base_name, 'date': self.base_date, 'source': self.base_source, 'type': self.base_type}
+            self._base_info = {'name': self.base_name, 'date': self.base_date, 'source': self.base_source,
+                               'type': self.base_type}
             return self._base_info
 
     def finish(self):
@@ -125,24 +129,24 @@ class Writer:
         """ Записывает информацию из словаря в соответствующий rewrite файл """
         # Проверка текущего файла и делимитра
         algorithm = data.get('algorithm')
-        if algorithm:
+        if 'algorithm' in data:
             del data['algorithm']
         if not self.current_file or not self.current_delimiter:
             raise ChildProcessError("You have to start_new_file before calling write method")
 
         # Создание уникального ключа исходя из колонок и алгоритма
         file_id = list(data.keys())
-        file_id = tuple(set(file_id + [algorithm,])) if algorithm else tuple(set(file_id))
+        file_id = tuple(set(file_id + [algorithm, ])) if algorithm else tuple(set(file_id))
 
         # Если нет файла rewirte с нужными колонками - создаём WriteFile
         if file_id not in self.rewrite_files.keys():
             self.rewrite_files[file_id] = WriterFile(
-                initial_name = os.path.basename(self.current_file), 
-                path = os.path.dirname(self.current_file), 
-                cols = [k for k in data.keys() if k != 'algorithm'],
-                delimiter = self.current_delimiter,
-                algorithm = algorithm,
-                base_info = self.base_info
+                initial_name=os.path.basename(self.current_file),
+                path=os.path.dirname(self.current_file),
+                cols=[k for k in data.keys() if k != 'algorithm'],
+                delimiter=self.current_delimiter,
+                algorithm=algorithm,
+                base_info=self.base_info
             )
         # Записываем data в нужный файл
         self.rewrite_files[file_id].write(data)

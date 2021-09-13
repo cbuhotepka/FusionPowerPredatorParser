@@ -30,8 +30,8 @@ POSSIBLE_EXCHANGES = {
     'un': ['nick', 'nickname', 'ник', 'username'],
     'um': ['usermail', 'email', 'e-mail', 'useremail', 'emailaddress', 'майл', 'е-мейл', 'е-мэйл', 'e-mailaddress'],
     't': ['tel', 'phone', 'mobile', 'mobilenumber', 'mobilephone', 'telephone', 'phonenumber', 'телефон', 'telefono', 'тел'],
-    'ufn': ['userfname', 'fname', 'firstname', 'имя', 'firstname', 'fullname', 'фамилияиимя', 'имяифамилия', 'фио',
-            'фио', 'pib'],
+    'ufn': ['userfname', 'fname', 'firstname', 'имя', 'fullname', 'фамилияиимя', 'имяифамилия', 'фио',
+            'фио', 'pib', 'name'],
     'uln': ['lname', 'userlname', 'lastname', 'фамилия', 'фам', 'familia', 'lastname', 'surname'],
 
     'password': ['password', 'passwd'],
