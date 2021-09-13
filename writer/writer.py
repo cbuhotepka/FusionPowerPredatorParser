@@ -90,7 +90,7 @@ class Writer:
         self.base_date = base_date
 
         self.current_file = None        # Путь + имя текущего файла
-        self.current_delimiter = None
+        self.current_delimiter = ';'
         self.rewrite_files = {}
         self.written_files = []
         self.commands = {}      # Словарь {путь_файла: комманда}

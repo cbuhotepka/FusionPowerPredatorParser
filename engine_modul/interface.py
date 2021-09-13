@@ -18,7 +18,7 @@ class UserInterface:
         return _delimiter
 
     def ask_num_cols(self, num_columns):
-        input_num_columns = IntPrompt.ask('Количество столбцов', default=num_columns)
+        input_num_columns = IntPrompt.ask('Количество столбцов', default=num_columns + 1)
         return input_num_columns
 
     def ask_skip_lines(self, skip):
@@ -54,7 +54,7 @@ class UserInterface:
             console.print(f'[magenta]Разделитель[/magenta]: [red]Отсутствует![/red]')
 
     def show_num_columns(self, num_columns):
-        console.print(f'[magenta]Количество столбцов[/magenta]: "[green]{num_columns + 1}[/green]"')
+        console.print(f'[magenta]Количество столбцов[/magenta]: "[green]{num_columns}[/green]"')
 
     def show_file(self, file):
         """Print 15 line from parsing file

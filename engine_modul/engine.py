@@ -58,7 +58,7 @@ class Engine:
         self.interface.show_file(self.file_handler.file)
         self.file_handler.handle_file()
         self.interface.show_delimiter(self.file_handler.delimiter)
-        self.interface.show_num_columns(self.file_handler.num_columns)
+        self.interface.show_num_columns(self.file_handler.num_columns + 1)
 
     def manual_parsing_menu(self):
         """
@@ -117,7 +117,6 @@ class Engine:
         self.file_handler.column_names = self.interface.ask_cols_keys(self.file_handler.column_names)
         self.file_handler.skip = self.interface.ask_skip_lines(self.file_handler.skip)
         self.file_handler.get_keys()
-        # TODO Протестировать пункты меню: Последовательность, достаточность, ошибки при вводе
 
     def parsing_file(self, read_file):
         self.file_handler = FileHandler(read_file, read_file.file_path)
@@ -126,7 +125,7 @@ class Engine:
             mode = self.manual_parsing_menu()
             if mode in ['p', 'l']:
                 return
-
+        self.writer.start_new_file(self.file_handler.file_path, self.file_handler.delimiter)
         with console.status('[bold blue]Подсчет строк...', spinner='point', spinner_style="bold blue") as status:
             count_rows_in_file = self.file_handler.get_count_rows()
             console.print(f'[yellow]Строк в файле: {count_rows_in_file}')
@@ -135,23 +134,26 @@ class Engine:
         for line in track(read_file, description='[bold blue]Парсинг файла...', total=count_rows_in_file):
 
             for fields_data in validator.get_fields(line):
+
                 self.writer.write(fields_data)
                 # TODO протестить запись в файл
                 # TODO протестить создание комманд файла
+
 
     def start(self):
         self.type_base = self.interface.ask_type_base()
         self.handler_folders = FolderParser(self.type_base)
         for dir in self.handler_folders.iterate():
             self.all_files_status.clear()
-
+            writer_data = {
+                'base_type': dir.base_type,
+                'base_name': dir.base_info['name'],
+                'base_source': dir.base_info['source'],
+                'base_date': dir.base_info['date']
+            }
+            self.writer = Writer(**writer_data)
             for file in dir.iterate():
                 read_file = Reader(file)
-                writer_data = {
-                    'base_type': dir.base_type,
-                    'base_name': dir.base_info['name'],
-                    'base_source': dir.base_info['source'],
-                    'base_date': dir.base_info['date']
-                }
-                self.writer = Writer(**writer_data)
+
                 self.parsing_file(read_file)
+            self.writer.finish()

@@ -120,11 +120,10 @@ class FileHandler:
         lines = [line for i, line in enumerate(self.file) if i < 25]
         n = 0 if len(lines) < 10 else 5
         for i, line in enumerate(lines):
-            if i > n and (line != '' or line != '\n'):
+            if i >= n and (line != '' or line != '\n'):
                 line = re.sub(r'(\"[^\"]*?\")', '', line)
                 _sum_delimiter += len(re.findall(pat, line))
                 _counter[_sum_delimiter] += 1
-                _sum_lines += 1
             _sum_delimiter = 0
 
         _result = max(dict(_counter).items(), key=lambda item: item[1])[0]
