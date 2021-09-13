@@ -125,6 +125,8 @@ class Writer:
         """ Записывает информацию из словаря в соответствующий rewrite файл """
         # Проверка текущего файла и делимитра
         algorithm = data.get('algorithm')
+        if algorithm:
+            del data['algorithm']
         if not self.current_file or not self.current_delimiter:
             raise ChildProcessError("You have to start_new_file before calling write method")
 
@@ -137,7 +139,7 @@ class Writer:
             self.rewrite_files[file_id] = WriterFile(
                 initial_name = os.path.basename(self.current_file), 
                 path = os.path.dirname(self.current_file), 
-                cols = [k for k in data.keys() if k !='algorithm'],
+                cols = [k for k in data.keys() if k != 'algorithm'],
                 delimiter = self.current_delimiter,
                 algorithm = algorithm,
                 base_info = self.base_info
