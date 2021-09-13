@@ -160,7 +160,8 @@ class FileHandler:
             if column_names_line and not auto:
                 self.column_names = normalize_col_names(string=column_names_line, delimiter=self.delimiter)
                 _answer = self.interface.ask_column_names(self.column_names)
-                if _answer == 'y':
+                if _answer:
                     self.skip = 1
-                    return self.column_names
-            return ''
+                else:
+                    self.column_names = ''
+            return self.column_names

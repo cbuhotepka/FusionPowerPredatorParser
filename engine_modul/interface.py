@@ -1,4 +1,4 @@
-from rich.prompt import Prompt, IntPrompt
+from rich.prompt import Prompt, IntPrompt, Confirm
 from rich.console import Console
 import os
 
@@ -18,7 +18,7 @@ class UserInterface:
         return _delimiter
 
     def ask_num_cols(self, num_columns):
-        input_num_columns = IntPrompt.ask('Количество столбцов', default=num_columns + 1) - 1
+        input_num_columns = IntPrompt.ask('Количество столбцов', default=num_columns)
         return input_num_columns
 
     def ask_skip_lines(self, skip):
@@ -28,14 +28,17 @@ class UserInterface:
     def ask_cols_keys(self, find_keys):
         if find_keys:
             _keys = Prompt.ask(f'[cyan]Колонки {find_keys}')
-            keys = f'{find_keys},{_keys}'
+            if not _keys:
+                keys = find_keys
+            else:
+                keys = f'{find_keys},{_keys}'
         else:
             keys = Prompt.ask(f'[cyan]Колонки ')
         return keys
 
     def ask_column_names(self, column_names):
         console.print(f'[magenta]Определены столбцы[/magenta]: "[green]{column_names}[/green]"')
-        _answer = Prompt.ask('[magenta]Все правильно?', choices=['y', 'n'], default='y')
+        _answer = Confirm.ask('[magenta]Все правильно?', default=True)
         return _answer
 
     def ask_mode_handle(self):
