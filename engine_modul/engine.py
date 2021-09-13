@@ -110,8 +110,8 @@ class Engine:
             elif mode == 'start':
                 self.all_files_status.add('parse')
                 break
-            else:
-                mode = self.interface.ask_mode_handle()
+
+            mode = self.interface.ask_mode_handle()
         self.interface.show_num_columns(self.file_handler.num_columns + 1)
         self.interface.ask_num_cols(self.file_handler.num_columns)
         self.file_handler.skip = self.interface.ask_skip_lines(self.file_handler.skip)
