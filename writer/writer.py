@@ -18,7 +18,7 @@ class WriterFile:
                 raise ValueError(f"No {info} in base_info provided")
         self.initial_name = initial_name
         self.path = path
-        self.cols = list(cols)
+        self.cols = [c for c in cols if c != 'algorithm']
         self.delimiter = delimiter
         self.algorithm = algorithm
         self.base_info = base_info
@@ -26,17 +26,19 @@ class WriterFile:
         self.file = open(self.full_path, 'w', encoding='utf-8', errors='replace')
 
     def __del__(self):
-        self.file.close()
+        if hasattr(self, 'file') and self.file:
+            self.file.close()
 
     def close(self):
-        self.file.close()
+        if hasattr(self, 'file') and self.file:
+            self.file.close()
 
     @property
     def name(self):
         try:
             return self._name
         except AttributeError:
-            self._name = self.initial_name.split('.')[0] + '_' + '_'.join(COLS_LONG[a] for a in self.cols)
+            self._name = self.initial_name.split('.')[0] + '_' + '_'.join(COLS_LONG[a] for a in self.cols if a != 'algorithm')
             if self.algorithm:
                 self._name += '_' + self.algorithm
             self._name += '.rewrite'
@@ -135,7 +137,7 @@ class Writer:
             self.rewrite_files[file_id] = WriterFile(
                 initial_name = os.path.basename(self.current_file), 
                 path = os.path.dirname(self.current_file), 
-                cols = data.keys(), 
+                cols = [k for k in data.keys() if k !='algorithm'],
                 delimiter = self.current_delimiter,
                 algorithm = algorithm,
                 base_info = self.base_info
