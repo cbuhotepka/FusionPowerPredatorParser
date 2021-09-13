@@ -144,16 +144,20 @@ class Engine:
         self.type_base = self.interface.ask_type_base()
         self.handler_folders = FolderParser(self.type_base)
         for dir in self.handler_folders.iterate():
-            self.all_files_status.clear()
-            writer_data = {
-                'base_type': dir.base_type,
-                'base_name': dir.base_info['name'],
-                'base_source': dir.base_info['source'],
-                'base_date': dir.base_info['date']
-            }
-            self.writer = Writer(**writer_data)
-            for file in dir.iterate():
-                read_file = Reader(file)
+            if dir.status.value == 'for parsing':
+                self.interface.print_dirs_status(str(dir.path), dir.status)
+                self.all_files_status.clear()
+                writer_data = {
+                    'base_type': dir.base_type,
+                    'base_name': dir.base_info['name'],
+                    'base_source': dir.base_info['source'],
+                    'base_date': dir.base_info['date']
+                }
+                self.writer = Writer(**writer_data)
+                for file in dir.iterate():
+                    read_file = Reader(file)
 
-                self.parsing_file(read_file)
-            self.writer.finish()
+                    self.parsing_file(read_file)
+                self.writer.finish()
+            else:
+                self.interface.print_dirs_status(str(dir.path), dir.status)

@@ -56,6 +56,16 @@ class UserInterface:
     def show_num_columns(self, num_columns):
         console.print(f'[magenta]Количество столбцов[/magenta]: "[green]{num_columns}[/green]"')
 
+    def print_dirs_status(self, path, status):
+        if status.value == 'for parsing':
+            console.print(f'[blue]{path}[/blue]')
+        elif status.value == 'done':
+            console.print(f'[green]{path}[/green]')
+        elif status.value == 'skipped':
+            console.print(f'[yellow]{path}[/yellow]')
+        elif status.value == 'error folder':
+            console.print(f'[red]{path}[/red]')
+
     def show_file(self, file):
         """Print 15 line from parsing file
             Args:
