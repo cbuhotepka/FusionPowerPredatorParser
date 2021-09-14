@@ -9,7 +9,7 @@ from .validators import validate_http_https, validate_repeat_one_character_all_l
 MIDDLEWARE = [
     filter_end_symbol,
     validate_http_https,
-    # validate_repeat_one_character_all_line
+    validate_repeat_one_character_all_line
 
 ]
 
@@ -122,4 +122,7 @@ class Reader:
         return _result_line
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+
+    def close(self):
         self._file.close()

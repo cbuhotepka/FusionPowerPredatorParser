@@ -91,7 +91,7 @@ class Engine:
                 print(dir)
                 self.all_files_status.add('error')
                 try:
-                    self.read_file._file.close()
+                    self.read_file.close()
                     self.handler_folders.skip_folder(move_to='Error')
                     return mode
                 except Exception as ex:
@@ -102,7 +102,7 @@ class Engine:
                         return mode
             elif mode == 't':
                 try:
-                    self.read_file._file.close()
+                    self.read_file.close()
                     self.all_files_status.add('trash')
                     self.handler_folders.skip_folder(move_to='Trash')
                 except Exception as ex:
