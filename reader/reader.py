@@ -25,11 +25,13 @@ class Reader:
         self._check_path()
         _encoding = encoding or self._encoding
         self._file = self._path.open(encoding=_encoding)
+        self._fix_nulls_file_generator = self._fix_nulls(self._file)
         self._skip_rows(skip)
 
     def open(self, encoding=None, skip=0):
         _encoding = encoding or self._encoding
         self._file = self._path.open(encoding=_encoding)
+        self._fix_nulls_file_generator = self._fix_nulls(self._file)
         self._skip_rows(skip)
         return self
 
@@ -42,8 +44,7 @@ class Reader:
         return _res_line
 
     def _readline(self):
-        _line = self._fix_nulls(self._file, hit=1)
-        return next(_line)
+        return next(self._fix_nulls_file_generator)
 
     def _skip_rows(self, skip: int):
         for _ in range(skip):
@@ -52,33 +53,17 @@ class Reader:
 
     @staticmethod
     def _fix_nulls(f, hit=math.inf):
-        if f.mode == 'rb':
-            count = 0
-            while count <= hit:
-                try:
-                    s = f.readline()
-                    if not s:
-                        break
-                    line = s.replace(b'\0', b'').replace(b'\r', b'')
-                    line = line.decode('utf-8')
-                    # print(line)
-                except UnicodeDecodeError as e:
-                    # print(e)
-                    continue
-                count += 1
-                yield line
-        elif f.mode == 'r':
-            count = 0
-            while count <= hit:
-                try:
-                    s = f.readline()
-                except UnicodeDecodeError as e:
-                    continue
-                if not s:
-                    break
-                line = s.replace('\0', '')
-                count += 1
-                yield line
+        while hit > 0:
+            try:
+                s = f.readline()
+            except UnicodeDecodeError as e:
+                continue
+            if not s:
+                break
+            # line = s.replace('\0', '')
+            line = s
+            hit -= 1
+            yield line
         return None
 
     @property
