@@ -7,6 +7,7 @@ import shutil
 import time
 from pathlib import Path
 
+from folder_parser.store import ERROR_EXTENSIONS
 from folder_parser import utils
 
 USER = os.environ.get('USER_NAME', 'er')
@@ -35,6 +36,8 @@ class Directory:
         self.status = status
 
         self.base_info = None
+        self.files_extensions = {}
+        self.error_files_count = 0
         self.all_files = self._get_all_files()
         self.files_count = len(self.all_files)
 
@@ -49,7 +52,9 @@ class Directory:
 
     def iterate(self):
         for file in self.all_files:
-            yield file
+            _, extension = os.path.splitext(file)
+            if not extension.lower() in ERROR_EXTENSIONS:
+                yield file
 
     def write_commands(self, commands: dict):
         """ Принимает команды в виде словаря {rewrite_file: command} """
@@ -114,8 +119,15 @@ class Directory:
         """ Возвращает все файлы кроме readme, _command_ и т.п. """
         all_files: list[Path] = []
         for root, dirs, files in os.walk(self.path):
-            files = list(filter(lambda x: not utils.is_escape_file(x), files))
-            all_files += [Path(os.path.join(root, f)) for f in files]
+            for f in files:
+                if not utils.is_escape_file(f):
+                    file = Path(os.path.join(root, f))
+                    all_files.append(file)
+                    _, extension = os.path.splitext(file)
+                    extension = extension.lower()
+                    self.files_extensions[extension] = self.files_extensions.get(extension, 0) + 1
+                    if extension in ERROR_EXTENSIONS:
+                        self.error_files_count += 1
         return all_files
 
     def _get_base_info(self):
@@ -287,6 +299,8 @@ if __name__ == '__main__':
         print('CURRENT FOLDER:', folder_parser.current_folder)
         print('BASE INFO:', dir.base_info)
         print('FILES COUNT:', dir.files_count)
+        print('EXTENSIONS:', dir.files_extensions)
+        print('ERROR/ALL FILES:', f'{dir.error_files_count}/{dir.files_count}')
 
         if dir.status == Status.PARSE:
             for file in dir.iterate():
