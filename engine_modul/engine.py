@@ -88,7 +88,6 @@ class Engine:
                 self.file_handler.get_num_columns()
             elif mode == 'e':
                 # Перенести папку в ERROR
-                print(dir)
                 self.all_files_status.add('error')
                 try:
                     self.read_file.close()
@@ -105,6 +104,7 @@ class Engine:
                     self.read_file.close()
                     self.all_files_status.add('trash')
                     self.handler_folders.skip_folder(move_to='Trash')
+                    return mode
                 except Exception as ex:
                     console.print(f'[magenta]Не могу переместить[/magenta]: "[red]{ex}[/red]"')
                     answer = Prompt.ask(f"[green]Если все ОК нажмите Enter", choices=['y', 'n'], default='y')
