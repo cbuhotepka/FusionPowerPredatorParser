@@ -41,10 +41,10 @@ class FileHandler:
         self.file.open()
         for i, line in enumerate(self.file):
             list_line.append(line)
-            if i > 25:
+            if i > 35:
                 break
 
-        if len(list_line) > 20:
+        if len(list_line) > 25:
             list_line = list_line[5:]
         try:
             return csv.Sniffer().sniff(''.join(list_line), delimiters=',:;\t').delimiter

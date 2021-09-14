@@ -117,7 +117,7 @@ class Validator:
     def split_line_to_fields(self, line: str) -> list:
         _fields = []
         pattern_fields = re.compile(f'^' +
-                                    f'(?:((?:\"[^\"]*?\")|(?:[^{self.delimiter}]*)){self.delimiter})' * (self.num_columns - 1) +
+                                    f'(?:((?:\"[^\"]*?\")|(?:[^{self.delimiter}]*)){self.delimiter})' * (self.num_columns) +
                                     f'((?:\"[^\"]*?\")|(?:[^{self.delimiter}]*))')
         match_fields = re.match(pattern_fields, line)
         if match_fields:

@@ -30,6 +30,7 @@ class Engine:
         self.handler_folders = None
         self.all_files_status = set()
         self.interface = UserInterface()
+        self.read_file = None
 
     def autoparse(self, file):
         if self.auto_parse and self.file_handler.delimiter and (
@@ -84,11 +85,13 @@ class Engine:
                 self.rehandle_file_parameters()
             elif mode == 'd':
                 self.file_handler.delimiter = self.interface.ask_delimiter()
+                self.file_handler.get_num_columns()
             elif mode == 'e':
                 # Перенести папку в ERROR
                 print(dir)
                 self.all_files_status.add('error')
                 try:
+                    self.read_file._file.close()
                     self.handler_folders.skip_folder(move_to='Error')
                     return mode
                 except Exception as ex:
@@ -99,6 +102,7 @@ class Engine:
                         return mode
             elif mode == 't':
                 try:
+                    self.read_file._file.close()
                     self.all_files_status.add('trash')
                     self.handler_folders.skip_folder(move_to='Trash')
                 except Exception as ex:
@@ -117,10 +121,10 @@ class Engine:
         self.file_handler.column_names = self.interface.ask_cols_keys(self.file_handler.column_names)
         self.file_handler.skip = self.interface.ask_skip_lines(self.file_handler.skip)
 
-    def parsing_file(self, read_file):
-        self.file_handler = FileHandler(read_file, read_file.file_path)
+    def parsing_file(self):
+        self.file_handler = FileHandler(self.read_file, self.read_file.file_path)
         self.rehandle_file_parameters()
-        if not self.auto_parse or not self.autoparse(read_file):
+        if not self.auto_parse or not self.autoparse(self.read_file):
             mode = self.manual_parsing_menu()
             if mode in ['l', 'p', 't', 'e']:
                 return mode
@@ -130,8 +134,8 @@ class Engine:
             count_rows_in_file = self.file_handler.get_count_rows()
             console.print(f'[yellow]Строк в файле: {count_rows_in_file}')
         validator = Validator(self.file_handler.keys, self.file_handler.num_columns, self.file_handler.delimiter)
-        read_file.open(skip=self.file_handler.skip)
-        for line in track(read_file, description='[bold blue]Парсинг файла...', total=count_rows_in_file):
+        self.read_file.open(skip=self.file_handler.skip)
+        for line in track(self.read_file, description='[bold blue]Парсинг файла...', total=count_rows_in_file):
 
             for fields_data in validator.get_fields(line):
 
@@ -146,8 +150,6 @@ class Engine:
 
                 # Запись полей в файл
                 self.writer.write(fields_data)
-                # TODO протестить запись в файл
-                # TODO протестить создание комманд файла
 
     def start(self):
         self.type_base = self.interface.ask_type_base()
@@ -164,9 +166,9 @@ class Engine:
                 }
                 self.writer = Writer(**writer_data)
                 for file in dir.iterate():
-                    read_file = Reader(file)
+                    self.read_file = Reader(file)
 
-                    mode = self.parsing_file(read_file)
+                    mode = self.parsing_file()
                     if mode in ['p', 't', 'e']:
                         break
                 # Если все файлы пропущены, то в треш
