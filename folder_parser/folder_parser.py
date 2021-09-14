@@ -97,6 +97,7 @@ class Directory:
             base_dest = os.path.join(f'{SOURCE_DISK}:\\', destination.capitalize(), self.base_type, _database)
 
         os.makedirs(str(path_move), exist_ok=True)
+        os.makedirs(str(base_dest), exist_ok=True)
         if os.path.exists(os.path.join(path_move, base)):
             shutil.rmtree(os.path.join(path_move, base))
         # Перемещение
