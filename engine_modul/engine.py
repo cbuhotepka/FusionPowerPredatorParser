@@ -88,7 +88,6 @@ class Engine:
                 self.file_handler.get_num_columns()
             elif mode == 'e':
                 # Перенести папку в ERROR
-                print(dir)
                 self.all_files_status.add('error')
                 try:
                     self.read_file.close()
