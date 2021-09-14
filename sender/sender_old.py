@@ -160,7 +160,7 @@ def start():
 
         if os.path.exists(done_command_path) and _resend == 'n':
             done_command_file = open(done_command_path, 'r', encoding='utf-8')
-            done_command = get_cmds(done_command_file.readlines())
+            done_command = get_cmds(done_command_file)
         else:
             done_command = []
         done_command_file = open(done_command_path, 'a', encoding='utf-8')
