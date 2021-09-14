@@ -72,7 +72,7 @@ class WriterFile:
                             f" --src '../files/{self.name}'" \
                             f" --colsname '{','.join(self.cols)}'" \
                             f" --quotes"
-            if self.algorithm:
+            if self.algorithm and self.algorithm != 'unknown':
                 self._command += f" --algorithm '{self.algorithm}'"
             return self._command
 
