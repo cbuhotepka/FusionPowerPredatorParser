@@ -121,7 +121,7 @@ class Directory:
     def _get_base_info(self):
         source = ''
         date = ''
-        name = self._get_base_name_from_folder()
+        name = self._get_base_name_from_folder()  # Имя из названия папки
         _name, source, date = self._get_info_from_readme()
         name = _name if not name else name
         if not source:
@@ -163,9 +163,9 @@ class Directory:
             return None, None, None
         encoding = utils.get_encoding_file(path_to_readme)
         readme_string = open(os.path.join(self.path, 'readme.txt'), encoding=encoding).readlines()
-        _date = readme_string[0].replace("\n", "")
+        _date = readme_string[0].replace("\n", "") if readme_string else ''
         _source = None
-        _name = readme_string[1].replace("\n", "")
+        _name = readme_string[1].replace("\n", "") if len(readme_string) > 1 else ''
         for line in readme_string:
             if re.match(r'https?://', line):
                 _source = re.match(r'https?://[\w\d\-=\\/\._\?]+', line.replace("\n", "")).group(0)
