@@ -1,12 +1,13 @@
-import re
 import csv
+import re
 from collections import Counter
 
 from rich.console import Console
 
-from engine_modul.store import ASSERT_NAME, COLUMN_NAME_TRIGGERS
 from engine_modul.interface import UserInterface
 from engine_modul.normalize_col_names import normalize_col_names
+from engine_modul.store import ASSERT_NAME, COLUMN_NAME_TRIGGERS
+from reader import Reader
 
 console = Console()
 
@@ -15,6 +16,7 @@ class FileHandler:
     """
     Класс для хранения параметров и методов файла
     """
+
     def __init__(self, file, file_path):
         self.file = file
         self.file_path = file_path
@@ -29,7 +31,6 @@ class FileHandler:
     def handle_file(self):
         self.delimiter = self.get_delimiter()
         self.get_num_columns()
-
 
     def get_delimiter(self):
         """
@@ -51,7 +52,7 @@ class FileHandler:
         except csv.Error:
             return None
 
-    def is_simple_file(self, pattern, file):
+    def is_simple_file(self, pattern, file: Reader):
         """
         Метод для автопарсинга
 
@@ -59,6 +60,7 @@ class FileHandler:
         @param file:
         @return:
         """
+        file.open()
         result = 0
         for i, line in enumerate(file):
             if i > 10 and re.match(pattern, line):
@@ -131,7 +133,6 @@ class FileHandler:
         #     _result = _sum_delimiter // _sum_lines
         self.num_columns = _result
         return _result or 1
-
 
     def get_column_names(self, auto: bool) -> str:
         """

@@ -36,14 +36,14 @@ class Engine:
         if self.auto_parse and self.file_handler.delimiter and (
                 self.file_handler.is_simple_file(PATTERN_TEL_PASS, file)):
             self.file_handler.get_keys('1=tel, 2=password')
-            self.all_files_status.add('pass')
+            self.all_files_status.add('parse')
             self.file_handler.num_columns = 1
             console.print('[cyan]' + 'Автопарсинг tel password')
             return True
         elif self.auto_parse and self.file_handler.delimiter and (
                 self.file_handler.is_simple_file(PATTERN_USERMAIL_USERNAME_PASS, file)):
             self.file_handler.get_keys(f'1=user_mail_name, 2=password')
-            self.all_files_status.add('pass')
+            self.all_files_status.add('parse')
             self.file_handler.num_columns = 1
             console.print('[cyan]' + f'Автопарсинг umn password')
             return True
@@ -122,15 +122,19 @@ class Engine:
         self.file_handler.num_columns = self.interface.ask_num_cols(self.file_handler.num_columns)
         self.file_handler.column_names = self.interface.ask_cols_keys(self.file_handler.column_names)
         self.file_handler.skip = self.interface.ask_skip_lines(self.file_handler.skip)
+        self.file_handler.get_keys()
 
     def parsing_file(self):
         self.file_handler = FileHandler(self.read_file, self.read_file.file_path)
         self.rehandle_file_parameters()
         if not self.auto_parse or not self.autoparse(self.read_file):
+            if self.full_auto:
+                mode = 'p'
+                return mode
             mode = self.manual_parsing_menu()
             if mode in ['l', 'p', 't', 'e']:
                 return mode
-        self.file_handler.get_keys()
+
         self.writer.start_new_file(self.file_handler.file_path, self.file_handler.delimiter)
         with console.status('[bold blue]Подсчет строк...', spinner='point', spinner_style="bold blue") as status:
             count_rows_in_file = self.file_handler.get_count_rows()
@@ -185,7 +189,7 @@ class Engine:
                             raise ex
                         break
                 self.writer.finish()
-                if self.handler_folders.current_folder.status == Status.PARSE:
+                if self.handler_folders.current_folder.status == Status.PARSE and 'parse' in self.all_files_status:
                     dir.write_commands(self.writer.commands)
                     self.handler_folders.done_folder()
             else:
