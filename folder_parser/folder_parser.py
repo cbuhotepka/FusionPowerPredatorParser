@@ -168,7 +168,7 @@ class Directory:
         _name = readme_string[1].replace("\n", "") if len(readme_string) > 1 else ''
         for line in readme_string:
             if re.match(r'https?://', line):
-                _source = re.match(r'https?://[\w\d\-=\\/\._\?]+', line.replace("\n", "")).group(0)
+                _source = re.match(r'https?://[\w\d\-=\\/._?#!]+', line.replace("\n", "")).group(0)
                 break
             elif re.match(r'OLD (D|C)', line):
                 _source = re.match(r'OLD (D|C)[\w]+', line.replace("\n", "")).group(0)
