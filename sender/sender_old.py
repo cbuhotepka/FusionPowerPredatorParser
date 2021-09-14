@@ -50,7 +50,8 @@ HOST, PORT = '192.168.88.173', os.environ['SERVER_PORT_FIX']
 # all_command_path = None
 
 def get_cmds(f):
-    return list(json.load(f).items())
+    _data= json.load(f)
+    return list(zip(_data.values(), _data.keys()))
 
 
 @logger.catch()

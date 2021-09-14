@@ -3,3 +3,5 @@
 /CONFIG.env
 /venv/
 /.idea/
+/sender/sender_old_ar.py
+/sender/server_ar.py
