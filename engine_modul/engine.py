@@ -77,11 +77,11 @@ class Engine:
                 return mode
             elif mode == 'o':
                 # Открыть в EmEditor
-                subprocess.run(f'Emeditor {self.file_handler.file_path}')
+                subprocess.run(f'Emeditor "{self.file_handler.file_path}"')
                 self.rehandle_file_parameters()
             elif mode == 'n':
                 # Открыть в Notepad++
-                subprocess.run(f'notepad++ {self.file_handler.file_path}')
+                subprocess.run(f'notepad++ "{self.file_handler.file_path}"')
                 self.rehandle_file_parameters()
             elif mode == 'd':
                 self.file_handler.delimiter = self.interface.ask_delimiter()
@@ -100,17 +100,20 @@ class Engine:
                     if answer == 'y':
                         mode = 'p'
                         return mode
+                    raise ex
             elif mode == 't':
                 try:
                     self.read_file.close()
                     self.all_files_status.add('trash')
                     self.handler_folders.skip_folder(move_to='Trash')
+                    return mode
                 except Exception as ex:
                     console.print(f'[magenta]Не могу переместить[/magenta]: "[red]{ex}[/red]"')
                     answer = Prompt.ask(f"[green]Если все ОК нажмите Enter", choices=['y', 'n'], default='y')
                     if answer == 'y':
                         mode = 'p'
                         return mode
+                    raise ex
             elif mode == 'start':
                 self.all_files_status.add('parse')
                 break
@@ -174,6 +177,7 @@ class Engine:
                 # Если все файлы пропущены, то в треш
                 if self.all_files_status == {'trash'} and self.handler_folders.current_folder.status != Status.SKIP:
                     try:
+                        self.read_file.close()
                         self.handler_folders.skip_folder(move_to='Trash')
                     except Exception as ex:
                         console.print(f'[magenta]Не могу переместить[/magenta]: "[red]{ex}[/red]"')
