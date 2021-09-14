@@ -173,8 +173,13 @@ class Engine:
                 self.writer = Writer(**writer_data)
                 for file in dir.iterate():
                     self.read_file = Reader(file)
-
-                    mode = self.parsing_file()
+                    try:
+                        mode = self.parsing_file()
+                    except Exception as e:
+                        if self.full_auto:
+                            mode = 'p'
+                        else:
+                            raise e
                     if mode in ['p', 't', 'e']:
                         break
                 # Если все файлы пропущены, то в треш
