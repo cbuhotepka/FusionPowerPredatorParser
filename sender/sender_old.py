@@ -49,10 +49,8 @@ HOST, PORT = '192.168.88.173', os.environ['SERVER_PORT_FIX']
 # dir = None
 # all_command_path = None
 
-def get_cmds(f_list):
-    f_list = list(filter(lambda x: x != '\n', f_list))
-    f_list = list(map(lambda x: x.replace('\n', ''), f_list))
-    return list(zip(f_list[::2], f_list[1::2]))
+def get_cmds(f):
+    return list(json.load(f).items())
 
 
 @logger.catch()
@@ -152,7 +150,7 @@ def start():
             command_file = open(command_path[0], 'r', encoding='utf-8')
         else:
             continue
-        cmds = get_cmds(command_file.readlines())
+        cmds = get_cmds(command_file)
 
         answer = ''
         is_fatal_error = False
