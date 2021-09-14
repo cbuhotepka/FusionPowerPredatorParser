@@ -61,11 +61,18 @@ class FileHandler:
         @return:
         """
         file.open()
+        coefficient = 0.5
+        deep_line_check = 100
         result = 0
+        count_check_rows = 0
+        top_skip = 10
         for i, line in enumerate(file):
-            if i > 10 and re.match(pattern, line):
+            count_check_rows += 1
+            if i > top_skip and re.match(pattern, line):
                 result += 1
-        if result > 5:
+            if i > deep_line_check:
+                break
+        if result > (count_check_rows * coefficient - top_skip):
             return True
         return False
 
