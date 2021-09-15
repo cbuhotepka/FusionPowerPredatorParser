@@ -1,7 +1,13 @@
 /__pycache__/
 /tests/__pycache__/
+/folder_parser/__pycache__/
+/validator/__pycache__/
+/engine_modul/__pycache__/
+/reader/__pycache__/
+/writer/__pycache__/
 /CONFIG.env
 /venv/
 /.idea/
 /sender/sender_old_ar.py
 /sender/server_ar.py
+/folder_parser/__pycache__/utils.cpython-37.pyc

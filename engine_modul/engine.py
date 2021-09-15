@@ -1,3 +1,4 @@
+from folder_parser.store import ERROR_EXTENSIONS
 import os
 import subprocess
 
@@ -8,7 +9,7 @@ from rich.prompt import Prompt
 from engine_modul.file_handler import FileHandler
 from engine_modul.interface import UserInterface
 from engine_modul.store import PATTERN_TEL_PASS, PATTERN_USERMAIL_USERNAME_PASS
-from folder_parser.folder_parser import FolderParser, Status
+from folder_parser.folder_parser import Directory, FolderParser, Status
 from reader.reader import Reader
 from validator.validator import Validator
 from writer.writer import Writer
@@ -17,6 +18,7 @@ user = os.environ.get('USER_NAME')
 password = os.environ.get('USER_PASSWORD')
 PD = os.environ.get('PARSING_DISK_NAME')
 SD = os.environ.get('SOURCE_DISK_NAME')
+TOO_MANY_FILES_TRESHOLD = int(os.environ.get('TOO_MANY_FILES_TRESHOLD', 100))
 console = Console()
 
 
@@ -157,12 +159,30 @@ class Engine:
                 # Запись полей в файл
                 self.writer.write(fields_data)
 
+    def check_error_extensions(self, dir: Directory):
+        """ Возвращает True если есть error-файлы или файлов слишком много """
+        error = False
+        if dir.error_files_count:
+            console.print(f'Error-файлы в папке: [red]{dir.error_files_count}[/red]/{dir.files_count}')
+            console.print(
+                ', '.join(
+                    [f"{'[red]'*(k in ERROR_EXTENSIONS)}'{k}': {v}{'[/red]'*(k in ERROR_EXTENSIONS)}" 
+                    for k, v in dir.files_extensions.items()]
+                )
+            )
+            error = True
+        if dir.files_count >= TOO_MANY_FILES_TRESHOLD:
+            console.print(f'[red]Слишком много файлов: {dir.files_count}')
+            error = True
+        return error
+
     def start(self):
         self.type_base = self.interface.ask_type_base()
         self.handler_folders = FolderParser(self.type_base)
         for dir in self.handler_folders.iterate():
             if dir.status == Status.PARSE:
                 self.interface.print_dirs_status(str(dir.path), dir.status)
+                self.check_error_extensions(dir)
                 self.all_files_status.clear()
                 writer_data = {
                     'base_type': dir.base_type,
