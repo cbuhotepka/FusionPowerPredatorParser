@@ -4,7 +4,7 @@ import subprocess
 
 from rich.console import Console
 from rich.progress import track
-from rich.prompt import Prompt
+from rich.prompt import Prompt, Confirm
 
 from engine_modul.file_handler import FileHandler
 from engine_modul.interface import UserInterface
@@ -219,7 +219,10 @@ class Engine:
                         if self.full_auto:
                             mode = 'p'
                         else:
-                            raise e
+                            if not Confirm.ask(f'Ошибка при парсинге файла {file.name}, пропустить его?'):
+                                raise e
+                            else:
+                                continue
                     if mode in ['p', 't', 'e']:
                         break
                     dir.insert_in_done_parsed_file(file)
