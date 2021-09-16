@@ -77,6 +77,9 @@ class UserInterface:
     def show_num_columns(self, num_columns):
         console.print(f'[magenta]Количество столбцов[/magenta]: "[green]{num_columns}[/green]"')
 
+    def show_left_dirs(self, left_dirs):
+        console.print(f'[cayn]Папок осталось[/cayn]: "[green]{left_dirs}[/green]"')
+
     def print_dirs_status(self, path, status):
         if status == 'for parsing':
             console.print(f'[blue]{path}[/blue]')

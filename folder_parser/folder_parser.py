@@ -225,8 +225,10 @@ class FolderParser:
         self.path = os.path.join(f"{PARSING_DISK}:\\", 'Source', self.base_type)
         self.current_folder = None
 
+
         self.get_complete_dirs()  # устанавливает: complete_dirs_name, complete_dirs, complete_dirs_file
         self.get_passed_dirs()  # устанавливает: passed_dirs_name, passed_dirs, passed_dirs_file
+        self.left_dirs = self.count_left_dirs()
 
     def get_complete_dirs(self):
         """ Читаем из файла все завершённые папки, открываем _dirs_complete_.txt для записи """
@@ -270,6 +272,10 @@ class FolderParser:
                         self._all_folder_paths.append(combo_dir)
             return self._all_folder_paths
 
+    def count_left_dirs(self):
+        left_dirs = len(self.all_folder_paths) - (len(self.passed_dirs) + len(self.complete_dirs))
+        return left_dirs + 1
+
     def iterate(self, reparse_file_state):
         for folder in self.all_folder_paths:
             if str(folder.absolute()) in self.complete_dirs:
@@ -278,7 +284,7 @@ class FolderParser:
                 self.current_folder = Directory(folder, self.base_type, status=Status.SKIP, reparse_file_state=reparse_file_state)
             else:
                 self.current_folder = Directory(folder, self.base_type, reparse_file_state=reparse_file_state)
-
+            self.left_dirs -= 1
             yield self.current_folder
 
     def close_folder(self):

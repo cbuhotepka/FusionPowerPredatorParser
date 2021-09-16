@@ -201,6 +201,7 @@ class Engine:
         for dir in self.handler_folders.iterate(_reparse_file_state):
             if dir.status == Status.PARSE and not dir.done_parse:
                 self.interface.print_dirs_status(str(dir.path), dir.status)
+                self.interface.show_left_dirs(self.handler_folders.left_dirs)
                 self.check_error_extensions(dir)
                 self.all_files_status.clear()
                 writer_data = {
