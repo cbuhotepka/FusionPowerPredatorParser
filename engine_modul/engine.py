@@ -121,10 +121,26 @@ class Engine:
             mode = self.interface.ask_mode_handle()
         self.file_handler.get_column_names(self.full_auto)
         self.interface.show_num_columns(self.file_handler.num_columns + 1)
-        self.file_handler.num_columns = self.interface.ask_num_cols(self.file_handler.num_columns)
-        self.file_handler.column_names = self.interface.ask_cols_keys(self.file_handler.column_names)
+        _init_cols_keys = self.file_handler.column_names
+        while True:
+            self.file_handler.num_columns = self.interface.ask_num_cols(self.file_handler.num_columns)
+            _cols_keys = self.interface.ask_cols_keys(self.file_handler.column_names)
+            if not _cols_keys:
+                self.file_handler.column_names = ''
+                _init_cols_keys = ''
+                continue
+            else:
+                self.file_handler.column_names = _cols_keys
+            try:
+                self.file_handler.get_keys()
+            except:
+                print('Ошибка в ключах')
+            max_key = max(self.file_handler.keys, key=lambda x: int(x[0]))
+            if (self.file_handler.num_columns + 1) >= int(max_key[0]):
+                break
+
+            self.file_handler.column_names = _init_cols_keys
         self.file_handler.skip = self.interface.ask_skip_lines(self.file_handler.skip)
-        self.file_handler.get_keys()
 
     def parsing_file(self):
         self.file_handler = FileHandler(self.read_file, self.read_file.file_path)

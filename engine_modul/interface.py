@@ -44,6 +44,8 @@ class UserInterface:
             _keys = Prompt.ask(f'[cyan]Колонки {find_keys}')
             if not _keys:
                 keys = find_keys
+            elif _keys == 'e':
+                keys = ''
             else:
                 keys = f'{find_keys},{_keys}'
         else:
