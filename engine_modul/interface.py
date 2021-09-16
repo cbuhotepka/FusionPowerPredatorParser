@@ -1,5 +1,6 @@
 from rich.highlighter import RegexHighlighter
 from rich.prompt import Prompt, IntPrompt, Confirm
+
 from rich.console import Console
 import os
 
@@ -24,6 +25,10 @@ class UserInterface:
     def ask_type_base(self):
         type_base = Prompt.ask('Тип папки', choices=['combo', 'db'])
         return type_base
+
+    def ask_reparse_file(self):
+        _answer = Confirm.ask('[green]Перепарсить готовые файлы?', default=False)
+        return _answer
 
     def ask_delimiter(self):
         _delimiter = Prompt.ask('[magenta]Разделитель', choices=[':', ',', ';', r'\t', '|'])

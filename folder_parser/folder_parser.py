@@ -28,6 +28,7 @@ class Status(enum.Enum):
 class Directory:
 
     def __init__(self, path, base_type, status=Status.PARSE):
+        self.reparse_files_state = None
         if base_type not in BASE_TYPES:
             raise ValueError(f"Wrong base type provided: {base_type}")
         self.path = path if isinstance(path, Path) else Path(path)
@@ -38,8 +39,11 @@ class Directory:
         self.base_info = None
         self.files_extensions = {}
         self.error_files_count = 0
+        self.done_parsed_path = os.path.join(self.path, 'done_parsed_file.txt')
+        self.done_parsed_file = []
         self.all_files = self._get_all_files()
         self.files_count = len(self.all_files)
+
 
         if self.status == Status.PARSE:
             self.command_file = open(os.path.join(self.path, '_command_.txt'), 'w', encoding='utf-8', errors='replace')
@@ -117,11 +121,15 @@ class Directory:
 
     def _get_all_files(self):
         """ Возвращает все файлы кроме readme, _command_ и т.п. """
+        self._get_done_parsed_file()
+
         all_files: list[Path] = []
         for root, dirs, files in os.walk(self.path):
             for f in files:
                 if not utils.is_escape_file(f):
                     file = Path(os.path.join(root, f))
+                    if not self.reparse_files_state and str(file) in self.done_parsed_file:
+                        continue
                     all_files.append(file)
                     _, extension = os.path.splitext(file)
                     extension = extension.lower()
@@ -129,6 +137,17 @@ class Directory:
                     if extension in ERROR_EXTENSIONS:
                         self.error_files_count += 1
         return all_files
+
+    def _get_done_parsed_file(self):
+        if os.path.exists(self.done_parsed_path):
+            with open(self.done_parsed_path, 'r', encoding='utf-8') as done_parsed_file:
+                self.done_parsed_file = [x := re.sub('\n', '', line) for line in done_parsed_file.readlines()]
+        else:
+            self.done_parsed_file = []
+
+    def insert_in_done_parsed_file(self, file_path):
+        with open(self.done_parsed_path, 'a', encoding='utf-8') as done_parsed_file:
+            done_parsed_file.write(str(file_path) + '\n')
 
     def _get_base_info(self):
         source = ''
