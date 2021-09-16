@@ -42,7 +42,9 @@ class Directory:
         self.error_files_count = 0
         self.done_parsed_path = os.path.join(self.path, 'done_parsed_file.txt')
         self.done_parsed_file = []
+        self.all_files_status = set()
         self.all_files = self._get_all_files()
+        self.parse_files = self._get_parse_files()
         self.files_count = len(self.all_files)
 
 
@@ -56,7 +58,7 @@ class Directory:
                 self.status = Status.ERROR
 
     def iterate(self):
-        for file in self.all_files:
+        for file in self.parse_files:
             _, extension = os.path.splitext(file)
             if not extension.lower() in ERROR_EXTENSIONS:
                 yield file
@@ -121,24 +123,33 @@ class Directory:
             shutil.rmtree(_base_rm)
 
     def _get_all_files(self):
-        """ Возвращает все файлы кроме readme, _command_ и т.п. """
-        self._get_done_parsed_file()
+        """ Возвращает все файлы"""
 
         all_files: list[Path] = []
         for root, dirs, files in os.walk(self.path):
             for f in files:
                 if not utils.is_escape_file(f):
                     file = Path(os.path.join(root, f))
-                    if not self.reparse_files_state and str(file) in self.done_parsed_file:
-                        continue
                     all_files.append(file)
-                    _, extension = os.path.splitext(file)
-                    extension = extension.lower()
-                    self.files_extensions[extension] = self.files_extensions.get(extension, 0) + 1
-                    if extension in ERROR_EXTENSIONS:
-                        self.error_files_count += 1
-        self._check_done_parse_all(all_files)
         return all_files
+
+    def _get_parse_files(self):
+        """ Возвращает все файлы кроме readme, _command_ и т.п. """
+        self._get_done_parsed_file()
+
+        parse_files: list[Path] = []
+        for file in self.all_files:
+            if not self.reparse_files_state and str(file) in self.done_parsed_file:
+                self.all_files_status.add('parse')
+                continue
+            parse_files.append(file)
+            extension = file.suffix
+            extension = extension.lower()
+            self.files_extensions[extension] = self.files_extensions.get(extension, 0) + 1
+            if extension in ERROR_EXTENSIONS:
+                self.error_files_count += 1
+
+        return parse_files
 
     def _get_done_parsed_file(self):
         if os.path.exists(self.done_parsed_path):

@@ -30,7 +30,6 @@ class Engine:
         self.full_auto = full_auto
         self.file_handler = None
         self.handler_folders = None
-        self.all_files_status = set()
         self.interface = UserInterface()
         self.read_file = None
 
@@ -38,14 +37,14 @@ class Engine:
         if self.auto_parse and self.file_handler.delimiter and (
                 self.file_handler.is_simple_file(PATTERN_TEL_PASS, file)):
             self.file_handler.get_keys('1=tel, 2=password')
-            self.all_files_status.add('parse')
+            self.handler_folders.current_folder.all_files_status.add('parse')
             self.file_handler.num_columns = 1
             console.print('[cyan]' + 'Автопарсинг tel password')
             return True
         elif self.auto_parse and self.file_handler.delimiter and (
                 self.file_handler.is_simple_file(PATTERN_USERMAIL_USERNAME_PASS, file)):
             self.file_handler.get_keys(f'1=user_mail_name, 2=password')
-            self.all_files_status.add('parse')
+            self.handler_folders.current_folder.all_files_status.add('parse')
             self.file_handler.num_columns = 1
             console.print('[cyan]' + f'Автопарсинг umn password')
             return True
@@ -70,11 +69,11 @@ class Engine:
         mode = self.interface.ask_mode_handle()
         while True:
             if mode == 'p':
-                self.all_files_status.add('pass')
+                self.handler_folders.current_folder.all_files_status.add('pass')
                 self.handler_folders.skip_folder()
                 return mode
             elif mode == 'l':
-                self.all_files_status.add('trash')
+                self.handler_folders.current_folder.all_files_status.add('trash')
                 return mode
             elif mode == 'o':
                 # Открыть в EmEditor
@@ -89,7 +88,7 @@ class Engine:
                 self.file_handler.get_num_columns()
             elif mode == 'e':
                 # Перенести папку в ERROR
-                self.all_files_status.add('error')
+                self.handler_folders.current_folder.all_files_status.add('error')
                 try:
                     self.read_file.close()
                     self.handler_folders.skip_folder(move_to='Error')
@@ -104,7 +103,7 @@ class Engine:
             elif mode == 't':
                 try:
                     self.read_file.close()
-                    self.all_files_status.add('trash')
+                    self.handler_folders.current_folder.all_files_status.add('trash')
                     self.handler_folders.skip_folder(move_to='Trash')
                     return mode
                 except Exception as ex:
@@ -115,7 +114,7 @@ class Engine:
                         return mode
                     raise ex
             elif mode == 'start':
-                self.all_files_status.add('parse')
+                self.handler_folders.current_folder.all_files_status.add('parse')
                 break
             mode = self.interface.ask_mode_handle()
         self.file_handler.get_column_names(self.full_auto)
@@ -199,11 +198,11 @@ class Engine:
         _reparse_file_state = self.interface.ask_reparse_file()
         self.handler_folders = FolderParser(self.type_base)
         for dir in self.handler_folders.iterate(_reparse_file_state):
-            if dir.status == Status.PARSE and not dir.done_parse:
+            if dir.status == Status.PARSE:
                 self.interface.print_dirs_status(str(dir.path), dir.status)
                 self.interface.show_left_dirs(self.handler_folders.left_dirs)
                 self.check_error_extensions(dir)
-                self.all_files_status.clear()
+                self.handler_folders.current_folder.all_files_status.clear()
                 writer_data = {
                     'base_type': dir.base_type,
                     'base_name': dir.base_info['name'],
@@ -213,9 +212,9 @@ class Engine:
                 self.writer = Writer(**writer_data)
                 for file in dir.iterate():
                     self.read_file = Reader(file)
+                    # Отлов ошибок для непрерывания full_auto
                     try:
                         mode = self.parsing_file()
-                        dir.insert_in_done_parsed_file(file)
                     except Exception as e:
                         if self.full_auto:
                             mode = 'p'
@@ -223,8 +222,9 @@ class Engine:
                             raise e
                     if mode in ['p', 't', 'e']:
                         break
+                    dir.insert_in_done_parsed_file(file)
                 # Если все файлы пропущены, то в треш
-                if self.all_files_status == {'trash'} and self.handler_folders.current_folder.status != Status.SKIP:
+                if self.handler_folders.current_folder.all_files_status == {'trash'} and self.handler_folders.current_folder.status != Status.SKIP:
                     try:
                         self.read_file.close()
                         self.handler_folders.skip_folder(move_to='Trash')
@@ -235,11 +235,8 @@ class Engine:
                             raise ex
                         break
                 self.writer.finish()
-                if self.handler_folders.current_folder.status == Status.PARSE and 'parse' in self.all_files_status:
+                if self.handler_folders.current_folder.status == Status.PARSE and 'parse' in self.handler_folders.current_folder.all_files_status:
                     dir.write_commands(self.writer.commands)
                     self.handler_folders.done_folder()
-            elif dir.done_parse:
-                self.interface.print_dirs_status(str(dir.path), 'done')
-                self.handler_folders.done_folder()
             else:
                 self.interface.print_dirs_status(str(dir.path), dir.status.value)
