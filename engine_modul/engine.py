@@ -51,7 +51,6 @@ class Engine:
             return True
         else:
             return False
-        # TODO Протестировать автопарсинг
 
     def rehandle_file_parameters(self):
         """
@@ -187,9 +186,12 @@ class Engine:
                 )
             )
             error = True
-        if dir.files_count >= TOO_MANY_FILES_TRESHOLD:
+        elif dir.files_count >= TOO_MANY_FILES_TRESHOLD:
             console.print(f'[red]Слишком много файлов: {dir.files_count}')
             error = True
+        else:
+            console.print(f'\n\n[cyan]Количество файлов: {dir.files_count}')
+
         return error
 
     def start(self):
