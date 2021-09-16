@@ -39,7 +39,7 @@ class WriterFile:
         try:
             return self._name
         except AttributeError:
-            self._name = self.initial_name.split('.')[0] + '_' + '_'.join(
+            self._name = '.'.join(self.initial_name.split('.')[:-1]) + '_' + '_'.join(
                 COLS_LONG[a] for a in self.cols if a != 'algorithm')
             if self.algorithm:
                 self._name += '_' + self.algorithm
