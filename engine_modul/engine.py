@@ -196,12 +196,10 @@ class Engine:
         self.type_base = self.interface.ask_type_base()
         _reparse_file_state = self.interface.ask_reparse_file()
         self.handler_folders = FolderParser(self.type_base)
-        for dir in self.handler_folders.iterate():
+        for dir in self.handler_folders.iterate(_reparse_file_state):
             if dir.status == Status.PARSE:
                 self.interface.print_dirs_status(str(dir.path), dir.status)
                 self.check_error_extensions(dir)
-                if not self.full_auto:
-                    dir.reparse_files_state = _reparse_file_state
                 self.all_files_status.clear()
                 writer_data = {
                     'base_type': dir.base_type,

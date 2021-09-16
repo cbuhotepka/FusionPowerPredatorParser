@@ -27,8 +27,8 @@ class Status(enum.Enum):
 
 class Directory:
 
-    def __init__(self, path, base_type, status=Status.PARSE):
-        self.reparse_files_state = None
+    def __init__(self, path, base_type, status=Status.PARSE, reparse_file_state=False):
+        self.reparse_files_state = reparse_file_state
         if base_type not in BASE_TYPES:
             raise ValueError(f"Wrong base type provided: {base_type}")
         self.path = path if isinstance(path, Path) else Path(path)
@@ -263,14 +263,14 @@ class FolderParser:
                         self._all_folder_paths.append(combo_dir)
             return self._all_folder_paths
 
-    def iterate(self):
+    def iterate(self, reparse_file_state):
         for folder in self.all_folder_paths:
             if str(folder.absolute()) in self.complete_dirs:
-                self.current_folder = Directory(folder, self.base_type, status=Status.DONE)
+                self.current_folder = Directory(folder, self.base_type, status=Status.DONE, reparse_file_state=reparse_file_state)
             elif str(folder.absolute()) in self.passed_dirs:
-                self.current_folder = Directory(folder, self.base_type, status=Status.SKIP)
+                self.current_folder = Directory(folder, self.base_type, status=Status.SKIP, reparse_file_state=reparse_file_state)
             else:
-                self.current_folder = Directory(folder, self.base_type)
+                self.current_folder = Directory(folder, self.base_type, reparse_file_state=reparse_file_state)
 
             yield self.current_folder
 
