@@ -197,7 +197,7 @@ class Engine:
         _reparse_file_state = self.interface.ask_reparse_file()
         self.handler_folders = FolderParser(self.type_base)
         for dir in self.handler_folders.iterate(_reparse_file_state):
-            if dir.status == Status.PARSE:
+            if dir.status == Status.PARSE and not dir.done_parse:
                 self.interface.print_dirs_status(str(dir.path), dir.status)
                 self.check_error_extensions(dir)
                 self.all_files_status.clear()
@@ -235,5 +235,8 @@ class Engine:
                 if self.handler_folders.current_folder.status == Status.PARSE and 'parse' in self.all_files_status:
                     dir.write_commands(self.writer.commands)
                     self.handler_folders.done_folder()
+            elif dir.done_parse:
+                self.interface.print_dirs_status(str(dir.path), 'done')
+                self.handler_folders.done_folder()
             else:
-                self.interface.print_dirs_status(str(dir.path), dir.status)
+                self.interface.print_dirs_status(str(dir.path), dir.status.value)

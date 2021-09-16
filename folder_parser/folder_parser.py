@@ -35,6 +35,7 @@ class Directory:
         self.name = self.path.name
         self.base_type = base_type
         self.status = status
+        self.done_parse = False
 
         self.base_info = None
         self.files_extensions = {}
@@ -136,6 +137,7 @@ class Directory:
                     self.files_extensions[extension] = self.files_extensions.get(extension, 0) + 1
                     if extension in ERROR_EXTENSIONS:
                         self.error_files_count += 1
+        self._check_done_parse_all(all_files)
         return all_files
 
     def _get_done_parsed_file(self):
@@ -144,6 +146,11 @@ class Directory:
                 self.done_parsed_file = [x := re.sub('\n', '', line) for line in done_parsed_file.readlines()]
         else:
             self.done_parsed_file = []
+
+    def _check_done_parse_all(self, all_files):
+        if self.done_parsed_file and not all_files:
+            self.done_parse = True
+
 
     def insert_in_done_parsed_file(self, file_path):
         with open(self.done_parsed_path, 'a', encoding='utf-8') as done_parsed_file:

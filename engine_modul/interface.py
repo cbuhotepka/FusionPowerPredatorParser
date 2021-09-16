@@ -78,13 +78,13 @@ class UserInterface:
         console.print(f'[magenta]Количество столбцов[/magenta]: "[green]{num_columns}[/green]"')
 
     def print_dirs_status(self, path, status):
-        if status.value == 'for parsing':
+        if status == 'for parsing':
             console.print(f'[blue]{path}[/blue]')
-        elif status.value == 'done':
+        elif status == 'done':
             console.print(f'[green]{path}[/green]')
-        elif status.value == 'skipped':
+        elif status == 'skipped':
             console.print(f'[yellow]{path}[/yellow]')
-        elif status.value == 'error folder':
+        elif status == 'error folder':
             console.print(f'[red]{path}[/red]')
 
     def show_file(self, file):
