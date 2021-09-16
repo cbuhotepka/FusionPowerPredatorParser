@@ -219,7 +219,7 @@ class Engine:
                         if self.full_auto:
                             mode = 'p'
                         else:
-                            if not Confirm.ask(f'Ошибка при парсинге файла {file.name}, пропустить его?'):
+                            if not Confirm.ask(f'Ошибка при парсинге файла [magenta]{file.name}[/], пропустить его?'):
                                 raise e
                             else:
                                 continue
