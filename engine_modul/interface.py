@@ -78,7 +78,10 @@ class UserInterface:
         console.print(f'[magenta]Количество столбцов[/magenta]: "[green]{num_columns}[/green]"')
 
     def show_left_dirs(self, left_dirs):
-        console.print(f'[cayn]Папок осталось[/cayn]: "[green]{left_dirs}[/green]"')
+        console.print(f'[cyan]Папок осталось[/cyan]: "[green]{left_dirs}[/green]"')
+
+    def show_left_files(self, left_files):
+        console.print(f'[cyan]Файлов осталось[/cyan]: "[green]{left_files}[/green]"')
 
     def print_dirs_status(self, path, status):
         if status == 'for parsing':

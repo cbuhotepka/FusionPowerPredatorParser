@@ -46,6 +46,7 @@ class Directory:
         self.all_files = self._get_all_files()
         self.parse_files = self._get_parse_files()
         self.files_count = len(self.all_files)
+        self.left_files = len(self.parse_files) + 1
 
 
         if self.status == Status.PARSE:
@@ -61,6 +62,7 @@ class Directory:
         for file in self.parse_files:
             _, extension = os.path.splitext(file)
             if not extension.lower() in ERROR_EXTENSIONS:
+                self.left_files -= 1
                 yield file
 
     def write_commands(self, commands: dict):
