@@ -70,9 +70,12 @@ class Engine:
         while menu:
             mode = self.interface.ask_mode_handle()
             mode = self.handler_mode(mode)
+            if mode in ['p', 'l', 'e', 't']:
+                return mode
             self.file_handler.get_column_names(self.full_auto)
             self.interface.show_num_columns(self.file_handler.num_columns + 1)
             _init_cols_keys = self.file_handler.column_names
+
             while True:
                 self.file_handler.num_columns = self.interface.ask_num_cols(self.file_handler.num_columns)
                 if self.file_handler.num_columns != -1:
