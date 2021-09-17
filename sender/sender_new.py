@@ -1,7 +1,5 @@
 import os
 import shutil
-from typing import Counter
-import main
 from rich.prompt import Prompt, Confirm
 import requests
 from loguru import logger
@@ -11,6 +9,12 @@ from rich.console import Console
 import argparse
 import re
 import json
+from py_dotenv import read_dotenv
+
+dotenv_path = Path('../CONFIG.env')
+assert dotenv_path.exists()
+read_dotenv(dotenv_path)
+
 
 parser = argparse.ArgumentParser(description="Sender Flask")
 parser.add_argument("--auto-fail", dest="auto_fail", action='store_true')
@@ -50,7 +54,7 @@ HOST, PORT = '192.168.88.173', os.environ['SERVER_PORT_FIX']
 # all_command_path = None
 
 def get_cmds(f):
-    _data= json.load(f)
+    _data = json.load(f)
     return list(zip(_data.values(), _data.keys()))
 
 
@@ -101,10 +105,11 @@ def create_command_file():
         for file in search_command_files(line):
 
             command_file = open(file, 'r', encoding='utf-8')
-            cmds = get_cmds(command_file.readlines())
+
+            cmds = get_cmds(command_file)
             command_file.close()
             os.rename(file, os.path.join(os.path.split(file)[0], 'OLD-command.txt'))
-            new_data = []
+            new_data = {}
             for cmd, path in cmds:
                 cmd = cmd.replace('\ufeff', '')
                 if 'hash' in cmd.split('--colsname')[-1] and args.auto_fail:
@@ -124,12 +129,12 @@ def create_command_file():
                     else:
                         clr = Colors.WARNING
                 cmd = re.sub(r'main.py', 'fix.py', cmd)
-                new_data.append(f'{cmd}\n')
-                new_data.append(f'{path}\n')
+                new_data[path] = cmd
                 all_command_sender.write(f'{cmd}\n')
                 all_command_sender.write(f'{path}\n')
             command_file = open(file, 'w', encoding='utf-8')
-            command_file.writelines(new_data)
+            new_json = json.dumps(new_data)
+            command_file.write(new_json)
             command_file.close()
 
 
@@ -289,7 +294,7 @@ if __name__ == '__main__':
     list_files = []
     combo = Confirm.ask('Комбо?')
     dir = start_path + 'combo' if combo else start_path + 'db'
-    done_parse = open(f'{dir}\\parsing_complete.txt', 'r', encoding='utf-8').readlines()
+    done_parse = open(f'{dir}\\_dirs_complete_.txt', 'r', encoding='utf-8').readlines()
     done_parse = list(filter(lambda x: x != '\n', done_parse))
 
     fail_send = open(f'{dir}\\fail_send.txt', 'r', encoding='utf-8').readlines()
