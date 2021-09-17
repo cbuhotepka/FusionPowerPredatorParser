@@ -297,7 +297,7 @@ class FolderParser:
                 self.current_folder = Directory(folder, self.base_type, status=Status.SKIP, reparse_file_state=reparse_file_state)
             else:
                 self.current_folder = Directory(folder, self.base_type, reparse_file_state=reparse_file_state)
-            self.left_dirs -= 1
+                self.left_dirs -= 1
             yield self.current_folder
 
     def close_folder(self):
