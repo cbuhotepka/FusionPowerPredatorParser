@@ -37,7 +37,7 @@ class UserInterface:
         return _delimiter
 
     def ask_num_cols(self, num_columns):
-        input_num_columns = IntPrompt.ask('Количество столбцов', default=num_columns + 1) -1
+        input_num_columns = IntPrompt.ask('Количество столбцов', default=num_columns + 1) - 1
         return input_num_columns
 
     def ask_skip_lines(self, skip):
