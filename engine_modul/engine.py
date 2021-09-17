@@ -73,6 +73,8 @@ class Engine:
             self.file_handler.get_column_names(self.full_auto)
             self.interface.show_num_columns(self.file_handler.num_columns + 1)
             _init_cols_keys = self.file_handler.column_names
+            if mode in ['p', 'l', 'e', 't']:
+                return mode
             while True:
                 self.file_handler.num_columns = self.interface.ask_num_cols(self.file_handler.num_columns)
                 if self.file_handler.num_columns != -1:
