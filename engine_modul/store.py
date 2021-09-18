@@ -45,5 +45,5 @@ POSSIBLE_EXCHANGES = {
     'cn': ['country', 'страна', 'homecountry', 'addresscountry'],
     'z': ['zipcode', 'postcode', 'addresszip', 'postalcode', 'zip'],
 
-    'uai': ['address2', 'address3', 'company', 'position', 'birthdate', 'birthday', 'organization', 'gender', 'dob'],
+    'uai': ['address2', 'address3', 'company', 'position', 'birthdate', 'birthday', 'organization', 'gender', 'dob', 'birthday'],
 }

@@ -30,3 +30,9 @@ def is_escape_file(file_name: str):
         file_name == 'readme.txt',
         file_name == 'done_parsed_file.txt',
     ])
+
+def is_archive(f):
+    for extension in ['.zip', '.7z', '.rar']:
+        if f.lower().endswith(extension):
+            return True
+    return False

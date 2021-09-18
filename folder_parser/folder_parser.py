@@ -9,6 +9,7 @@ from pathlib import Path
 
 from folder_parser.store import ERROR_EXTENSIONS
 from folder_parser import utils
+from pyunpack import Archive
 
 USER = os.environ.get('USER_NAME', 'er')
 PASSWORD = os.environ.get('USER_PASSWORD', 'qwerty123')
@@ -43,13 +44,13 @@ class Directory:
         self.done_parsed_path = os.path.join(self.path, 'done_parsed_file.txt')
         self.done_parsed_file = []
         self.all_files_status = set()
-        self.all_files = self._get_all_files()
-        self.parse_files = self._get_parse_files()
-        self.files_count = len(self.all_files)
-        self.left_files = len(self.parse_files) + 1
-
+        self.all_files = None
 
         if self.status == Status.PARSE:
+            self.all_files = self._get_all_files()
+            self.parse_files = self._get_parse_files()
+            self.files_count = len(self.all_files)
+            self.left_files = len(self.parse_files) + 1
             self.command_file = open(os.path.join(self.path, '_command_.txt'), 'w', encoding='utf-8', errors='replace')
             if not self.all_files:
                 self.status = Status.ERROR
@@ -124,14 +125,20 @@ class Directory:
         if os.path.exists(_base_rm) and not os.listdir(_base_rm):
             shutil.rmtree(_base_rm)
 
-    def _get_all_files(self):
+    def _get_all_files(self, archives_done=[]):
         """ Возвращает все файлы"""
 
         all_files: list[Path] = []
         for root, dirs, files in os.walk(self.path):
             for f in files:
-                if not utils.is_escape_file(f):
-                    file = Path(os.path.join(root, f))
+                file = Path(os.path.join(root, f))
+                is_archive = utils.is_archive(f)
+                if f not in archives_done and is_archive:
+                    print('ARCHIVE UNPACKING:', f)
+                    Archive(file).extractall(file.parent)
+                    return self._get_all_files(archives_done=archives_done + [f])
+
+                if not utils.is_escape_file(f) and not is_archive:
                     all_files.append(file)
         return all_files
 
@@ -251,7 +258,7 @@ class FolderParser:
                 self.complete_dirs = list(map(lambda x: x.strip(), f.readlines()))
         else:
             self.complete_dirs = []
-        self.complete_dirs_file = open(self.complete_dirs_name, 'a+', encoding='utf-8', errors='replace')
+        # self.complete_dirs_file = open(self.complete_dirs_name, 'a+', encoding='utf-8', errors='replace')
 
     def get_passed_dirs(self):
         """ Читаем из файла все пропущенные папки, открываем _dirs_passed_.txt для записи """
@@ -305,7 +312,8 @@ class FolderParser:
 
     def skip_folder(self, move_to=None):
         self.passed_dirs.append(str(self.current_folder.path.absolute()))
-        self.passed_dirs_file.write(str(self.current_folder.path.absolute()) + '\n')
+        with open(self.passed_dirs_name, 'a+', encoding='utf-8', errors='replace') as _f:
+            _f.write(str(self.current_folder.path.absolute()) + '\n')
         self.current_folder.status = Status.SKIP
         self.current_folder.close()
         if move_to:
@@ -313,13 +321,16 @@ class FolderParser:
 
     def done_folder(self):
         self.complete_dirs.append(str(self.current_folder.path.absolute()))
-        self.complete_dirs_file.write(str(self.current_folder.path.absolute()) + '\n')
+        with open(self.complete_dirs_name, 'a+', encoding='utf-8', errors='replace') as _f:
+            _f.write(str(self.current_folder.path.absolute()) + '\n')
         self.current_folder.status = Status.DONE
         self.current_folder.close()
 
     def finish(self):
-        self.complete_dirs_file.close()
-        self.passed_dirs_file.close()
+        if self.complete_dirs_file:
+            self.complete_dirs_file.close()
+        if self.passed_dirs_file:
+            self.passed_dirs_file.close()
 
     def __str__(self):
         return f"Fusion-Power-Predator-{self.base_type.upper()}-Parser"

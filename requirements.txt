@@ -9,3 +9,5 @@ pyperclip==1.8.2
 rich==10.9.0
 typing-extensions==3.10.0.2
 win32-setctime==1.0.3
+pyunpack
+patool
