@@ -133,12 +133,12 @@ class Validator:
         return clean_string
 
     def _is_username(self, value: str) -> bool:
-        if re.match(r"^[^|/\\\[\]\(\):;,@]{3,16}$", value):
+        if re.match(r"^[^|/\\\[\]\(\):;,@]{3,16}$", value.strip('"\t ')):
             return True
         return False
 
     def _is_usermail(self, value: str) -> bool:
-        if re.match(r"[\w\d_\.+\-@!#/$*\^]+@[\d\w.\-_]+\.[\w]{2,5}", value):
+        if re.match(r"[\w\d_\.+\-@!#/$*\^]+@[\d\w.\-_]+\.[\w]{2,5}", value.strip('"\t ')):
             return True
         return False
 
@@ -149,7 +149,7 @@ class Validator:
         return self._get_hash_type(value)
 
     def _is_tel(self, value: str) -> bool:
-        if re.match(r'[+]?[\d\.\s\(]{2,}[_\-]?\d+[_\-]?[\d\.\)\s]+', value):
+        if re.match(r'[+]?[\d\.\s\(]{2,}[_\-]?\d+[_\-]?[\d\.\)\s]+', value.strip('"\t ')):
             return True
         return False
 
