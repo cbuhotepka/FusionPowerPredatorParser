@@ -57,7 +57,7 @@ class Validator:
         @return: {имя_столбца: значение}
         """
         result = {}
-        _value = value.strip(' \t')
+        _value = value.strip('"\t\' ')
         algorithm = self._get_hash_type(_value) or ''
         if not algorithm:
             name = 'userpass_plain'
@@ -117,7 +117,8 @@ class Validator:
     def split_line_to_fields(self, line: str) -> list:
         _fields = []
         pattern_fields = re.compile(f'^' +
-                                    f'(?:((?:\"[^\"]*?\")|(?:[^{self.delimiter}]*)){self.delimiter})' * (self.num_columns) +
+                                    f'(?:((?:\"[^\"]*?\")|(?:[^{self.delimiter}]*)){self.delimiter})' * (
+                                        self.num_columns) +
                                     f'((?:\"[^\"]*?\")|(?:[^{self.delimiter}]*))')
         match_fields = re.match(pattern_fields, line)
         if match_fields:
@@ -138,7 +139,7 @@ class Validator:
         return False
 
     def _is_usermail(self, value: str) -> bool:
-        if re.match(r"[\w\d_\.+\-@!#/$*\^]+@[\d\w.\-_]+\.[\w]{2,5}", value.strip('"\t ')):
+        if re.match(r"[\w\d_\.+\-@!#/$*\^]+@[\d\w.\-_]+\.[\w]{2,5}", value.strip('"\t\' ')):
             return True
         return False
 
@@ -149,7 +150,7 @@ class Validator:
         return self._get_hash_type(value)
 
     def _is_tel(self, value: str) -> bool:
-        if re.match(r'[+]?[\d\.\s\(]{2,}[_\-]?\d+[_\-]?[\d\.\)\s]+', value.strip('"\t ')):
+        if re.match(r'[+]?[\d\.\s\(]{2,}[_\-]?\d+[_\-]?[\d\.\)\s]+', value.strip('"\t\' ')):
             return True
         return False
 
