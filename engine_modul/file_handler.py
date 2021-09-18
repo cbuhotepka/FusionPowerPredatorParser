@@ -126,11 +126,7 @@ class FileHandler:
         _counter = Counter()
         pat = re.compile(f'{self.delimiter}')
         self.file.open()
-        lines = []
-        for i, line in enumerate(self.file):
-            lines.append(line)
-            if i == 25:
-                break
+        lines = [self.file.readline() for _ in range(25)]
         n = 0 if len(lines) < 10 else 5
         for i, line in enumerate(lines):
             if i >= n and (line != '' or line != '\n'):

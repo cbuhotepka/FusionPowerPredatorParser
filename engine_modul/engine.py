@@ -91,8 +91,8 @@ class Engine:
                     self.file_handler.column_names = _cols_keys
                 try:
                     self.file_handler.get_keys()
-                except:
-                    print('Ошибка в ключах')
+                except Exception as ex:
+                    print(f'Ошибка в ключах: {ex}')
                 max_key = max(self.file_handler.keys, key=lambda x: int(x[0]))
                 if (self.file_handler.num_columns + 1) >= int(max_key[0]):
                     break
@@ -214,7 +214,16 @@ class Engine:
         for dir in self.handler_folders.iterate(_reparse_file_state):
             if dir.status == Status.PARSE:
                 self.interface.print_dirs_status(str(dir.path), dir.status)
-                self.check_error_extensions(dir)
+                if self.check_error_extensions(dir):
+                    try:
+                        self.handler_folders.skip_folder(move_to='Error')
+                        console.print(f'[magenta]В ERROR:[/magenta] "[red]{str(dir.path)}[/red]"')
+                    except Exception as ex:
+                        console.print(f'[magenta]Не могу переместить[/magenta]: "[red]{ex}[/red]"')
+                        answer = Prompt.ask(f"[green]Если все ОК нажмите Enter", choices=['y', 'n'], default='y')
+                        if answer != 'y':
+                            raise ex
+                    continue
                 self.handler_folders.current_folder.all_files_status.clear()
                 writer_data = {
                     'base_type': dir.base_type,

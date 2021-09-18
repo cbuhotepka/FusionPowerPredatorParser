@@ -23,7 +23,7 @@ ASSERT_NAME = {
 }
 
 COLUMN_NAME_TRIGGERS = ['username', 'password', 'name', 'userid', 'имя', 'пароль', 'address', 'ipaddress', 'ip_address',
-                        'postcode', 'фамилия', 'hash', 'salt', 'tel']
+                        'postcode', 'фамилия', 'hash', 'salt', 'tel', 'f_name', 'usermail', 'email']
 
 POSSIBLE_EXCHANGES = {
     'uid': ['id', 'userid', 'ID', 'uid', 'memberid', '№', '#'],
@@ -45,5 +45,5 @@ POSSIBLE_EXCHANGES = {
     'cn': ['country', 'страна', 'homecountry', 'addresscountry'],
     'z': ['zipcode', 'postcode', 'addresszip', 'postalcode', 'zip'],
 
-    'uai': ['address2', 'address3', 'company', 'position', 'birthdate', 'birthday', 'organization'],
+    'uai': ['address2', 'address3', 'company', 'position', 'birthdate', 'birthday', 'organization', 'gender', 'dob'],
 }

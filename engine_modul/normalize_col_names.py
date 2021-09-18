@@ -1,7 +1,7 @@
 import clipboard
 from rich.console import Console
 
-from engine_modul.store import POSSIBLE_EXCHANGES
+from engine_modul.store import POSSIBLE_EXCHANGES, ASSERT_NAME
 
 console = Console()
 
@@ -18,16 +18,21 @@ def change_col_names(colls: list):
     _error = []
 
     for i_col, col in enumerate(colls):
+        if  col.lower() in ASSERT_NAME.keys() or col.lower() in ASSERT_NAME.values():
+            _result[i_col + 1] = col
+            _status.add(tuple([col, True]))
+            continue
         for key, possible_names in POSSIBLE_EXCHANGES.items():
             if col.lower() in possible_names:
                 colls[i_col] = key
                 _result[i_col + 1] = key
                 _status.add(tuple([col, True]))
+
         if (col, True) not in _status:
             _status.add(tuple([col, False]))
             _error.append(f'{i_col + 1}={col}')
-    print(f'Error column name: {" ".join(_error)}')
-    print(f'STATUS: {" ".join([f"{item}-{st}" for item, st in _status])}')
+    console.print(f'Error column name: {"NONE" if not _error else " ".join(_error)}')
+    console.print("STATUS: " + " ".join([f"{'[green]' if st else '[red]'}{item}{'[/green]' if st else '[/red]'}" for item, st in _status]))
     return _result
 
 
