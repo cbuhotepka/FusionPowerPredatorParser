@@ -35,8 +35,8 @@ POSSIBLE_EXCHANGES = {
     'uln': ['lname', 'userlname', 'lastname', 'фамилия', 'фам', 'familia', 'lastname', 'surname'],
 
     'password': ['password', 'passwd'],
-    'h': ['secret', 'passwordhash', 'passhash', 'token'],
-    's': ['passwordsalt', 'passsalt', 'salt'],
+    'h': ['passwordhash', 'passhash', 'token'],
+    's': ['secret', 'passwordsalt', 'passsalt', 'salt'],
 
     'ip': ['ipaddress', 'ip'],
     'a': ['address', 'streetaddress', 'адрес', 'address1', 'homeaddress', 'adres'],
