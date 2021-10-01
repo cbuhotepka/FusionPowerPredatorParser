@@ -3,6 +3,8 @@ from collections import OrderedDict
 
 from validator.hash_identifer import identify_hashes
 
+DOMAINS = set(map(lambda x: x.strip(' \n'), open('validator/domains.txt', encoding='utf-8')))
+
 
 class Validator:
 
@@ -21,6 +23,7 @@ class Validator:
             'hash': self._h_handler,
             'tel': self._t_handler,
         }
+        self.domains = DOMAINS
 
     def handler_keys(self):
         """
@@ -134,7 +137,7 @@ class Validator:
         return clean_string
 
     def _is_username(self, value: str) -> bool:
-        if re.match(r"^[^|/\\\[\]\(\):;,@]{3,16}$", value.strip('"\t ')):
+        if re.match(r"^[^|/\\\[\]\(\):;,@]{3,16}$", value.strip('"\t ')) and value.strip('"\t ') not in self.domains:
             return True
         return False
 
