@@ -48,7 +48,7 @@ class Engine:
             self.file_handler.num_columns = 1
             console.print('[cyan]' + f'Автопарсинг umn password')
             return True
-        elif self.auto_parse and self.file_handler.delimiter and (self.read_file.open().readline() == '1:Anonymous:::'):
+        elif self.auto_parse and self.file_handler.delimiter and ('1:Anonymous:::' in self.read_file.open().readline()):
             self.file_handler.get_keys(f'1=uid, 2=un, 3=ip, 4=um, 5=p')
             self.handler_folders.current_folder.all_files_status.add('parse')
             self.file_handler.num_columns = 4
