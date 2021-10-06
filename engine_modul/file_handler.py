@@ -52,27 +52,26 @@ class FileHandler:
         except csv.Error:
             return None
 
-    def is_simple_file(self, pattern, file: Reader):
+    def is_simple_file(self, pattern, file: Reader, deep_line_check=100, top_skip=10):
         """
         Метод для автопарсинга
 
         @param pattern:
         @param file:
+        @param deep_line_check:
         @return:
         """
         file.open()
         coefficient = 0.5
-        deep_line_check = 100
         result = 0
         count_check_rows = 0
-        top_skip = 10
         for i, line in enumerate(file):
             count_check_rows += 1
             if i > top_skip and re.match(pattern, line):
                 result += 1
-            if i > deep_line_check:
+            if i > deep_line_check + top_skip:
                 break
-        if result > (count_check_rows * coefficient - top_skip):
+        if result > abs(count_check_rows * coefficient - top_skip):
             return True
         return False
 
@@ -113,6 +112,7 @@ class FileHandler:
 
     def get_count_rows(self):
         self.file.open()
+        def foo(x): print(x); return 1
         count = sum(1 for _ in self.file)
         return count
 

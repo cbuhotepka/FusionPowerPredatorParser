@@ -30,7 +30,7 @@ class Reader:
 
     def open(self, encoding=None, skip=0):
         _encoding = encoding or self._encoding
-        self._file = self._path.open(encoding=_encoding)
+        self._file = self._path.open(encoding=_encoding, errors='replace')
         self._fix_nulls_file_generator = self._fix_nulls(self._file)
         self._skip_rows(skip)
         return self

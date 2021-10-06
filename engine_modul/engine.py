@@ -8,7 +8,7 @@ from rich.prompt import Prompt, Confirm
 
 from engine_modul.file_handler import FileHandler
 from engine_modul.interface import UserInterface
-from engine_modul.store import PATTERN_TEL_PASS, PATTERN_USERMAIL_USERNAME_PASS
+from engine_modul.store import PATTERN_TEL_PASS, PATTERN_USERMAIL_USERNAME_PASS, PATTERN_UID_UN_IP_UM_PASS
 from folder_parser.folder_parser import Directory, FolderParser, Status
 from reader.reader import Reader
 from validator.validator import Validator
@@ -47,6 +47,12 @@ class Engine:
             self.handler_folders.current_folder.all_files_status.add('parse')
             self.file_handler.num_columns = 1
             console.print('[cyan]' + f'Автопарсинг umn password')
+            return True
+        elif self.auto_parse and self.file_handler.delimiter and (self.read_file.open().readline() == '1:Anonymous:::'):
+            self.file_handler.get_keys(f'1=uid, 2=un, 3=ip, 4=um, 5=p')
+            self.handler_folders.current_folder.all_files_status.add('parse')
+            self.file_handler.num_columns = 4
+            console.print('[cyan]' + f'Автопарсинг uid un ip um pass')
             return True
         else:
             return False
