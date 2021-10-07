@@ -40,6 +40,7 @@ For more details please refer to the README
 
 HASHES = (
     ("MD5(Unix)", "^\$1\$.{0,8}\$[a-zA-Z0-9\/\.]{22}$"),
+    ("MySQL5", "^\*[A-z0-9]{40}$"),
     (("MD5(APR)", "Apache MD5"), "^\$apr1\$.{0,8}\$[a-zA-Z0-9\/\.]{22}$"),
     ("MD5(MyBB)", "^[a-fA-F0-9]{32}:[a-z0-9]{8}$"),
     ("MD5", "^[a-fA-F0-9]{32}$"),
