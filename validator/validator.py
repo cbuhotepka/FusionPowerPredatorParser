@@ -22,6 +22,7 @@ class Validator:
             'password': self._p_handler,
             'hash': self._h_handler,
             'tel': self._t_handler,
+            'ipaddress': self._ip_handler
         }
         self.domains = DOMAINS
 
@@ -117,6 +118,13 @@ class Validator:
         result[name] = _value if self._is_tel(_value) else ''
         return result
 
+    def _ip_handler(self, value: str) -> dict:
+        result = {}
+        _value = value
+        name = 'ipaddress'
+        result[name] = _value if self._is_ip(_value) else ''
+        return result
+
     def split_line_to_fields(self, line: str) -> list:
         _fields = []
         pattern_fields = re.compile(f'^' +
@@ -154,6 +162,13 @@ class Validator:
 
     def _is_tel(self, value: str) -> bool:
         if re.match(r'[+]?[\d\.\s\(]{2,}[_\-]?\d+[_\-]?[\d\.\)\s]+', value.strip('"\t\' ')):
+            return True
+        return False
+
+    def _is_ip(self, value: str) -> bool:
+        pattern_ip = r'([2][0-5][(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)' \
+                     r'\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)'
+        if re.match(pattern_ip, value.strip('"')):
             return True
         return False
 
