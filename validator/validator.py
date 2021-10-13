@@ -120,6 +120,7 @@ class Validator:
 
     def _ip_handler(self, value: str) -> dict:
         result = {}
+        # _value = convert_ip(value)
         _value = value
         name = 'ipaddress'
         result[name] = _value if self._is_ip(_value) else ''
@@ -263,3 +264,14 @@ class FieldsGenerator:
             for cols_name, indexes in self.columns_name_index.items():
                 output_data[cols_name] = next(self.handlers[cols_name])
             yield output_data
+
+
+def convert_ip(values: str):
+    if not values:
+        return ''
+    _values = int(values)
+    o1 = int(_values / 16777216) % 256
+    o2 = int(_values / 65536) % 256
+    o3 = int(_values / 256) % 256
+    o4 = int(_values) % 256
+    return '%(o1)s.%(o2)s.%(o3)s.%(o4)s' % locals()
