@@ -1,6 +1,7 @@
 import datetime
 import enum
 import json
+from logging import ERROR
 import os
 import re
 import shutil
@@ -48,9 +49,10 @@ class Directory:
 
         if self.status == Status.PARSE:
             self.all_files = self._get_all_files()
-            self.parse_files = self._get_parse_files()
-            self.files_count = len(self.all_files)
-            self.left_files = len(self.parse_files) + 1
+            if self.all_files:
+                self.parse_files = self._get_parse_files()
+                self.files_count = len(self.all_files)
+                self.left_files = len(self.parse_files) + 1
             self.command_file = open(os.path.join(self.path, '_command_.txt'), 'w', encoding='utf-8', errors='replace')
             if not self.all_files:
                 self.status = Status.ERROR
@@ -135,7 +137,11 @@ class Directory:
                 is_archive = utils.is_archive(f)
                 if f not in archives_done and is_archive:
                     print('ARCHIVE UNPACKING:', f)
-                    Archive(file).extractall(file.parent)
+                    try:
+                        Archive(file).extractall(file.parent)
+                    except:
+                        self.status = ERROR
+                        return None
                     return self._get_all_files(archives_done=archives_done + [f])
 
                 if not utils.is_escape_file(f) and not is_archive:

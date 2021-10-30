@@ -182,7 +182,7 @@ def start():
             cmd1 = f'test -f {rem_path}'
             answer = client(cmd1)
             print(answer)
-            if answer['returncode'] == 0:
+            if answer and answer['returncode'] == 0:
                 path = None
 
 

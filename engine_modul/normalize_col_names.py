@@ -14,25 +14,31 @@ def change_col_names(colls: list):
         _result (dict): {1: 'upp', 2: 'um'}
     """
     _result = {}
-    _status = set()
+    _status = []
     _error = []
 
     for i_col, col in enumerate(colls):
+        next = False
         if  col.lower() in ASSERT_NAME.keys() or col.lower() in ASSERT_NAME.values():
             _result[i_col + 1] = col
-            _status.add(tuple([col, True]))
+            _status.append([i_col + 1, col, True])
             continue
         for key, possible_names in POSSIBLE_EXCHANGES.items():
             if col.lower() in possible_names:
-                colls[i_col] = key
-                _result[i_col + 1] = key
-                _status.add(tuple([col, True]))
-
-        if (col, True) not in _status:
-            _status.add(tuple([col, False]))
-            _error.append(f'{i_col + 1}={col}')
+                col = key
+                colls[i_col] = col
+                _result[i_col + 1] = col
+                _status.append([i_col+1, col, True])
+                next = True
+        if next:
+            continue
+        _status.append([i_col+1, col, False])
+        _error.append(f'{i_col + 1}={col}')
     console.print(f'Error column name: {"NONE" if not _error else " ".join(_error)}')
-    console.print("STATUS: " + " ".join([f"{'[green]' if st else '[red]'}{item}{'[/green]' if st else '[/red]'}" for item, st in _status]))
+    console.print("COLS: " + ",".join(
+        [f"{'[green]' if st else '[red]'}{i}={col}[/]" 
+        for i, col, st in sorted(_status, key=lambda x: x[0])]
+    ))
     return _result
 
 
