@@ -299,8 +299,11 @@ class FolderParser:
             return self._all_folder_paths
 
     def count_left_dirs(self):
-        left_dirs = len(self.all_folder_paths) - (len(self.passed_dirs) + len(self.complete_dirs))
-        return left_dirs + 1
+        left_dirs = len(self.all_folder_paths)
+        for folder in self.all_folder_paths:
+            if str(folder.absolute()) in self.complete_dirs or str(folder.absolute()) in self.passed_dirs:
+                left_dirs -= 1
+        return left_dirs
 
     def iterate(self, reparse_file_state):
         for folder in self.all_folder_paths:
