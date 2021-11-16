@@ -19,40 +19,33 @@ class ConvertorJSON:
     def _walk_to_json_data(self) -> list:
         """проход по структуре JSON"""
         for key, value in self.json_data.items():
-            result = []
-            if type(value) is str:
-                result.append(tuple([key, value]))
-            elif type(value) is list:
-                for item in self._get_list_data(key, value):
-                    result.append(item)
-            elif type(value) is dict:
-                for item in self._get_dict_data(value):
-                    result.append(item)
-            yield result
+            if type(value) is list and len(value) > 0 and type(value[0]) is dict:
+                for list_item in value:
+                    yield self._get_dict_data(list_item)
 
-    def _get_list_data(self, key, ls: list) -> tuple:
+    def _get_list_data(self, key, ls: list) -> list:
         """Генератор tuple из списка"""
+        result = []
         for item in ls:
+            if type(item) is str:
+                result.append(tuple([key, item]))
             if type(item) is dict:
-                for res in self._get_dict_data(item):
-                    yield res
+                result.extend(self._get_dict_data(item))
             elif type(item) is list:
-                for res in self._get_list_data(key, item):
-                    yield res
-            else:
-                yield tuple([key, item])
+                result.extend(self._get_list_data(key, item))
+        return result
 
-    def _get_dict_data(self, dc: dict) -> tuple:
+    def _get_dict_data(self, dc: dict) -> list:
         """получение значений словаря"""
+        result = []
         for key, value in dc.items():
-            if type(value) is dict:
-                for res in self._get_dict_data(value):
-                    yield res
+            if type(value) is str or type(value) is int:
+                result.append(tuple([key, value]))
+            elif type(value) is dict:
+                result.extend(self._get_dict_data(value))
             elif type(value) is list:
-                for res in self._get_list_data(key, value):
-                    yield res
-            else:
-                yield tuple([key, value])
+                result.extend(self._get_list_data(key, value))
+        return result
 
     def write_to_file(self):
         pass
@@ -63,6 +56,8 @@ class ConvertorJSON:
 
     def run(self):
         self._read_json_file()
+        result = [ item for item in self._walk_to_json_data()]
+        print(result)
 
 #
 # def parse_users(path, site_name, readme_path):
