@@ -1,14 +1,10 @@
 import csv
-import os
 import json
-import shutil
 import subprocess
-from pprint import pprint
 
 import dpath.util
 
 from engine_modul.interface import UserInterface
-
 
 
 class ConvertorJSON:

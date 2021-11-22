@@ -5,6 +5,7 @@ clipboard==0.0.4
 colorama==0.4.4
 commonmark==0.9.1
 cronodump==1.1.0
+dpath==2.0.5
 EasyProcess==0.3
 entrypoint2==0.2.4
 idna==3.2
