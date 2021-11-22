@@ -1,3 +1,4 @@
+import csv
 import os
 import json
 import shutil
@@ -23,6 +24,7 @@ class ConvertorJSON:
             'dict': self._get_dict_data,
             'str': lambda string, key: {key: string},
         }
+        self.headers = []
 
     def _read_json_file(self):
         """Чтение JSON файла"""
@@ -68,10 +70,14 @@ class ConvertorJSON:
         type_data = self._get_type(dpath.util.get(self.json_data, keys_string))
         if type_data == 'dict':
             for key, value in dpath.util.get(self.json_data, keys_string).items():
-                yield self.handlers[self._get_type(value)](value, key)
+                row = self.handlers[self._get_type(value)](value, key)
+                self.headers = list(row.keys())
+                yield row
         elif type_data == 'list':
             for item in dpath.util.get(self.json_data, keys_string):
-                yield self.handlers[self._get_type(item)](item)
+                row = self.handlers[self._get_type(item)](item)
+                self.headers = list(row.keys())
+                yield row
 
     def _get_data_for_string_from_list(self):
         """Генерация данных из списка для формирования строк"""
@@ -115,8 +121,18 @@ class ConvertorJSON:
                 result.update(self._get_list_data(key=key, ls=value))
         return result
 
-    def write_to_file(self, data: dict):
+    def write_to_file(self, strings_generator) -> str:
         """Запись данных в CSV"""
+        csv_path = self.json_file + '_converted.csv'
+        with open(csv_path, 'w', newline='') as csvfile:
+            init = False
+            for row in strings_generator():
+                if not init:
+                    writer = csv.DictWriter(csvfile, fieldnames=self.headers)
+                    writer.writeheader()
+                    init = True
+                writer.writerow(row)
+        return csv_path
 
     def get_string(self, answer):
         """Генерация строки"""
@@ -126,15 +142,14 @@ class ConvertorJSON:
             self._search_key_in_dict(key=answer, dict_for_search=self.json_data)
             return self._get_data_for_string_from_dict
 
-    def run(self):
+    def run(self) -> str:
         self._read_json_file()
         self._print_json_data()
         answer = self._get_user_input()
         if answer == 'p':
             return None
         strings_generator = self.get_string(answer)
-        result = [item for item in strings_generator()]
-        pprint(result)
+        return self.write_to_file(strings_generator)
 
 
 if __name__ == '__main__':
