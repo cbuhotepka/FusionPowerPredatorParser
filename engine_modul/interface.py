@@ -111,5 +111,27 @@ class UserInterface:
                 continue
         print('\n')
 
-    def _handler_user_input(self):
-        pass
+    def print_key_value_JSON(self, is_list: bool, key: str, value: any) -> None:
+        """Вываод данных JSON на экран"""
+        if not is_list:
+            console.print(f'[blue]{key}[/blue]: [green]{value}[/green]')
+        else:
+            console.print(f'[blue]Элемент СПИСКА[/blue]: [green]{value}[/green]')
+
+    def ask_mode_parsing_JSON(self) -> str:
+        """Запрос режима парсинга JSON"""
+        # p - пропустить файл
+        # o - открыть файл
+        # k - указать ключ
+        # l - корневой список данных
+        while True:
+            mode = Prompt.ask(f"[green]Выберите режим парсинга JSON",
+                                choices=['p', 'o', 'k', 'l'],
+                                default='k')
+            if mode == 'k':
+                answer = Prompt.ask(f'[cyan]Введите ключ: ')
+                if answer == "error":
+                    continue
+            else:
+                answer = mode
+            return answer
