@@ -12,6 +12,7 @@ from folder_parser.store import ERROR_EXTENSIONS
 from folder_parser import utils
 from pyunpack import Archive
 from cronos_dump import is_cronos, convert_to_csv
+from json_parser.json_parser import ConvertorJSON
 
 USER = os.environ.get('USER_NAME', 'er')
 PASSWORD = os.environ.get('USER_PASSWORD', 'qwerty123')
@@ -137,12 +138,15 @@ class Directory:
                 continue
             is_cronos_dir = any([is_cronos(f) for f in files])
             if is_cronos_dir:
-                print('Found cronos. Converting to csv...')
-                if root == str(self.path):
-                    convert_to_csv(root, output_dir=os.path.join(root, 'cronos'))
-                else:
-                    convert_to_csv(root)
+                print(f'{root} dir is cronos. Converting to csv...')
+                output_dir = os.path.join(root, 'cronos') if root == str(self.path) else root
+                try:
+                    convert_to_csv(root, output_dir=output_dir, remove_if_exist=True)
+                except ImportError:
+                    self.status = ERROR
+                    return None
                 return self._get_all_files(paths_for_pass=paths_for_pass + [root])
+
             for f in files:
                 file = Path(os.path.join(root, f))
                 is_archive = utils.is_archive(f)
@@ -151,6 +155,15 @@ class Directory:
                     try:
                         Archive(file).extractall(file.parent)
                     except:
+                        self.status = ERROR
+                        return None
+                    return self._get_all_files(paths_for_pass=paths_for_pass + [f])
+                if f not in paths_for_pass and not utils.is_escape_file(f) and f.endswith('.json'):
+                    print('JSON CONVERTING:', f)
+                    try:
+                        conv = ConvertorJSON(str(file.absolute()))
+                        conv.run()
+                    except ImportError:
                         self.status = ERROR
                         return None
                     return self._get_all_files(paths_for_pass=paths_for_pass + [f])
