@@ -1,6 +1,6 @@
 {"new_edits":false,"docs":[
 {"id":"1","tel":"+79999888844","name":"user_1","email":["user_1_first@mail.ru", "user-1-second@gmail.com"],"password_scheme":"pbkdf2","derived_key":"53ff907edd36b866e0039c77ff9410bc92c967ab","salt":"05be6e8f54cf239e079082e37f3f7b65"},
-{"id":"2","tel":"+799998444844","name":"user_2","email":["user_2_first@mail.ru", "user-2-second@gmail.com"],"password_scheme":"pbkdf2","derived_key":"53ff907edd36b866e0039c77ff9410bc92c967ab","salt":"05be6e8f54cf239e079082e37f3f7b65"},
+{"id":"2","tel":"+799998444844","name":"user_2","email-2":["user_2_first@mail.ru", "user-2-second@gmail.com"],"password_scheme":"pbkdf2","derived_key":"53ff907edd36b866e0039c77ff9410bc92c967ab","salt":"05be6e8f54cf239e079082e37f3f7b65"},
 {"id":"3","tel":"+799222228844","name":"user_3","email":["user_3_first@mail.ru", "user-3-second@gmail.com"],"password_scheme":"pbkdf2","derived_key":"53ff907edd36b866e0039c77ff9410bc92c967ab","salt":"05be6e8f54cf239e079082e37f3f7b65"},
 {"id":"4","tel":"+7999777844","name":"user_4","email":["user_4_first@mail.ru", "user-4-second@gmail.com"],"password_scheme":"pbkdf2","derived_key":"53ff907edd36b866e0039c77ff9410bc92c967ab","salt":"05be6e8f54cf239e079082e37f3f7b65"},
 {"id":"5","tel":"+79922228844","name":"user_5","email":["user_5_first@mail.ru", "user-5-second@gmail.com"],"password_scheme":"pbkdf2","derived_key":"53ff907edd36b866e0039c77ff9410bc92c967ab","salt":"05be6e8f54cf239e079082e37f3f7b65"}

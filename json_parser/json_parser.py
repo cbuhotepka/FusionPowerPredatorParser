@@ -1,6 +1,7 @@
 import csv
 import json
 import subprocess
+from itertools import repeat
 
 import dpath.util
 
@@ -20,7 +21,7 @@ class ConvertorJSON:
             'dict': self._get_dict_data,
             'str': lambda string, key: {key: string},
         }
-        self.headers = []
+        self.headers = set()
 
     def _read_json_file(self):
         """Чтение JSON файла"""
@@ -67,12 +68,10 @@ class ConvertorJSON:
         if type_data == 'dict':
             for key, value in dpath.util.get(self.json_data, keys_string).items():
                 row = self.handlers[self._get_type(value)](value, key)
-                self.headers = list(row.keys())
                 yield row
         elif type_data == 'list':
             for item in dpath.util.get(self.json_data, keys_string):
                 row = self.handlers[self._get_type(item)](item)
-                self.headers = list(row.keys())
                 yield row
 
     def _get_data_for_string_from_list(self):
@@ -117,16 +116,23 @@ class ConvertorJSON:
                 result.update(self._get_list_data(key=key, ls=value))
         return result
 
+    def _get_full_list_headers(self, generator_of_dict):
+        """формирование списка названий столбцов"""
+        for dict_item in generator_of_dict():
+            new_keys = set(dict_item.keys())
+            if not self.headers.issuperset(new_keys):
+                self.headers.update(new_keys)
+
     def write_to_file(self, strings_generator) -> str:
         """Запись данных в CSV"""
         csv_path = self.json_file + '_converted.csv'
         with open(csv_path, 'w', newline='') as csvfile:
-            init = False
+            writer = csv.DictWriter(csvfile, fieldnames=list(self.headers))
+            writer.writeheader()
             for row in strings_generator():
-                if not init:
-                    writer = csv.DictWriter(csvfile, fieldnames=self.headers)
-                    writer.writeheader()
-                    init = True
+                if not self.headers == set(row.keys()):
+                    diff = list(self.headers.difference(set(row.keys())))
+                    row.update(dict(zip(diff, repeat(''))))
                 writer.writerow(row)
         return csv_path
 
@@ -144,7 +150,9 @@ class ConvertorJSON:
         answer = self._get_user_input()
         if answer == 'p':
             return None
+
         strings_generator = self.get_string(answer)
+        self._get_full_list_headers(strings_generator)
         return self.write_to_file(strings_generator)
 
 

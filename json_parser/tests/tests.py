@@ -49,7 +49,7 @@ class ConvertorJSONTest(unittest.TestCase):
         """тест генерации данных при корневом списке в JSON"""
         self.conv.json_data = [
             {"key_1": "string_1", "key_2": ["string_2_1", "string_2_2"],  "key_3": {"sub_key": "sub_string"}},
-            {"key_1": "string_1", "key_2": ["string_2_1", "string_2_2"],  "key_3": {"sub_key": "sub_string"}},
+            {"key_1": "string_1", "key_2": ["string_2_1", "string_2_2"],  "key_3": {"sub_key_3": "sub_string"}},
         ]
 
         good_result = [
@@ -119,6 +119,17 @@ class ConvertorJSONTest(unittest.TestCase):
         result = self.conv.sequence_keys
         self.assertEqual(result, good_result)
 
+    def test_get_full_list_headers(self):
+        """получение списка заголовоков"""
+        self.conv.json_data = [
+            {"key_1": "string_1", "key_2": ["string_2_1", "string_2_2"], "key_3": {"sub_key": "sub_string"}},
+            {"key_1": "string_1", "key_2": ["string_2_1", "string_2_2"], "key_3": {"sub_key_2": "sub_string"}},
+        ]
+
+        good_result = {"key_1", "key_2_1", "key_2_2", "sub_key", "sub_key_2"}
+        generator = self.conv.get_string('l')
+        self.conv._get_full_list_headers(generator)
+        self.assertEqual(good_result, self.conv.headers)
 
 if __name__ == '__main__':
     unittest.main()
