@@ -114,9 +114,9 @@ class UserInterface:
     def print_key_value_JSON(self, is_list: bool, key: str, value: any) -> None:
         """Вываод данных JSON на экран"""
         if not is_list:
-            console.print(f'[blue]{key}[/blue]: [green]{value}[/green]')
+            console.print_json(data={key: value})
         else:
-            console.print(f'[blue]Элемент СПИСКА[/blue]: [green]{value}[/green]')
+            console.print_json(data=value)
 
     def ask_mode_parsing_JSON(self) -> str:
         """Запрос режима парсинга JSON"""

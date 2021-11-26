@@ -29,12 +29,15 @@ class ConvertorJSON:
             self.json_data = json.load(json_file)
 
     def _print_json_data(self):
+        printed_rows = 0
         if type(self.json_data) == dict:
             for key, value in self.json_data.items():
                 self.interface.print_key_value_JSON(is_list=False, key=key, value=value)
+                printed_rows += 1
+                if printed_rows > 15:
+                    return
         else:
-            for item in self.json_data:
-                self.interface.print_key_value_JSON(is_list=False, key="", value=item)
+            self.interface.print_key_value_JSON(is_list=True, key="", value=self.json_data[:15])
 
     def _get_user_input(self) -> str:
         """Запрос у пользователя режима парсинга JSON"""
