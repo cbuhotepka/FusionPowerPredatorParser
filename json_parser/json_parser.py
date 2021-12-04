@@ -152,7 +152,7 @@ class ConvertorJSON:
         self._print_json_data()
         answer = self._get_user_input()
         if answer == 'p':
-            return None
+            return ''
 
         strings_generator = self.get_string(answer)
         self._get_full_list_headers(strings_generator)
