@@ -54,8 +54,12 @@ HOST, PORT = '192.168.88.173', os.environ['SERVER_PORT_FIX']
 # all_command_path = None
 
 def get_cmds(f):
-    _data = json.load(f)
-    return list(zip(_data.values(), _data.keys()))
+    try:
+        _data = json.load(f)
+        return list(zip(_data.values(), _data.keys()))
+    except Exception as ex:
+        print(str(f))
+        print(ex)
 
 
 @logger.catch()
@@ -84,7 +88,7 @@ def show_progress(done, left):
 def search_command_files(path_search):
     for root_dir, dirs, files in os.walk(path_search):
         for file in files:
-            if re.search(r'^_command_\.txt', file):
+            if re.search(r'^_command_\.txt', file) and os.path.getsize(os.path.join(root_dir, file)) > 0:
                 file_path = os.path.join(root_dir, file)
                 yield file_path
     return None
@@ -175,7 +179,6 @@ def start():
 
         for cmd, path in cmds:
             cmd = re.sub(r'main.py', 'fix.py', cmd)
-            cmd = re.sub(r'None', 'fix.py', cmd)
             if cmd in ready_cmd:
                 continue
             rem_path = os.path.join('/home/br/files/', os.path.basename(path))

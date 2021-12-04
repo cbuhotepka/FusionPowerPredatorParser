@@ -120,8 +120,8 @@ class Validator:
 
     def _ip_handler(self, value: str) -> dict:
         result = {}
-        _value = convert_ip(value)
-        # _value = value
+        # _value = convert_ip(value)
+        _value = value
         name = 'ipaddress'
         result[name] = _value if self._is_ip(_value) else ''
         return result

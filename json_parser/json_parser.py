@@ -1,7 +1,9 @@
 import csv
 import json
+import os
 import subprocess
 from itertools import repeat
+from pathlib import Path
 
 import dpath.util
 
@@ -31,13 +33,7 @@ class ConvertorJSON:
     def _print_json_data(self):
         printed_rows = 0
         if type(self.json_data) == dict:
-            for key, value in self.json_data.items():
-                self.interface.print_key_value_JSON(is_list=False, key=key, value=value)
-                printed_rows += 1
-                if printed_rows > 15:
-                    return
-        else:
-            self.interface.print_key_value_JSON(is_list=True, key="", value=self.json_data[:15])
+            self.interface.print_key_value_JSON(self.json_file, limit=15)
 
     def _get_user_input(self) -> str:
         """Запрос у пользователя режима парсинга JSON"""
@@ -128,15 +124,16 @@ class ConvertorJSON:
 
     def write_to_file(self, strings_generator) -> str:
         """Запись данных в CSV"""
-        csv_path = self.json_file + '_converted.csv'
-        with open(csv_path, 'w', newline='') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=list(self.headers))
+        csv_path = os.path.join(str(self.json_file) + '_converted.csv')
+        with open(csv_path, 'w', newline='', encoding='utf-8') as csv_file:
+            writer = csv.DictWriter(csv_file, fieldnames=list(self.headers))
             writer.writeheader()
             for row in strings_generator():
                 if not self.headers == set(row.keys()):
                     diff = list(self.headers.difference(set(row.keys())))
                     row.update(dict(zip(diff, repeat(''))))
                 writer.writerow(row)
+        self.json_data = None
         return csv_path
 
     def get_string(self, answer):

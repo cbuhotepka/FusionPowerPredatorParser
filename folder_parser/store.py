@@ -1,5 +1,4 @@
-ALLOW_EXTENSIONS = ['.txt', '.csv', '', '.zip', '.rar', '.tsv', '.json']
-ERROR_EXTENSIONS = ['.sql', '.json', '.xml']
+ALLOW_EXTENSIONS = ['.txt', '.csv', '', '.tsv', '.zip', '.rar', '.json']
 
 BANNED_SYMBOL = ['Ð', 'œ', '\x9d', 'ž', '\x90', '˜', '—', '°', '±', 'Ñ', 'ƒ', '³', '¾', 
                 '\x81', '‡', 'µ', 'º', '¡', 'Â', 'š', '²', 'ˆ', '¿', '§', '•', '¥', '¯', '®', '›', 

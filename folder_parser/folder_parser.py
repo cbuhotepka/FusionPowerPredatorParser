@@ -68,9 +68,10 @@ class Directory:
             _, extension = os.path.splitext(file)
             if not extension.lower() in ERROR_EXTENSIONS:
                 self.left_files -= 1
-                if extension.lower() == 'json':
+                if extension.lower() == '.json':
                     yield self.convert_json(file)
-                yield file
+                else:
+                    yield file
 
     def convert_json(self, file_path) -> str:
         """Запускает конвертор JSON"""
@@ -166,15 +167,15 @@ class Directory:
                         self.status = ERROR
                         return None
                     return self._get_all_files(paths_for_pass=paths_for_pass + [f])
-                if f not in paths_for_pass and not utils.is_escape_file(f) and f.endswith('.json'):
-                    print('JSON CONVERTING:', f)
-                    try:
-                        conv = ConvertorJSON(str(file.absolute()))
-                        conv.run()
-                    except ImportError:
-                        self.status = ERROR
-                        return None
-                    return self._get_all_files(paths_for_pass=paths_for_pass + [f])
+                # if f not in paths_for_pass and not utils.is_escape_file(f) and f.endswith('.json'):
+                #     print('JSON CONVERTING:', f)
+                #     try:
+                #         conv = ConvertorJSON(str(file.absolute()))
+                #         conv.run()
+                #     except ImportError:
+                #         self.status = ERROR
+                #         return None
+                #     return self._get_all_files(paths_for_pass=paths_for_pass + [f])
 
                 if not utils.is_escape_file(f) and not is_archive:
                     all_files.append(file)

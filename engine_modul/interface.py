@@ -1,3 +1,5 @@
+from pprint import pprint
+
 from rich.highlighter import RegexHighlighter
 from rich.prompt import Prompt, IntPrompt, Confirm
 
@@ -111,12 +113,14 @@ class UserInterface:
                 continue
         print('\n')
 
-    def print_key_value_JSON(self, is_list: bool, key: str, value: any) -> None:
+    def print_key_value_JSON(self, json_path: str, limit: int) -> None:
         """Вываод данных JSON на экран"""
-        if not is_list:
-            console.print_json(data={key: value})
-        else:
-            console.print_json(data=value)
+        with open(json_path, 'r', encoding='utf-8') as json_file:
+            for i, line in enumerate(json_file.readlines()):
+                console.print(f'{line[:1000]}')
+                if i == limit:
+                    break
+            print()
 
     def ask_mode_parsing_JSON(self) -> str:
         """Запрос режима парсинга JSON"""
