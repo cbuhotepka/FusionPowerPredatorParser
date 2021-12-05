@@ -117,7 +117,11 @@ class UserInterface:
         """Вываод данных JSON на экран"""
         with open(json_path, 'r', encoding='utf-8') as json_file:
             for i, line in enumerate(json_file.readlines()):
-                console.print(f'{line[:1000]}')
+                if len(line) > 1000:
+                    length = 1000
+                else:
+                    length = len(line)
+                console.print(f'{line[:length]}')
                 if i == limit:
                     break
             print()
