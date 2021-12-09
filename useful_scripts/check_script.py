@@ -9,15 +9,15 @@ from rich.console import Console
 from rich.prompt import Prompt
 import json
 import utils
+
 from store import ASSERT_NAME
-from MegaParser import AbstractDataBaseDir
 
 user = 'br'
 password = 'eYZ78QDh9'
 PD = 'C'
 console = Console()
 
-TYPE_BASE = 'combo'
+TYPE_BASE = ''
 gl_num_columns = None
 
 
@@ -37,8 +37,10 @@ class CommandData:
 
 def start(auto_parse, full_auto):
     start_path = os.path.join(f'{PD}:\\', 'Source', TYPE_BASE)
-
-    iter_dirs = iter_for_db(start_path)
+    if TYPE_BASE == 'db':
+        iter_dirs = iter_for_db(start_path)
+    else:
+        iter_dirs = iter_for_combo(start_path)
     start_check(iter_dirs, auto_parse, full_auto)
 
 
@@ -48,19 +50,37 @@ def iter_for_db(start_path):
     _counter = len(os.listdir(start_path))
     for root_name in os.listdir(start_path):
         _counter -= 1
+        print()
         console.print(f"[bold green]Папок осталось {_counter}")
         if not os.path.isdir(os.path.join(start_path, root_name)):
             continue
         for item_name in os.listdir(os.path.join(start_path, root_name)):
             item = Path(os.path.join(start_path, root_name, item_name))
-            if str(item.absolute()) in parsing_complete:
-                console.print(f'[bold yellow]{item.absolute()}')
-                continue
-            console.print(f'[bold green]{item.absolute()}')
             if item.is_dir():
-                yield item
+                if str(item.absolute()) in parsing_complete:
+                    console.print(f'[bold yellow]{item.absolute()}')
+                else:
+                    console.print(f'[bold green]{item.absolute()}')
+                    yield item
             else:
                 continue
+
+
+def iter_for_combo(start_path):
+    parsing_complete = get_list_dirs_for_pass(start_path)
+
+    # Генератор, возвращает папку в каталоге ~/Source/combo
+    _counter = len(os.listdir(start_path))
+    for p in os.listdir(start_path):
+        item = Path(os.path.join(start_path, p))
+        if item.is_dir():
+            _counter -= 1
+            print()
+            console.print(f"[bold green]Папок осталось {_counter}")
+            if str(item.absolute()) in parsing_complete:
+                console.print(f'[bold green]{item.absolute()}')
+                continue
+            yield item
 
 
 def get_list_dirs_for_pass(path):
@@ -92,12 +112,12 @@ def start_check(all_dirs: Generator, auto_parse, full_auto):
             console.print(f"[bold red]{path_to_dir} - Папка пуста")
             continue
         console.print(f"[bold cyan]{path_to_dir}")
-        console.print(f"[bold green]Файлов в папке{len(all_files)}")
+        console.print(f"[bold green]--Файлов в папке -> {len(all_files)}")
         data_for_command = CommandData(**get_meta_for_db(dir, full_auto))
         # Обработака command файла
         command_file_path = os.path.join(base_dir, '_command_.txt')
         new_commands_data = get_old_command_data(command_file_path)
-
+        left_files = len(all_files)
         for file in all_files:
             ready = False
             data_for_command.file = os.path.basename(file)
@@ -106,6 +126,7 @@ def start_check(all_dirs: Generator, auto_parse, full_auto):
                     # Показ первых строк
                     utils.show_file(file)
                     console.print('[cyan]' + str(file))
+                    console.print(f"[bold green]**Файлов осталось-> {left_files}")
                     choice = Prompt.ask(f"[green]Что делаем?",
                                         choices=['g', 'e', 'd', 'o'],
                                         default='g')
@@ -128,6 +149,7 @@ def start_check(all_dirs: Generator, auto_parse, full_auto):
                         ready = True
                 except Exception as ex:
                     print(ex)
+            left_files -= 1
         if command_data_change:
             update_command_file(command_file_path, new_commands_data)
         done_check_file.write(str(dir) + '\n')
@@ -277,5 +299,5 @@ def get_db_command(data: CommandData) -> str:
 
 
 if __name__ == '__main__':
-
+    TYPE_BASE = Prompt.ask('Тип папки', choices=['combo', 'db'])
     start(False, False)
