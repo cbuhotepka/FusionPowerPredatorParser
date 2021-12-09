@@ -1,68 +1,44 @@
+import difflib
+import hashlib
 import os
-import logging
-from rich.console import Console
+from itertools import permutations
 
-from useful_scripts.file_hasher import get_hash
+DISK = 'S'
 
-console = Console()
+class Directory:
 
-log = logging.getLogger(__name__)
-f_handler = logging.FileHandler(f'{__name__}.log')
-c_handler = logging.StreamHandler()
-log.addHandler(f_handler)
-log.addHandler(c_handler)
+    def __init__(self, path):
+        self._path = path
+        self._files = []
+        for root, dirs, files in os.walk(path):
+            for file in files:
+                self._files.append(self._md5(os.path.join(root, file)))
 
-START_PATH = 'S:\\Source\\db'
+    def _md5(self, path: str):
+        hash_md5 = hashlib.md5()
+        with open(path, "rb") as f:
+            for chunk in iter(lambda: f.read(4096), b""):
+                hash_md5.update(chunk)
+        return hash_md5.hexdigest()
 
-
-def get_base():
-    """Генератор по базам"""
-    for root, base_list, _ in os.walk(START_PATH):
-        for base in base_list:
-            log.debug(f"Check base -> {root + base}")
-            yield base
-        break
-
-
-def get_item(base):
-    """Генератор item"""
-    for root, items, _ in os.walk(base):
-        for item in items:
-            log.debug(f"Check base -> {root + item}")
-            yield base
-        break
+    def __mod__(self, other: "Directory"):
+        matcher = difflib.SequenceMatcher(None, self._files, other._files)
+        return matcher.ratio()
 
 
-def get_file(base_path: str) -> str:
-    """Генератор файлов в базе"""
-    for item, dirs, files in os.walk(base_path):
-        for file in files:
-            if file not in ['readme.txt']:
-                log.debug(f'return {item + file}')
-                yield item + file
+# drc1 = Directory('matrix')
+# drc2 = Directory('.idea')
+# print(drc1 % drc2)
 
+for i in os.listdir(f'{DISK}://Source/db'):
+    if len(os.listdir(f'{DISK}://Source/db/{i}')) > 1:
+        dirs = []
+        double_dirs = set()
+        for dir in os.listdir(f'{DISK}://Source/db/{i}'):
+            dirs.append(Directory(f'{DISK}://Source/db/{i}/{dir}'))
 
-def check_base(base_hashes: list):
-    if not base_hashes or len(base_hashes) == 1:
-        return False
-    for base_hash in base_hashes:
-        for item_hashes in base_hashes[1:]:
-            if base_hash == item_hashes:
-                log.debug()
-                return True
-
-
-def run():
-    for base in get_base():
-        base_hashes = []
-        for item in get_item(base):
-            item_hashes = set()
-            for file in get_file(item):
-                hash = get_hash(file)
-                item_hashes.add(hash)
-            base_hashes.append(item_hashes)
-
-
-
-if __name__ == '__main__':
-    run()
+       # print(dirs)
+        for d1, d2 in permutations(dirs, 2):
+            if d1 % d2 > 0.49 and (d2, d1) not in double_dirs:
+                double_dirs.add((d1, d2))
+                print(d1._path, d2._path)
