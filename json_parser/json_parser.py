@@ -28,22 +28,26 @@ class ConvertorJSON:
     def _read_json_file(self):
         """Чтение JSON файла"""
         with open(self.json_file, 'r', encoding='utf-8') as json_file:
-            self.json_data = json.load(json_file)
+            try:
+                self.json_data = json.load(json_file)
+            except json.decoder.JSONDecodeError as ex:
+                self.interface.error(ex)
 
     def _print_json_data(self):
         printed_rows = 0
-        if type(self.json_data) == dict:
-            self.interface.print_key_value_JSON(self.json_file, limit=15)
+        self.interface.print_key_value_JSON(self.json_file, limit=15)
 
     def _get_user_input(self) -> str:
         """Запрос у пользователя режима парсинга JSON"""
-        answer = self.interface.ask_mode_parsing_JSON()
-        if answer == 'p':
-            return None
-        elif answer == 'o':
-            subprocess.run(f'Emeditor "{self.json_file}"')
-        else:
-            return answer
+        while True:
+            answer = self.interface.ask_mode_parsing_JSON()
+            if answer == 'p':
+                return answer
+            elif answer == 'o':
+                subprocess.run(f'Emeditor "{self.json_file}"')
+                self.interface.pause()
+            else:
+                return answer
 
     def _search_key_in_dict(self, key: str, dict_for_search: dict):
         """Поиск позиции введенного ключа"""
@@ -145,12 +149,13 @@ class ConvertorJSON:
             return self._get_data_for_string_from_dict
 
     def run(self) -> str:
-        self._read_json_file()
         self._print_json_data()
         answer = self._get_user_input()
         if answer == 'p':
+            self.interface.error("Pass json file!")
             return ''
 
+        self._read_json_file()
         strings_generator = self.get_string(answer)
         self._get_full_list_headers(strings_generator)
         return self.write_to_file(strings_generator)

@@ -1,6 +1,7 @@
 from folder_parser.store import ERROR_EXTENSIONS
 import os
 import subprocess
+import re
 
 from rich.console import Console
 from rich.progress import track
@@ -100,11 +101,10 @@ class Engine:
                 except Exception as ex:
                     print(f'Ошибка в ключах: {ex}')
                 max_key = max(self.file_handler.keys, key=lambda x: int(x[0]))
-                if (self.file_handler.num_columns + 1) >= int(max_key[0]):
+                self.file_handler.skip = self.interface.ask_skip_lines(self.file_handler.skip)
+                if (self.file_handler.num_columns + 1) >= int(max_key[0]) and self.file_handler.skip != -1:
                     break
-
                 self.file_handler.column_names = _init_cols_keys
-            self.file_handler.skip = self.interface.ask_skip_lines(self.file_handler.skip)
 
     def handler_mode(self, input_mode):
         mode = input_mode
@@ -119,6 +119,7 @@ class Engine:
             elif mode == 'o':
                 # Открыть в EmEditor
                 subprocess.run(f'Emeditor "{self.file_handler.file_path}"')
+                self.interface.pause()
                 self.rehandle_file_parameters()
             elif mode == 'n':
                 # Открыть в Notepad++
@@ -238,7 +239,8 @@ class Engine:
                     'base_date': dir.base_info['date']
                 }
                 self.writer = Writer(**writer_data)
-                for file in dir.iterate():
+                for file in dir.iterate(self.auto_parse):
+                    
                     self.read_file = Reader(file)
                     # Отлов ошибок для непрерывания full_auto
                     try:
@@ -256,8 +258,15 @@ class Engine:
                     if mode in ['p', 't', 'e']:
                         break
                     dir.insert_in_done_parsed_file(file)
-                # Если все файлы пропущены, то в треш
-                if self.handler_folders.current_folder.all_files_status == {'trash'} and self.handler_folders.current_folder.status != Status.SKIP:
+
+                # Определение условий
+                command_path = os.path.join(dir.path, '_command_.txt')
+                is_other_command = os.path.getsize(command_path) > 2 if os.path.exists(command_path) else True
+                all_trash = self.handler_folders.current_folder.all_files_status == {'trash'}
+                dir_not_skip = self.handler_folders.current_folder.status != Status.SKIP
+
+                # Если все файлы пропущены, статус папки не SKIP и нет других распарсенных файлов, то в трэш
+                if all_trash and dir_not_skip and is_other_command:
                     try:
                         self.read_file.close()
                         self.handler_folders.skip_folder(move_to='Trash')
@@ -268,7 +277,9 @@ class Engine:
                             raise ex
                         break
                 self.writer.finish()
-                if self.handler_folders.current_folder.status == Status.PARSE and 'parse' in self.handler_folders.current_folder.all_files_status:
+                status_is_parse = self.handler_folders.current_folder.status == Status.PARSE
+                files_status_contains_parse = 'parse' in self.handler_folders.current_folder.all_files_status
+                if status_is_parse and files_status_contains_parse:
                     dir.write_commands(self.writer.commands)
                     self.handler_folders.done_folder()
             else:

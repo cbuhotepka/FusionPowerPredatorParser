@@ -8,6 +8,8 @@ import shutil
 import time
 from pathlib import Path
 
+from dpath.util import new
+
 from folder_parser.store import ERROR_EXTENSIONS
 from folder_parser import utils
 from pyunpack import Archive
@@ -63,13 +65,17 @@ class Directory:
             except:
                 self.status = Status.ERROR
 
-    def iterate(self):
+    def iterate(self, auto_parse):
         for file in self.parse_files:
             _, extension = os.path.splitext(file)
             if not extension.lower() in ERROR_EXTENSIONS:
                 self.left_files -= 1
-                if extension.lower() == '.json':
-                    yield self.convert_json(file)
+                if extension.lower() == '.json' and not auto_parse:
+                    new_file = self.convert_json(file)
+                    if new_file:
+                        yield new_file
+                    else:
+                        continue
                 else:
                     yield file
 

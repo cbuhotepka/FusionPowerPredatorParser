@@ -114,14 +114,14 @@ class UserInterface:
         print('\n')
 
     def print_key_value_JSON(self, json_path: str, limit: int) -> None:
-        """Вываод данных JSON на экран"""
+        """Вывод данных JSON на экран"""
         with open(json_path, 'r', encoding='utf-8') as json_file:
-            for i, line in enumerate(json_file.readlines()):
+            for i, line in enumerate(json_file):
                 if len(line) > 1000:
                     length = 1000
                 else:
                     length = len(line)
-                console.print(f'{line[:length]}')
+                console_for_show.print(f'{line[:length]}')
                 if i == limit:
                     break
             print()
@@ -143,3 +143,19 @@ class UserInterface:
             else:
                 answer = mode
             return answer
+
+    def pause(self):
+        """Запрос подтверждения продолжения"""
+        answer = Confirm.ask('[magenta]Продолжаем?', default=True)
+        return answer
+
+    def error(self, err):
+        """Вывод ошибки"""
+        print()
+        console.print(f'[bold red]{"-" * 25}')
+        print()
+        console.print(f'[red]{err}')
+        print()
+        console.print(f'[bold red]{"-" * 25}')
+        print()
+        answer = Confirm.ask('[magenta]Продолжаем?', default=True)
