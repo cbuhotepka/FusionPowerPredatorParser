@@ -8,12 +8,11 @@ import subprocess
 from rich.console import Console
 from rich.prompt import Prompt
 import json
-import utils
 
 from store import ASSERT_NAME
 
 user = 'xx'
-password = 'xxxxx'
+password = 'xx'
 PD = 'C'
 console = Console()
 
