@@ -12,8 +12,8 @@ import utils
 
 from store import ASSERT_NAME
 
-user = 'br'
-password = 'eYZ78QDh9'
+user = 'xx'
+password = 'xxxxx'
 PD = 'C'
 console = Console()
 
@@ -239,7 +239,7 @@ def get_all_files_in_dir(path_to_dir):
     all_files: list[Path] = []
     for root, dirs, files in os.walk(path_to_dir):
         files = list(filter(lambda x: x.endswith('.rewrite'), files))
-        all_files: list[Path] = [Path(os.path.join(root, f)) for f in files]
+        all_files.extend([Path(os.path.join(root, f)) for f in files])
 
     return all_files
 

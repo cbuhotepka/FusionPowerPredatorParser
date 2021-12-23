@@ -33,8 +33,17 @@ class ConvertorJSON:
             except json.decoder.JSONDecodeError as ex:
                 self.interface.error(ex)
 
+    def _get_string_from_json_file(self):
+        """Чтение JSON файла построчно"""
+        with open(self.json_file, 'r', encoding='utf-8') as json_file:
+            for line in json_file:
+                try:
+                    dc = json.loads(line)
+                    yield dc
+                except json.decoder.JSONDecodeError as ex:
+                    self.interface.error(ex)
+
     def _print_json_data(self):
-        printed_rows = 0
         self.interface.print_key_value_JSON(self.json_file, limit=15)
 
     def _get_user_input(self) -> str:
@@ -143,8 +152,12 @@ class ConvertorJSON:
     def get_string(self, answer):
         """Генерация строки"""
         if answer == 'l':
+            self._read_json_file()
             return self._get_data_for_string_from_list
+        elif answer == 'jl':
+            return self._get_string_from_json_file
         else:
+            self._read_json_file()
             self._search_key_in_dict(key=answer, dict_for_search=self.json_data)
             return self._get_data_for_string_from_dict
 
@@ -155,7 +168,6 @@ class ConvertorJSON:
             self.interface.error("Pass json file!")
             return ''
 
-        self._read_json_file()
         strings_generator = self.get_string(answer)
         self._get_full_list_headers(strings_generator)
         return self.write_to_file(strings_generator)

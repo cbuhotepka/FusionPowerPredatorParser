@@ -132,9 +132,10 @@ class UserInterface:
         # o - открыть файл
         # k - указать ключ
         # l - корневой список данных
+        # jl - в каждой строке отдельный JSON
         while True:
             mode = Prompt.ask(f"[green]Выберите режим парсинга JSON",
-                                choices=['p', 'o', 'k', 'l'],
+                                choices=['p', 'o', 'k', 'l', 'jl'],
                                 default='k')
             if mode == 'k':
                 answer = Prompt.ask(f'[cyan]Введите ключ: ')
