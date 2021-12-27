@@ -8,7 +8,6 @@ from rich.prompt import Prompt
 
 import logging
 
-
 PD = 'C'
 console = Console()
 
@@ -105,6 +104,7 @@ def move_dir(base_dir, dest_path):
         log.debug('-' * 30)
         log.debug(' ')
 
+
 def start_check(all_dirs: Generator):
     # Итерируемся по каталогам
     done_check_path = os.path.join(START_PATH, 'check_complete.txt')
@@ -133,8 +133,12 @@ def start_check(all_dirs: Generator):
         elif elem := extensions.pop() in PATH_MOVE.keys():
             dest_path = PATH_MOVE[elem]
             move_dir(base_dir, dest_path)
+        else:
+            console.print(f"[bold red]I not know what do!")
+            log.debug('I not know what do!')
 
-def get_extensions(all_files: list)-> set:
+
+def get_extensions(all_files: list) -> set:
     # set расширений
     log.debug('Проверка расширений....')
     all_extension = set()
@@ -143,6 +147,7 @@ def get_extensions(all_files: list)-> set:
         all_extension.add(file.suffix.lower())
     return all_extension
 
+
 def get_all_files_in_dir(path_to_dir):
     # Сбор всех файлов с папки
     all_files: list[Path] = []
@@ -150,7 +155,6 @@ def get_all_files_in_dir(path_to_dir):
         files = list(filter(lambda x: x == 'readme.txt', files))
         all_files.extend([Path(os.path.join(root, f)) for f in files])
     return all_files
-
 
 
 if __name__ == '__main__':
