@@ -146,7 +146,7 @@ class Validator:
         return clean_string
 
     def _is_username(self, value: str) -> bool:
-        if re.match(r"^[^|/\\\[\]\(\):;,@]{3,16}$", value.strip('"\t ')) and value.strip('"\t ') not in self.domains:
+        if re.match(r"^[^|/\\\[\]\(\):;,]{3,16}$", value.strip('"\t ')) and value.strip('"\t ') not in self.domains:
             return True
         return False
 
