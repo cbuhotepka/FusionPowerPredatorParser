@@ -18,13 +18,6 @@ TYPE_BASE = ''
 log = logging.getLogger(__name__)
 # logging.basicConfig(filename='sorted_debug.log', encoding='utf-8', level=logging.DEBUG)
 
-def start():
-    if TYPE_BASE == 'db':
-        iter_dirs = iter_for_db(START_PATH)
-    else:
-        iter_dirs = iter_for_combo(START_PATH)
-    start_check(iter_dirs)
-
 
 def iter_for_db(start_path):
     parsing_complete = get_list_dirs_for_pass(start_path)
@@ -116,15 +109,17 @@ def start_check(all_dirs: Generator):
         extensions = get_extensions(all_files)
         log.debug(f'Полученные расширения --> {extensions}')
         console.print(f"[bold cyan]Полученные расширения --> {extensions}'")
-        if len(extensions) > 1:
+        type_base = get_type(extensions)
+        if type_base == 'MIXED':
             console.print(f"[bold red]{path_to_dir} - Mixed")
             log.debug(f'Папка Mixed!!\n\n')
-        elif (elem := extensions.pop()) in PATH_MOVE.keys():
-            dest_path = PATH_MOVE[elem]
-            move_dir(base_dir, path_to_dir, dest_path)
+            continue
         else:
-            console.print(f"[bold red]I not know what do!")
-            log.debug('I not know what do!')
+            dest_path = os.path.join(DESTINATION, type_base, TYPE_BASE)
+            move_dir(base_dir, path_to_dir, dest_path)
+        # else:
+        #     console.print(f"[bold red]I not know what do!")
+        #     log.debug('I not know what do!')
 
 
 def get_extensions(all_files: list) -> set:
@@ -149,6 +144,48 @@ def get_all_files_in_dir(path_to_dir):
     return all_files
 
 
+def get_type(extensions: set) -> str:
+    """получения типа базы"""
+    ALL_TYPES = {
+        '.txt': 'CSV',
+        '.csv': 'CSV',
+        '.tsv': 'CSV',
+        '.xls': 'XLS',
+        '.xlsx': 'XLS',
+        '.dat': 'CRONOS',
+        '.tad': 'CRONOS',
+        '.sql': 'SQL',
+        '.json': 'JSON',
+        '.xml': 'XML',
+        '.pdf': 'PDF',
+        '.zip': 'ARCH',
+        '.rar': 'ARCH',
+        '.7z': 'ARCH',
+        '.tgz': 'ARCH',
+        '.gzip': 'ARCH',
+        '.gz': 'ARCH',
+    }
+    types = set()
+    for ext in extensions:
+        if type_ := ALL_TYPES.get(ext, None):
+            types.add(type_)
+        else:
+            return 'MIXED'
+    if len(types) > 1:
+        return 'MIXED'
+    else:
+        log.debug(f'Type base -> {types}')
+        return types.pop()
+
+
+def start():
+    if TYPE_BASE == 'db':
+        iter_dirs = iter_for_db(START_PATH)
+    else:
+        iter_dirs = iter_for_combo(START_PATH)
+    start_check(iter_dirs)
+
+
 if __name__ == '__main__':
     TYPE_BASE = Prompt.ask('Тип папки', choices=['combo', 'db'])
     START_PATH = os.path.join(f'{PD}:\\errors_do_not_touch\\1', TYPE_BASE)
@@ -156,25 +193,5 @@ if __name__ == '__main__':
     file_handler = logging.FileHandler(filename=os.path.join(START_PATH, 'sorting.log'), encoding='utf-8')
     log.addHandler(file_handler)
     log.setLevel('DEBUG')
-
-    PATH_MOVE = {
-        '.txt': os.path.join(DESTINATION, 'CSV', TYPE_BASE),
-        '.csv': os.path.join(DESTINATION, 'CSV', TYPE_BASE),
-        '.tsv': os.path.join(DESTINATION, 'CSV', TYPE_BASE),
-        '.xls': os.path.join(DESTINATION, 'XLS', TYPE_BASE),
-        '.xlsx': os.path.join(DESTINATION, 'XLS', TYPE_BASE),
-        '.dat': os.path.join(DESTINATION, 'CRONOS', TYPE_BASE),
-        '.tad': os.path.join(DESTINATION, 'CRONOS', TYPE_BASE),
-        '.sql': os.path.join(DESTINATION, 'SQL', TYPE_BASE),
-        '.json': os.path.join(DESTINATION, 'JSON', TYPE_BASE),
-        '.xml': os.path.join(DESTINATION, 'XML', TYPE_BASE),
-        '.pdf': os.path.join(DESTINATION, 'PDF', TYPE_BASE),
-        '.zip': os.path.join(DESTINATION, 'ARCH', TYPE_BASE),
-        '.rar': os.path.join(DESTINATION, 'ARCH', TYPE_BASE),
-        '.7z': os.path.join(DESTINATION, 'ARCH', TYPE_BASE),
-        '.tgz': os.path.join(DESTINATION, 'ARCH', TYPE_BASE),
-        '.gzip': os.path.join(DESTINATION, 'ARCH', TYPE_BASE),
-        '.gz': os.path.join(DESTINATION, 'ARCH', TYPE_BASE),
-    }
 
     start()
