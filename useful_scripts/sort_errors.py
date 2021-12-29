@@ -1,5 +1,6 @@
 import os
 import shutil
+import time
 from pathlib import Path
 from typing import Generator
 
@@ -8,29 +9,14 @@ from rich.prompt import Prompt
 
 import logging
 
-PD = 'C'
+PD = 'E'
 console = Console()
 
 TYPE_BASE = ''
-START_PATH = os.path.join('\\192.168.88.210\\blitz_error\\errors_do_not_touch\\1', TYPE_BASE)
-DESTINATION = os.path.join('\\192.168.88.210\\blitz_error\\errors_sorted\\')
+
 
 log = logging.getLogger(__name__)
-file_handler = logging.FileHandler(os.path.join(START_PATH, 'sorting.log'))
-log.addHandler(file_handler)
-
-PATH_MOVE = {
-    '.txt': os.path.join(DESTINATION, 'CSV', TYPE_BASE),
-    '.csv': os.path.join(DESTINATION, 'CSV', TYPE_BASE),
-    '.tsv': os.path.join(DESTINATION, 'CSV', TYPE_BASE),
-    '.xls': os.path.join(DESTINATION, 'XLS', TYPE_BASE),
-    '.xlsx': os.path.join(DESTINATION, 'XLS', TYPE_BASE),
-    '.dat': os.path.join(DESTINATION, 'CRONOS', TYPE_BASE),
-    '.tad': os.path.join(DESTINATION, 'CRONOS', TYPE_BASE),
-    '.sql': os.path.join(DESTINATION, 'SQL', TYPE_BASE),
-    '.json': os.path.join(DESTINATION, 'JSON', TYPE_BASE),
-}
-
+# logging.basicConfig(filename='sorted_debug.log', encoding='utf-8', level=logging.DEBUG)
 
 def start():
     if TYPE_BASE == 'db':
@@ -89,17 +75,19 @@ def get_list_dirs_for_pass(path):
     return parsing_complete
 
 
-def move_dir(base_dir, dest_path):
+def move_dir(base_dir, src_dir, dest_path):
     if not os.path.exists(dest_path):
         log.debug(f'Создание папок {dest_path}')
         os.makedirs(dest_path, exist_ok=True)
     try:
-        log.debug(f'Перемещение {base_dir} -> {dest_path}')
+        log.debug(f'Перемещение {src_dir} -> {dest_path}')
         with console.status('[bold blue]Перемещение папки...', spinner='point', spinner_style="bold blue"):
-            shutil.move(base_dir, dest_path)
+            shutil.move(src_dir, dest_path)
+            if os.path.exists(base_dir) and not os.listdir(base_dir):
+                shutil.rmtree(base_dir)
     except OSError as ex:
         log.debug(f'Ошибка перемещения {ex}')
-        console.print(f"[bold red]{base_dir} - Не могу переместить!")
+        console.print(f"[bold red]{src_dir} - Не могу переместить!")
     finally:
         log.debug('-' * 30)
         log.debug(' ')
@@ -127,23 +115,26 @@ def start_check(all_dirs: Generator):
 
         extensions = get_extensions(all_files)
         log.debug(f'Полученные расширения --> {extensions}')
+        console.print(f"[bold cyan]Полученные расширения --> {extensions}'")
         if len(extensions) > 1:
             console.print(f"[bold red]{path_to_dir} - Mixed")
             log.debug(f'Папка Mixed!!\n\n')
-        elif elem := extensions.pop() in PATH_MOVE.keys():
+        elif (elem := extensions.pop()) in PATH_MOVE.keys():
             dest_path = PATH_MOVE[elem]
-            move_dir(base_dir, dest_path)
+            move_dir(base_dir, path_to_dir, dest_path)
         else:
             console.print(f"[bold red]I not know what do!")
             log.debug('I not know what do!')
 
 
 def get_extensions(all_files: list) -> set:
-    # set расширений
-    log.debug('Проверка расширений....')
+    # log.debug('\n->\nПроверка расширений....')
+    # log.debug(f'all_files -> {all_files}')
     all_extension = set()
-    # Обработака command файла
     for file in all_files:
+        # log.debug(f'file -> {file}')
+        suffix = file.suffix.lower()
+        # log.debug(f'suffix -> {suffix}')
         all_extension.add(file.suffix.lower())
     return all_extension
 
@@ -152,11 +143,38 @@ def get_all_files_in_dir(path_to_dir):
     # Сбор всех файлов с папки
     all_files: list[Path] = []
     for root, dirs, files in os.walk(path_to_dir):
-        files = list(filter(lambda x: x == 'readme.txt', files))
+        # log.debug(f'Список файлов -> {files}')
+        files = list(filter(lambda x: x != 'readme.txt', files))
         all_files.extend([Path(os.path.join(root, f)) for f in files])
     return all_files
 
 
 if __name__ == '__main__':
     TYPE_BASE = Prompt.ask('Тип папки', choices=['combo', 'db'])
+    START_PATH = os.path.join(f'{PD}:\\errors_do_not_touch\\1', TYPE_BASE)
+    DESTINATION = os.path.join(f'{PD}:\\errors_do_not_touch\\1\\sorted\\')
+    file_handler = logging.FileHandler(filename=os.path.join(START_PATH, 'sorting.log'), encoding='utf-8')
+    log.addHandler(file_handler)
+    log.setLevel('DEBUG')
+
+    PATH_MOVE = {
+        '.txt': os.path.join(DESTINATION, 'CSV', TYPE_BASE),
+        '.csv': os.path.join(DESTINATION, 'CSV', TYPE_BASE),
+        '.tsv': os.path.join(DESTINATION, 'CSV', TYPE_BASE),
+        '.xls': os.path.join(DESTINATION, 'XLS', TYPE_BASE),
+        '.xlsx': os.path.join(DESTINATION, 'XLS', TYPE_BASE),
+        '.dat': os.path.join(DESTINATION, 'CRONOS', TYPE_BASE),
+        '.tad': os.path.join(DESTINATION, 'CRONOS', TYPE_BASE),
+        '.sql': os.path.join(DESTINATION, 'SQL', TYPE_BASE),
+        '.json': os.path.join(DESTINATION, 'JSON', TYPE_BASE),
+        '.xml': os.path.join(DESTINATION, 'XML', TYPE_BASE),
+        '.pdf': os.path.join(DESTINATION, 'PDF', TYPE_BASE),
+        '.zip': os.path.join(DESTINATION, 'ARCH', TYPE_BASE),
+        '.rar': os.path.join(DESTINATION, 'ARCH', TYPE_BASE),
+        '.7z': os.path.join(DESTINATION, 'ARCH', TYPE_BASE),
+        '.tgz': os.path.join(DESTINATION, 'ARCH', TYPE_BASE),
+        '.gzip': os.path.join(DESTINATION, 'ARCH', TYPE_BASE),
+        '.gz': os.path.join(DESTINATION, 'ARCH', TYPE_BASE),
+    }
+
     start()
