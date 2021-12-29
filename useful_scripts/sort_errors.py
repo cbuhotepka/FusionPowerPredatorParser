@@ -77,6 +77,8 @@ def move_dir(base_dir, src_dir, dest_path):
         with console.status('[bold blue]Перемещение папки...', spinner='point', spinner_style="bold blue"):
             shutil.move(src_dir, dest_path)
             if os.path.exists(base_dir) and not os.listdir(base_dir):
+                log.debug(f'Папка пуста.\n Удаляю -> {base_dir}')
+                console.print(f"[yellow]Папка пуста!.\n Удаляю -> {base_dir}")
                 shutil.rmtree(base_dir)
     except OSError as ex:
         log.debug(f'Ошибка перемещения {ex}')
@@ -105,21 +107,23 @@ def start_check(all_dirs: Generator):
             continue
         console.print(f"[bold cyan]{path_to_dir}")
         console.print(f"[bold green]--Файлов в папке -> {len(all_files)}")
+        log.debug(f"--Файлов в папке -> {len(all_files)}")
 
         extensions = get_extensions(all_files)
         log.debug(f'Полученные расширения --> {extensions}')
         console.print(f"[bold cyan]Полученные расширения --> {extensions}'")
-        type_base = get_type(extensions)
-        if type_base == 'MIXED':
+        type_files = get_type(extensions)
+        if type_files == 'MIXED':
             console.print(f"[bold red]{path_to_dir} - Mixed")
             log.debug(f'Папка Mixed!!\n\n')
             continue
         else:
-            dest_path = os.path.join(DESTINATION, type_base, TYPE_BASE)
+            if TYPE_BASE == 'db':
+                base_name = Path(base_dir).parts[-1]
+                dest_path = os.path.join(DESTINATION, type_files, TYPE_BASE, base_name)
+            else:
+                dest_path = os.path.join(DESTINATION, type_files, TYPE_BASE)
             move_dir(base_dir, path_to_dir, dest_path)
-        # else:
-        #     console.print(f"[bold red]I not know what do!")
-        #     log.debug('I not know what do!')
 
 
 def get_extensions(all_files: list) -> set:
@@ -188,8 +192,8 @@ def start():
 
 if __name__ == '__main__':
     TYPE_BASE = Prompt.ask('Тип папки', choices=['combo', 'db'])
-    START_PATH = os.path.join(f'{PD}:\\errors_do_not_touch\\1', TYPE_BASE)
-    DESTINATION = os.path.join(f'{PD}:\\errors_do_not_touch\\1\\sorted\\')
+    START_PATH = os.path.join(f'{PD}:\\errors_do_not_touch\\9', TYPE_BASE)
+    DESTINATION = os.path.join(f'{PD}:\\errors_do_not_touch\\9\\sorted\\')
     file_handler = logging.FileHandler(filename=os.path.join(START_PATH, 'sorting.log'), encoding='utf-8')
     log.addHandler(file_handler)
     log.setLevel('DEBUG')
