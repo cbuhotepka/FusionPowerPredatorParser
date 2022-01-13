@@ -113,17 +113,17 @@ def start_check(all_dirs: Generator):
         log.debug(f'Полученные расширения --> {extensions}')
         console.print(f"[bold cyan]Полученные расширения --> {extensions}'")
         type_files = get_type(extensions)
-        if type_files == 'MIXED':
-            console.print(f"[bold red]{path_to_dir} - Mixed")
-            log.debug(f'Папка Mixed!!\n\n')
-            continue
+        # if type_files == 'MIXED':
+        #     console.print(f"[bold red]{path_to_dir} - Mixed")
+        #     log.debug(f'Папка Mixed!!\n\n')
+        #     continue
+        # else:
+        if TYPE_BASE == 'db':
+            base_name = Path(base_dir).parts[-1]
+            dest_path = os.path.join(DESTINATION, type_files, TYPE_BASE, base_name)
         else:
-            if TYPE_BASE == 'db':
-                base_name = Path(base_dir).parts[-1]
-                dest_path = os.path.join(DESTINATION, type_files, TYPE_BASE, base_name)
-            else:
-                dest_path = os.path.join(DESTINATION, type_files, TYPE_BASE)
-            move_dir(base_dir, path_to_dir, dest_path)
+            dest_path = os.path.join(DESTINATION, type_files, TYPE_BASE)
+        move_dir(base_dir, path_to_dir, dest_path)
 
 
 def get_extensions(all_files: list) -> set:
@@ -192,10 +192,11 @@ def start():
 
 if __name__ == '__main__':
     TYPE_BASE = Prompt.ask('Тип папки', choices=['combo', 'db'])
-    START_PATH = os.path.join(f'{PD}:\\errors_do_not_touch\\9', TYPE_BASE)
-    DESTINATION = os.path.join(f'{PD}:\\errors_do_not_touch\\9\\sorted\\')
-    file_handler = logging.FileHandler(filename=os.path.join(START_PATH, 'sorting.log'), encoding='utf-8')
-    log.addHandler(file_handler)
     log.setLevel('DEBUG')
+    for i in range(1, 4):
+        START_PATH = os.path.join(f'{PD}:\\errors_do_not_touch\\{i}', TYPE_BASE)
+        DESTINATION = os.path.join(f'{PD}:\\errors_do_not_touch\\{i}\\sorted\\')
+        file_handler = logging.FileHandler(filename=os.path.join(START_PATH, 'sorting.log'), encoding='utf-8')
+        log.addHandler(file_handler)
+        start()
 
-    start()
