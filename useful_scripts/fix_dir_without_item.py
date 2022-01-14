@@ -36,4 +36,5 @@ def fix_dir(db_path: str):
 if __name__ == '__main__':
     base_path = input('Input db base path (*/1/db/) >>> ')
     for db_path in os.listdir(base_path):
-        fix_dir(os.path.join(base_path, db_path))
+        if os.path.isdir(os.path.join(base_path, db_path)):
+            fix_dir(os.path.join(base_path, db_path))
