@@ -66,7 +66,7 @@ class UserInterface:
 
     def ask_mode_handle(self):
         answer = Prompt.ask(f"[green]Если все ОК нажмите Enter",
-                            choices=['p', 'l', 'o', 'n', 'd', 'e', 't'],
+                            choices=['p', 'l', 'o', 'n', 'd', 'e', 't', 'jp'],
                             default='start')
         return answer
 

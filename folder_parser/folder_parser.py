@@ -70,21 +70,23 @@ class Directory:
             _, extension = os.path.splitext(file)
             if not extension.lower() in ERROR_EXTENSIONS:
                 self.left_files -= 1
-                if extension.lower() == '.json' and not auto_parse:
-                    new_file = self.convert_json(file)
-                    self.insert_in_done_parsed_file(file)
-                    if new_file:
-                        yield new_file
-                    else:
-                        continue
-                else:
-                    yield file
+                # if extension.lower() == '.json' and not auto_parse:
+                    # TODO Убрать вызов
+                    # new_file = self.convert_json(file)
+                    # self.insert_in_done_parsed_file(file)
+                    # if new_file:
+                    #     yield new_file
+                    # else:
+                    #     continue
+                # else:
+                yield file
 
-    def convert_json(self, file_path) -> str:
-        """Запускает конвертор JSON"""
-        convertor = ConvertorJSON(file=file_path)
-        converted_file = convertor.run()
-        return converted_file
+    # TODO Убрать функцию
+    # def convert_json(self, file_path) -> str:
+    #     """Запускает конвертор JSON"""
+    #     convertor = ConvertorJSON(file=file_path)
+    #     converted_file = convertor.run()
+    #     return converted_file
 
     def write_commands(self, commands: dict):
         """ Принимает команды в виде словаря {rewrite_file: command} """

@@ -11,6 +11,7 @@ from engine_modul.file_handler import FileHandler
 from engine_modul.interface import UserInterface
 from engine_modul.store import PATTERN_TEL_PASS, PATTERN_USERMAIL_USERNAME_PASS, PATTERN_UID_UN_IP_UM_PASS
 from folder_parser.folder_parser import Directory, FolderParser, Status
+from json_parser.json_parser import ConvertorJSON
 from reader.reader import Reader
 from validator.validator import Validator
 from writer.writer import Writer
@@ -77,8 +78,9 @@ class Engine:
         while menu:
             mode = self.interface.ask_mode_handle()
             mode = self.handler_mode(mode)
-            if mode in ['p', 'l', 'e', 't']:
+            if mode in ['p', 'l', 'e', 't', 'jp']:
                 return mode
+
             self.file_handler.get_column_names(self.full_auto)
             self.interface.show_num_columns(self.file_handler.num_columns + 1)
             _init_cols_keys = self.file_handler.column_names
@@ -172,7 +174,7 @@ class Engine:
                 mode = 'p'
                 return mode
             mode = self.manual_parsing_menu()
-            if mode in ['l', 'p', 't', 'e']:
+            if mode in ['l', 'p', 't', 'e', 'jp']:
                 return mode
 
         self.writer.start_new_file(self.file_handler.file_path, self.file_handler.delimiter)
@@ -217,6 +219,12 @@ class Engine:
 
         return error
 
+    def convert_json(self, file_path) -> str:
+        """Запускает конвертор JSON"""
+        convertor = ConvertorJSON(file=file_path)
+        converted_file = convertor.run()
+        return converted_file
+
     def start(self):
         self.type_base = self.interface.ask_type_base()
         _reparse_file_state = self.interface.ask_reparse_file()
@@ -250,6 +258,15 @@ class Engine:
                         self.interface.show_left_dirs(self.handler_folders.left_dirs)
                         self.interface.show_left_files(dir.left_files)
                         mode = self.parsing_file()
+                        if mode == 'jp':
+                            converted_file = self.convert_json(file)
+                            if not converted_file:
+                                mode = 'l'
+                            else:
+                                dir.insert_in_done_parsed_file(file)
+                                file = converted_file
+                                self.read_file = Reader(converted_file)
+                                mode = self.parsing_file()
                     except Exception as e:
                         if self.full_auto:
                             mode = 'p'
