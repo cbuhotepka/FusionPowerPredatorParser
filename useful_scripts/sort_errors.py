@@ -193,7 +193,7 @@ def start():
 if __name__ == '__main__':
     TYPE_BASE = Prompt.ask('Тип папки', choices=['combo', 'db'])
     log.setLevel('DEBUG')
-    for i in range(1, 4):
+    for i in range(4, 5):
         START_PATH = os.path.join(f'{PD}:\\errors_do_not_touch\\{i}', TYPE_BASE)
         DESTINATION = os.path.join(f'{PD}:\\errors_do_not_touch\\{i}\\sorted\\')
         file_handler = logging.FileHandler(filename=os.path.join(START_PATH, 'sorting.log'), encoding='utf-8')

@@ -72,6 +72,7 @@ class Directory:
                 self.left_files -= 1
                 if extension.lower() == '.json' and not auto_parse:
                     new_file = self.convert_json(file)
+                    self.insert_in_done_parsed_file(file)
                     if new_file:
                         yield new_file
                     else:

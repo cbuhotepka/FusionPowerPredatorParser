@@ -100,7 +100,10 @@ class Engine:
                     self.file_handler.get_keys()
                 except Exception as ex:
                     print(f'Ошибка в ключах: {ex}')
+                    continue
                 max_key = max(self.file_handler.keys, key=lambda x: int(x[0]))
+                if not max_key:
+                    continue
                 self.file_handler.skip = self.interface.ask_skip_lines(self.file_handler.skip)
                 if (self.file_handler.num_columns + 1) >= int(max_key[0]) and self.file_handler.skip != -1:
                     break

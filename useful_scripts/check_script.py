@@ -8,12 +8,19 @@ import subprocess
 from rich.console import Console
 from rich.prompt import Prompt
 import json
+import utils
+
+from py_dotenv import read_dotenv
+
+dotenv_path = Path('CONFIG.env')
+assert dotenv_path.exists()
+read_dotenv(dotenv_path)
 
 from store import ASSERT_NAME
 
-user = 'xx'
-password = 'xx'
-PD = 'C'
+user = os.environ.get('USER_NAME')
+password = os.environ.get('USER_PASSWORD')
+PD = os.environ.get('PARSING_DISK_NAME')
 console = Console()
 
 TYPE_BASE = ''
