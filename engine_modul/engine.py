@@ -170,7 +170,7 @@ class Engine:
     def parsing_file(self):
         self.file_handler = FileHandler(self.read_file, self.read_file.file_path)
         self.rehandle_file_parameters()
-        if not self.auto_parse or not self.autoparse(self.read_file):
+        if not self.auto_parse or self.file_handler.num_columns == 0 or not self.autoparse(self.read_file):
             if self.full_auto:
                 mode = 'p'
                 return mode
