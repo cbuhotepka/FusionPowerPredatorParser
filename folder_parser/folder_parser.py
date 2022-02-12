@@ -157,7 +157,7 @@ class Directory:
             is_cronos_dir = any([is_cronos(f) for f in files])
             if is_cronos_dir:
                 print(f'{root} dir is cronos. Converting to csv...')
-                output_dir = os.path.join(root, 'cronos') if root == str(self.path) else root
+                output_dir = os.path.join(root, 'csv')
                 try:
                     convert_to_csv(root, output_dir=output_dir, remove_if_exist=True)
                 except ImportError:

@@ -26,10 +26,11 @@ console = Console()
 
 class Engine:
 
-    def __init__(self, auto_parse, full_auto):
+    def __init__(self, auto_parse, full_auto, error_mode):
         self.type_base = None
         self.auto_parse = auto_parse
         self.full_auto = full_auto
+        self.error_mode = error_mode
         self.file_handler = None
         self.handler_folders = None
         self.interface = UserInterface()
@@ -202,7 +203,7 @@ class Engine:
     def check_error_extensions(self, dir: Directory):
         """ Возвращает True если есть error-файлы или файлов слишком много """
         error = False
-        if dir.error_files_count:
+        if not self.error_mode and dir.error_files_count:
             console.print(f'Error-файлы в папке: [red]{dir.error_files_count}[/red]/{dir.files_count}')
             console.print(
                 ', '.join(
@@ -211,7 +212,7 @@ class Engine:
                 )
             )
             error = True
-        elif dir.files_count >= TOO_MANY_FILES_TRESHOLD:
+        elif not self.error_mode and dir.files_count >= TOO_MANY_FILES_TRESHOLD:
             console.print(f'[red]Слишком много файлов: {dir.files_count}')
             error = True
         else:
