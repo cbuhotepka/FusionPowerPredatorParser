@@ -12,6 +12,7 @@ class Validator:
         self.input_columns_name = keys_and_cols_name
         self.output_data = OrderedDict()
         self.num_columns = num_columns
+        self.add_info_for_uai = []
         self.delimiter = delimiter
         self.columns_name_index = self.handler_keys()
         self.generator = FieldsGenerator(self.columns_name_index)
@@ -36,6 +37,8 @@ class Validator:
         """
         result = OrderedDict()
         for item in sorted(self.input_columns_name, key=lambda i: i[0]):
+            if 'user_additional_info' in item[1]:
+                self.add_info_for_uai.append(item[2])
             result.setdefault(item[1], [])
             result[item[1]].extend([int(item[0]) - 1])
         return result
@@ -182,7 +185,7 @@ class Validator:
 
     def handler_fields(self, fields) -> list:
         _result_fields = []
-        for generete_fields in self.generator.get_generate_fields(fields):
+        for generete_fields in self.generator.get_generate_fields(fields, self.add_info_for_uai):
             output_data = OrderedDict({'algorithm': None})
             for cols_name, value in generete_fields.items():
                 if cols_name in self.handlers_dict.keys():
@@ -228,16 +231,16 @@ class FieldsGenerator:
         return False
 
     def _get_count_output_results(self):
-        values = [item for key, item in self.columns_name_index.items() if key != 'user_additional_info']
+        values = [item for key, item in self.columns_name_index.items() if 'user_additional_info' not in key]
         return len(max(values, key=lambda item: len(item)))
 
-    def _create_handler_fields(self, fields):
+    def _create_handler_fields(self, fields, add_info_for_uai):
         handlers = {}
         for cols_name, indexes in self.columns_name_index.items():
-            if cols_name != 'user_additional_info':
+            if 'user_additional_info' not in cols_name:
                 handlers[cols_name] = self._handler_fields(fields=fields, indexes=indexes)
             else:
-                handlers[cols_name] = self._handler_uai_fields(fields=fields, indexes=indexes)
+                handlers[cols_name] = self._handler_uai_fields(fields=fields, indexes=indexes, add_info=add_info_for_uai)
         return handlers
 
     def _handler_fields(self, fields, indexes):
@@ -248,14 +251,16 @@ class FieldsGenerator:
         while True:
             yield result
 
-    def _handler_uai_fields(self, fields, indexes):
-        result = '|'.join(fields[i] for i in indexes)
+    def _handler_uai_fields(self, fields: list, indexes: list, add_info: list) -> str:
+        result = '|'.join(
+            f'{add}={fields[i]}' if add else fields[i]
+            for i, add in zip(indexes, add_info))
         while True:
             yield result
 
-    def get_generate_fields(self, fields):
+    def get_generate_fields(self, fields, add_info_for_uai):
         self._prepare_input_fields(fields)
-        self.handlers = self._create_handler_fields(fields)
+        self.handlers = self._create_handler_fields(fields, add_info_for_uai)
         count_result = 0
 
         while count_result < self.count_output_results:

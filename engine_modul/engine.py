@@ -78,6 +78,8 @@ class Engine:
         menu = True
         while menu:
             mode = self.interface.ask_mode_handle()
+            if mode == 'jp':
+                return mode
             mode = self.handler_mode(mode)
             if mode in ['p', 'l', 'e', 't', 'jp']:
                 return mode
@@ -168,6 +170,7 @@ class Engine:
         return mode
 
     def parsing_file(self):
+        mode = ''
         self.file_handler = FileHandler(self.read_file, self.read_file.file_path)
         self.rehandle_file_parameters()
         if not self.auto_parse or self.file_handler.num_columns == 0 or not self.autoparse(self.read_file):

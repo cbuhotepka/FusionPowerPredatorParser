@@ -29,6 +29,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     try:
-        start_parsing(auto_parse=args.auto_parse, full_auto=args.full_auto, error_mode=args.error_mode)
+        # start_parsing(auto_parse=args.auto_parse, full_auto=args.full_auto, error_mode=args.error_mode)
+        start_parsing(auto_parse=False, full_auto=False, error_mode=True)
     except KeyboardInterrupt:
         console.print('[green]\nВЫХОД...')

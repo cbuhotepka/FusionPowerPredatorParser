@@ -89,18 +89,28 @@ class FileHandler:
         key_res = []
         keys = []
         for arg in args_inp:
+            splited_key_data = None
             arg = arg.strip()
-            data_key = arg.split('=')
-            if len(data_key) < 2:
+            index_and_key = arg.split('=')
+            if len(index_and_key) < 2:
                 raise ValueError()
-            if data_key[1] in list(ASSERT_NAME.keys()):
-                col_name = ASSERT_NAME[data_key[1]]
-            elif data_key[1] in list(ASSERT_NAME.values()):
-                col_name = data_key[1]
+            if 'uai' in index_and_key[1]:
+                col_name = 'user_additional_info'
+                if '+' in index_and_key[1]:
+                    add_info = index_and_key[1].split('+')[1]
+                    splited_key_data = (index_and_key[0], 'user_additional_info', add_info)
+                else:
+                    splited_key_data = (index_and_key[0], 'user_additional_info', '')
+            elif index_and_key[1] in list(ASSERT_NAME.keys()):
+                col_name = ASSERT_NAME[index_and_key[1]]
+                splited_key_data = (index_and_key[0], ASSERT_NAME[index_and_key[1]])
+            elif index_and_key[1] in list(ASSERT_NAME.values()):
+                col_name = index_and_key[1]
+                splited_key_data = (index_and_key[0], index_and_key[1])
             else:
                 raise ValueError('Bad field name')
             key_res.append(col_name)
-            keys.append((data_key[0], col_name))
+            keys.append(splited_key_data)
         colsname_plain = key_res[::]
         if 'user_additional_info' in colsname_plain:
             while colsname_plain.count('user_additional_info') > 0:
