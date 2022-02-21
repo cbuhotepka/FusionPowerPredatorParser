@@ -31,7 +31,13 @@ class ConvertorJSON:
             try:
                 self.json_data = json.load(json_file)
             except json.decoder.JSONDecodeError as ex:
-                self.interface.error(ex)
+                print(ex)
+                answer = self.interface.error(ex)
+                if answer:
+                    self.run()
+                else:
+                    raise ValueError(ex)
+
 
     def _get_string_from_json_file(self):
         """Чтение JSON файла построчно"""
@@ -41,7 +47,14 @@ class ConvertorJSON:
                     dc = json.loads(line)
                     yield dc
                 except json.decoder.JSONDecodeError as ex:
-                    self.interface.error(ex)
+                    print(line)
+                    answer = self.interface.error(ex)
+                    if not answer:
+                        self.run()
+                    continue
+                except Exception as ex:
+                    print(ex)
+                    continue
 
     def _print_json_data(self):
         self.interface.print_key_value_JSON(self.json_file, limit=15)

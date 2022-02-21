@@ -154,9 +154,8 @@ class UserInterface:
         """Вывод ошибки"""
         print()
         console.print(f'[bold red]{"-" * 25}')
-        print()
         console.print(f'[red]{err}')
-        print()
         console.print(f'[bold red]{"-" * 25}')
         print()
         answer = Confirm.ask('[magenta]Продолжаем?', default=True)
+        return answer
