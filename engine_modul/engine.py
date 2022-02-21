@@ -167,6 +167,8 @@ class Engine:
                 self.handler_folders.current_folder.all_files_status.add('parse')
                 break
             mode = self.interface.ask_mode_handle()
+            if mode in ('jp', ):
+                break
         return mode
 
     def parsing_file(self):
