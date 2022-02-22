@@ -45,7 +45,8 @@ class ConvertorJSON:
             for line in json_file:
                 try:
                     dc = json.loads(line)
-                    yield dc
+                    row = self.handlers[self._get_type(dc)](dc, key='_')
+                    yield row
                 except json.decoder.JSONDecodeError as ex:
                     print(line)
                     answer = self.interface.error(ex)
