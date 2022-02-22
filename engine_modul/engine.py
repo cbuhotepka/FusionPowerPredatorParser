@@ -183,7 +183,7 @@ class Engine:
             if mode in ['l', 'p', 't', 'e', 'jp']:
                 return mode
 
-        self.writer.start_new_file(self.file_handler.file_path, self.file_handler.delimiter)
+        self.writer.start_new_file(self.file_handler.file_path, self.file_handler.delimiter if self.file_handler.delimiter != '\t' else ';')
         with console.status('[bold blue]Подсчет строк...', spinner='point', spinner_style="bold blue") as status:
             count_rows_in_file = self.file_handler.get_count_rows()
             console.print(f'[yellow]Строк в файле: {count_rows_in_file}')
