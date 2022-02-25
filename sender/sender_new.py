@@ -109,7 +109,7 @@ def create_command_file():
         for file in search_command_files(line):
 
             command_file = open(file, 'r', encoding='utf-8')
-
+            os.remove(os.path.join(line, 'OLD-command.txt'))
             cmds = get_cmds(command_file)
             command_file.close()
             os.rename(file, os.path.join(os.path.split(file)[0], 'OLD-command.txt'))
@@ -168,9 +168,10 @@ def start():
 
         done_command_path = os.path.join(line, 'done_command_sender.txt')
 
-        if os.path.exists(done_command_path) and _resend == 'n':
+        if os.path.exists(done_command_path) and _resend == 'n' and os.path.getsize(done_command_path) > 5:
             done_command_file = open(done_command_path, 'r', encoding='utf-8')
             done_command = get_cmds(done_command_file)
+            done_command_file.close()
         else:
             done_command = []
         done_command_file = open(done_command_path, 'a', encoding='utf-8')

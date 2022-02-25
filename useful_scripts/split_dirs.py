@@ -9,7 +9,7 @@ from rich.prompt import Prompt
 
 import logging
 
-PD = 'C'
+PD = 'E'
 console = Console()
 
 TYPE_BASE = ''
@@ -74,7 +74,7 @@ def move_dir(base_dir, src_dir, dest_path):
         log.debug(f'Перемещение {src_dir} -> {dest_path}')
         with console.status('[bold blue]Перемещение папки...', spinner='point', spinner_style="bold blue"):
             shutil.move(src_dir, dest_path)
-            if os.path.exists(base_dir) and not os.listdir(base_dir):
+            if TYPE_BASE == 'db' and os.path.exists(base_dir) and not os.listdir(base_dir):
                 log.debug(f'Папка пуста.\n Удаляю -> {base_dir}')
                 console.print(f"[yellow]Папка пуста!.\n Удаляю -> {base_dir}")
                 shutil.rmtree(base_dir)
@@ -92,11 +92,12 @@ def start_split(all_dirs: Generator):
     dir_number = 1
     for dir in all_dirs:
         if TYPE_BASE == 'db':
-            base_dir = os.path.join(*Path(dir.absolute()).parts[:5])
-            base_name = Path(base_dir).parts[-2]
+            base_dir = os.path.join(*Path(dir.absolute()).parts[:6])
+            base_name = Path(base_dir).parts[-1]
             dest_path = os.path.join(DESTINATION, str(dir_number), base_name)
         else:
-            base_dir = os.path.join(*Path(dir.absolute()).parts[:4])
+            # base_dir = os.path.join(*Path(dir.absolute()).parts[:5])
+            base_dir = None
             dest_path = os.path.join(DESTINATION, str(dir_number))
         try:
             path_to_dir = str(dir.absolute())
@@ -123,8 +124,8 @@ def start():
 if __name__ == '__main__':
     TYPE_BASE = Prompt.ask('Тип папки', choices=['combo', 'db'])
     log.setLevel('DEBUG')
-    START_PATH = os.path.join(f'{PD}:\\Sorted\\CSV\\', TYPE_BASE)
-    DESTINATION = os.path.join(f'{PD}:\\Sorted\\CSV\\Split\\', TYPE_BASE)
+    START_PATH = os.path.join(f'{PD}:\\errors_do_not_touch\\Sorted\\CSV', TYPE_BASE)
+    DESTINATION = os.path.join(f'{PD}:\\errors_do_not_touch\\Sorted\\CSV\\Split\\', TYPE_BASE)
     SIZE_DIR = 25
     file_handler = logging.FileHandler(filename=os.path.join(START_PATH, 'splitting.log'), encoding='utf-8')
     log.addHandler(file_handler)
