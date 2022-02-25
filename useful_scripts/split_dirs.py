@@ -9,7 +9,7 @@ from rich.prompt import Prompt
 
 import logging
 
-PD = 'E'
+PD = 'C'
 console = Console()
 
 TYPE_BASE = ''
@@ -89,15 +89,15 @@ def move_dir(base_dir, src_dir, dest_path):
 def start_split(all_dirs: Generator):
     # Итерируемся по каталогам
     dirs_counter = 1
-
+    dir_number = 1
     for dir in all_dirs:
         if TYPE_BASE == 'db':
             base_dir = os.path.join(*Path(dir.absolute()).parts[:5])
-            base_name = Path(base_dir).parts[-1]
-            dest_path = os.path.join(DESTINATION, str(dirs_counter), base_name)
+            base_name = Path(base_dir).parts[-2]
+            dest_path = os.path.join(DESTINATION, str(dir_number), base_name)
         else:
             base_dir = os.path.join(*Path(dir.absolute()).parts[:4])
-            dest_path = os.path.join(DESTINATION, str(dirs_counter))
+            dest_path = os.path.join(DESTINATION, str(dir_number))
         try:
             path_to_dir = str(dir.absolute())
             move_dir(base_dir, path_to_dir, dest_path)
@@ -107,7 +107,9 @@ def start_split(all_dirs: Generator):
             console.print(f"[bold red]{dir} - not moved!")
             log.error(f"Can't move dir: {dir}")
         if dirs_counter == SIZE_DIR:
+            dir_number += 1
             dirs_counter = 0
+        dirs_counter += 1
 
 
 def start():
@@ -121,8 +123,8 @@ def start():
 if __name__ == '__main__':
     TYPE_BASE = Prompt.ask('Тип папки', choices=['combo', 'db'])
     log.setLevel('DEBUG')
-    START_PATH = os.path.join(f'{PD}:\\errors_do_not_touch\\1\\CSV', TYPE_BASE)
-    DESTINATION = os.path.join(f'{PD}:\\errors_do_not_touch\\1\\CSV\\')
+    START_PATH = os.path.join(f'{PD}:\\Sorted\\CSV\\', TYPE_BASE)
+    DESTINATION = os.path.join(f'{PD}:\\Sorted\\CSV\\Split\\', TYPE_BASE)
     SIZE_DIR = 25
     file_handler = logging.FileHandler(filename=os.path.join(START_PATH, 'splitting.log'), encoding='utf-8')
     log.addHandler(file_handler)
