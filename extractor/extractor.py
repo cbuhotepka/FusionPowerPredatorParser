@@ -26,6 +26,7 @@ class Extractor:
                         _match = self._handlers[tg](col)
                         if _match:
                             _data[tg].append(_match)
+                            break
                 wf.write(json.dumps(_data) + '\n')
         return result_path
 
@@ -68,19 +69,6 @@ class Extractor:
             return ''
         algorithms = identify_hashes(value)
         return algorithms[0] if algorithms else ''
-
-
-class Handler:
-
-    def __init__(self, regex: str, name: str):
-        self._regex = re.compile(regex)
-        self._name = name
-
-    def find(self, s) -> dict:
-        _match = self._regex.findall(s)
-        print(_match)
-        _s = [i[0] if type(i) is tuple else i for i in _match]
-        return {self._name: _s}
 
 
 extractor = Extractor()
