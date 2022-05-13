@@ -89,4 +89,4 @@ if __name__ == '__main__':
     path = input('path >>> ')
     target_names = input('target names (through a space) >>> ')
     delimiter = input('delimiter >>> ')
-    extractor.run('test.txt', target_names.split(), delimiter)
+    extractor.run(path, target_names.split(), delimiter)
