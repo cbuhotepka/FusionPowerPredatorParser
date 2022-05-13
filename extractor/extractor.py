@@ -1,6 +1,6 @@
 import json
 import re
-from reader import Reader
+from reader.reader import Reader
 from validator.hash_identifer import identify_hashes
 
 
