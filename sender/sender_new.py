@@ -109,7 +109,10 @@ def create_command_file():
         for file in search_command_files(line):
 
             command_file = open(file, 'r', encoding='utf-8')
-            os.remove(os.path.join(line, 'OLD-command.txt'))
+            try:
+                os.remove(os.path.join(line, 'OLD-command.txt'))
+            except:
+                pass
             cmds = get_cmds(command_file)
             command_file.close()
             os.rename(file, os.path.join(os.path.split(file)[0], 'OLD-command.txt'))
