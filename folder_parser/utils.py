@@ -29,6 +29,8 @@ def is_escape_file(file_name: str):
         file_name.endswith('.rewrite'),
         file_name == 'readme.txt',
         file_name == 'done_parsed_file.txt',
+        file_name == 'done_command_sender.txt',
+        file_name == 'OLD-command.txt',
     ])
 
 

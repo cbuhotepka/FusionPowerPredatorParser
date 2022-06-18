@@ -294,8 +294,8 @@ class FolderParser:
         self.current_folder = None
 
 
-        self.get_complete_dirs()  # устанавливает: complete_dirs_name, complete_dirs, complete_dirs_file
-        self.get_passed_dirs()  # устанавливает: passed_dirs_name, passed_dirs, passed_dirs_file
+        self.get_complete_dirs()  # устанавливает: complete_dirs_name, complete_dirs
+        self.get_passed_dirs()  # устанавливает: passed_dirs_name, passed_dirs
         self.left_dirs = self.count_left_dirs()
 
     def get_complete_dirs(self):
@@ -316,7 +316,7 @@ class FolderParser:
                 self.passed_dirs = list(map(lambda x: x.strip(), f.readlines()))
         else:
             self.passed_dirs = []
-        self.passed_dirs_file = open(self.passed_dirs_name, 'a+', encoding='utf-8', errors='replace')
+        # self.passed_dirs_file = open(self.passed_dirs_name, 'a+', encoding='utf-8', errors='replace')
 
     @property
     def all_folder_paths(self):
