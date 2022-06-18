@@ -8,6 +8,7 @@ from engine_modul.interface import UserInterface
 from engine_modul.normalize_col_names import normalize_col_names
 from engine_modul.store import ASSERT_NAME, COLUMN_NAME_TRIGGERS
 from reader import Reader
+from utils import find_delimiter
 
 console = Console()
 
@@ -48,7 +49,8 @@ class FileHandler:
         if len(list_line) > 25:
             list_line = list_line[5:]
         try:
-            return csv.Sniffer().sniff(''.join(list_line), delimiters=',:;\t').delimiter
+            return find_delimiter(list_line)
+            # return csv.Sniffer().sniff(''.join(list_line), delimiters=',:;\t').delimiter
         except csv.Error:
             return None
 
