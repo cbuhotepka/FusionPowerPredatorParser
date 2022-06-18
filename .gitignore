@@ -1,4 +1,6 @@
 __pycache__/
+/cronos_dump/__pycache__/
+/json_parser/__pycache__/
 /tests/__pycache__/
 /folder_parser/__pycache__/
 /validator/__pycache__/
