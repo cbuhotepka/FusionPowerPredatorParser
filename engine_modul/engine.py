@@ -15,6 +15,7 @@ from json_parser.json_parser import ConvertorJSON
 from reader.reader import Reader
 from validator.validator import Validator
 from writer.writer import Writer
+from engine_modul.celery_parse import daemon_parse
 
 user = os.environ.get('USER_NAME')
 password = os.environ.get('USER_PASSWORD')
@@ -26,11 +27,12 @@ console = Console()
 
 class Engine:
 
-    def __init__(self, auto_parse, full_auto, error_mode):
+    def __init__(self, auto_parse, full_auto, error_mode, daemon=False):
         self.type_base = None
         self.auto_parse = auto_parse
         self.full_auto = full_auto
         self.error_mode = error_mode
+        self.daemon = daemon
         self.file_handler = None
         self.handler_folders = None
         self.interface = UserInterface()
@@ -184,6 +186,21 @@ class Engine:
                 return mode
 
         self.writer.start_new_file(self.file_handler.file_path, self.file_handler.delimiter if self.file_handler.delimiter != '\t' else ';')
+        
+        if self.daemon:
+            print("\nRUNNING IN DAEMON PARSING!\n")
+            daemon_parse(
+                keys=self.file_handler.keys,
+                num_columns=self.file_handler.num_columns,
+                delimiter=self.file_handler,
+                skip=self.file_handler.skip,
+                file_path=self.read_file._path,
+                writer_data=self.writer_data,
+            )
+        else:
+            self.parse()
+
+    def parse(self):
         with console.status('[bold blue]Подсчет строк...', spinner='point', spinner_style="bold blue") as status:
             count_rows_in_file = self.file_handler.get_count_rows()
             console.print(f'[yellow]Строк в файле: {count_rows_in_file}')
@@ -249,13 +266,13 @@ class Engine:
                             raise ex
                     continue
                 self.handler_folders.current_folder.all_files_status.clear()
-                writer_data = {
+                self.writer_data = {
                     'base_type': dir.base_type,
                     'base_name': dir.base_info['name'],
                     'base_source': dir.base_info['source'],
                     'base_date': dir.base_info['date']
                 }
-                self.writer = Writer(**writer_data)
+                self.writer = Writer(**self.writer_data)
                 for file in dir.iterate(self.auto_parse):
                     
                     self.read_file = Reader(file)
@@ -283,7 +300,8 @@ class Engine:
                                 continue
                     if mode in ['p', 't', 'e']:
                         break
-                    dir.insert_in_done_parsed_file(file)
+                    if not self.daemon:
+                        dir.insert_in_done_parsed_file(file)
 
                 # Определение условий
                 command_path = os.path.join(dir.path, '_command_.txt')
