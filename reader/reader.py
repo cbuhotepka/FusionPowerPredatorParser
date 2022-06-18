@@ -111,3 +111,8 @@ class Reader:
 
     def close(self):
         self._file.close()
+
+    def get_count_rows(self):
+        self.open()
+        count = sum(1 for _ in self)
+        return count

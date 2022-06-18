@@ -3,7 +3,6 @@ import os
 import subprocess
 
 from rich.console import Console
-from rich.progress import track
 from rich.prompt import Prompt, Confirm
 
 from engine_modul.file_handler import FileHandler
@@ -13,9 +12,6 @@ from folder_parser.folder_parser import FolderParser
 from folder_parser.directory_class import Directory, DirStatus
 from json_parser.json_parser import ConvertorJSON
 from reader.reader import Reader
-from validator.validator import Validator
-from writer.writer import Writer
-from engine_modul.celery_parse import daemon_parse
 
 
 user = os.environ.get('USER_NAME')
@@ -38,24 +34,23 @@ class Engine:
         self.file_handler = None
         self.handler_folders = None
         self.interface = UserInterface()
-        self.read_file = None
 
-    def autoparse(self, file):
+    def autoparse(self):
         if self.auto_parse and self.file_handler.delimiter and (
-                self.file_handler.is_simple_file(PATTERN_TEL_PASS, file)):
+                self.file_handler.is_simple_file(PATTERN_TEL_PASS, self.file_handler.file_path)):
             self.file_handler.get_keys('1=tel, 2=password')
             self.handler_folders.current_folder.all_files_status.add('parse')
             self.file_handler.num_columns = 1
             console.print('[cyan]' + 'Автопарсинг tel password')
             return True
         elif self.auto_parse and self.file_handler.delimiter and (
-                self.file_handler.is_simple_file(PATTERN_USERMAIL_USERNAME_PASS, file)):
+                self.file_handler.is_simple_file(PATTERN_USERMAIL_USERNAME_PASS, self.file_handler.file_path)):
             self.file_handler.get_keys(f'1=user_mail_name, 2=password')
             self.handler_folders.current_folder.all_files_status.add('parse')
             self.file_handler.num_columns = 1
             console.print('[cyan]' + f'Автопарсинг umn password')
             return True
-        elif self.auto_parse and self.file_handler.delimiter and ('1:Anonymous:::' in self.read_file.open().readline()):
+        elif self.auto_parse and self.file_handler.delimiter and ('1:Anonymous:::' in self.file_handler.reader.open().readline()):
             self.file_handler.get_keys(f'1=uid, 2=un, 3=ip, 4=um, 5=p')
             self.handler_folders.current_folder.all_files_status.add('parse')
             self.file_handler.num_columns = 4
@@ -69,7 +64,7 @@ class Engine:
         Получение параметров файла: разделитель, количество столбцов, название столбцов
         @return:
         """
-        self.interface.show_file(self.file_handler.file)
+        self.interface.show_file(self.file_handler.reader)
         self.file_handler.handle_file()
         self.interface.show_delimiter(self.file_handler.delimiter)
         self.interface.show_num_columns(self.file_handler.num_columns + 1)
@@ -144,7 +139,7 @@ class Engine:
                 # Перенести папку в ERROR
                 self.handler_folders.current_folder.all_files_status.add('error')
                 try:
-                    self.read_file.close()
+                    self.file_handler.reader.close()
                     self.handler_folders.skip_folder(move_to='Error')
                     return mode
                 except Exception as ex:
@@ -156,7 +151,7 @@ class Engine:
                     raise ex
             elif mode == 't':
                 try:
-                    self.read_file.close()
+                    self.file_handler.reader.close()
                     self.handler_folders.current_folder.all_files_status.add('trash')
                     self.handler_folders.skip_folder(move_to='Trash')
                     return mode
@@ -177,9 +172,8 @@ class Engine:
 
     def parsing_file(self):
         mode = ''
-        self.file_handler = FileHandler(self.read_file, self.read_file.file_path)
         self.rehandle_file_parameters()
-        if not self.auto_parse or self.file_handler.num_columns == 0 or not self.autoparse(self.read_file):
+        if not self.auto_parse or self.file_handler.num_columns == 0 or not self.autoparse():
             if self.full_auto:
                 mode = 'p'
                 return mode
@@ -187,42 +181,7 @@ class Engine:
             if mode in ['l', 'p', 't', 'e', 'jp']:
                 return mode
 
-        self.writer.start_new_file(self.file_handler.file_path, self.file_handler.delimiter if self.file_handler.delimiter != '\t' else ';')
-        
-        if self.daemon:
-            print("\nRUNNING IN DAEMON PARSING!\n")
-            daemon_parse(
-                keys=self.file_handler.keys,
-                num_columns=self.file_handler.num_columns,
-                delimiter=self.file_handler,
-                skip=self.file_handler.skip,
-                file_path=self.read_file._path,
-                writer_data=self.writer_data,
-            )
-        else:
-            self.parse()
-
-    def parse(self):
-        with console.status('[bold blue]Подсчет строк...', spinner='point', spinner_style="bold blue") as status:
-            count_rows_in_file = self.file_handler.get_count_rows()
-            console.print(f'[yellow]Строк в файле: {count_rows_in_file}')
-        validator = Validator(self.file_handler.keys, self.file_handler.num_columns, self.file_handler.delimiter)
-        self.read_file.open(skip=self.file_handler.skip)
-        for line in track(self.read_file, description='[bold blue]Парсинг файла...', total=count_rows_in_file):
-
-            for fields_data in validator.get_fields(line):
-
-                # Пропуск записи если в полях меньше 2 не пустых значений
-                count_not_empty_values = sum(map(lambda x: bool(x), fields_data.values()))
-                if fields_data['algorithm']:
-                    if count_not_empty_values < 3:
-                        continue
-                else:
-                    if count_not_empty_values < 2:
-                        continue
-
-                # Запись полей в файл
-                self.writer.write(fields_data)
+        self.file_handler.parse_file(self.daemon)
 
     def check_error_extensions(self, dir: Directory):
         """ Возвращает True если есть error-файлы или файлов слишком много """
@@ -274,10 +233,9 @@ class Engine:
                     'base_source': dir.base_info['source'],
                     'base_date': dir.base_info['date']
                 }
-                self.writer = Writer(**self.writer_data)
                 for file in dir.iterate(self.auto_parse):
                     
-                    self.read_file = Reader(file)
+                    self.file_handler = FileHandler(file, self.writer_data)
                     # Отлов ошибок для непрерывания full_auto
                     try:
                         self.interface.show_left_dirs(self.handler_folders.left_dirs)
@@ -290,7 +248,7 @@ class Engine:
                             else:
                                 dir.insert_in_done_parsed_file(file)
                                 file = converted_file
-                                self.read_file = Reader(converted_file)
+                                self.file_handler.reader = Reader(converted_file)
                                 mode = self.parsing_file()
                     except Exception as e:
                         if self.full_auto:
@@ -314,7 +272,7 @@ class Engine:
                 # Если все файлы пропущены, статус папки не SKIP и нет других распарсенных файлов, то в трэш
                 if all_trash and dir_not_skip and is_other_command:
                     try:
-                        self.read_file.close()
+                        self.file_handler.reader.close()
                         self.handler_folders.skip_folder(move_to='Trash')
                     except Exception as ex:
                         console.print(f'[magenta]Не могу переместить[/magenta]: "[red]{ex}[/red]"')
@@ -322,11 +280,12 @@ class Engine:
                         if answer != 'y':
                             raise ex
                         break
-                self.writer.finish()
-                status_is_parse = self.handler_folders.current_folder.status == DirStatus.PARSE
-                files_status_contains_parse = 'parse' in self.handler_folders.current_folder.all_files_status
-                if status_is_parse and files_status_contains_parse:
-                    dir.write_commands(self.writer.commands)
-                    self.handler_folders.done_folder()
+                if self.file_handler:
+                    self.file_handler.writer.finish()
+                    status_is_parse = self.handler_folders.current_folder.status == DirStatus.PARSE
+                    files_status_contains_parse = 'parse' in self.handler_folders.current_folder.all_files_status
+                    if status_is_parse and files_status_contains_parse:
+                        dir.write_commands(self.file_handler.writer.commands)
+                        self.handler_folders.done_folder()
             else:
                 self.interface.print_dirs_status(str(dir.path), dir.status.value)

@@ -3,12 +3,17 @@ import re
 from collections import Counter
 
 from rich.console import Console
+from pathlib import Path
 
 from engine_modul.interface import UserInterface
 from engine_modul.normalize_col_names import normalize_col_names
 from engine_modul.store import ASSERT_NAME, COLUMN_NAME_TRIGGERS
 from reader import Reader
+from writer import Writer
 from engine_modul.utils import find_delimiter
+from validator.validator import Validator
+from engine_modul.celery_parse import daemon_parse
+from rich.progress import track
 
 console = Console()
 
@@ -18,9 +23,12 @@ class FileHandler:
     Класс для хранения параметров и методов файла
     """
 
-    def __init__(self, file, file_path):
-        self.file = file
-        self.file_path = file_path
+    def __init__(self, file_path, writer_data):
+        self.file_path = Path(file_path)
+        self.writer_data = writer_data
+        self.reader = Reader(file_path)
+        self.writer = Writer(**writer_data)
+
         self.delimiter = None
         self.num_columns = None
         self.interface = UserInterface()
@@ -40,8 +48,8 @@ class FileHandler:
         :return: dialect
         """
         list_line = []
-        self.file.open()
-        for i, line in enumerate(self.file):
+        self.reader.open()
+        for i, line in enumerate(self.reader):
             list_line.append(line)
             if i > 35:
                 break
@@ -122,12 +130,6 @@ class FileHandler:
         self.cols_name = colsname_plain
         return keys, colsname_plain
 
-    def get_count_rows(self):
-        self.file.open()
-        def foo(x): print(x); return 1
-        count = sum(1 for _ in self.file)
-        return count
-
     def get_num_columns(self):
         """
         Расчет количества разделителей в строке
@@ -137,9 +139,9 @@ class FileHandler:
         _sum_lines = 0
         _counter = Counter()
         pat = re.compile(f'{self.delimiter}')
-        self.file.open()
+        self.reader.open()
         lines = []
-        for i, line in enumerate(self.file):
+        for i, line in enumerate(self.reader):
             lines.append(line)
             if i == 25:
                 break
@@ -167,8 +169,8 @@ class FileHandler:
             _colsname (str): 1=un,2=upp,3=h or None
         """
         column_names_line = None
-        self.file.open()
-        for i, line in enumerate(self.file):
+        self.reader.open()
+        for i, line in enumerate(self.reader):
 
             # Finding line with column names
             if i < 6 and not column_names_line:
@@ -188,3 +190,41 @@ class FileHandler:
                 else:
                     self.column_names = ''
             return self.column_names
+
+    # =================================================================================
+    def parse_file(self, daemon=False):
+        self.writer.start_new_file(self.file_path, self.delimiter if self.delimiter != '\t' else ';')
+        if daemon:
+            print("\nRUNNING IN DAEMON PARSING!\n")
+            daemon_parse(
+                keys=self.keys,
+                num_columns=self.num_columns,
+                delimiter=self.delimiter,
+                skip=self.skip,
+                file_path=self.file_path,
+                writer_data=self.writer_data,
+            )
+        else:
+            self.simple_parse()
+
+    def simple_parse(self):
+        with console.status('[bold blue]Подсчет строк...', spinner='point', spinner_style="bold blue") as status:
+            count_rows_in_file = self.reader.get_count_rows()
+            console.print(f'[yellow]Строк в файле: {count_rows_in_file}')
+        validator = Validator(self.keys, self.num_columns, self.delimiter)
+        self.reader.open(skip=self.skip)
+        for line in track(self.reader, description='[bold blue]Парсинг файла...', total=count_rows_in_file):
+
+            for fields_data in validator.get_fields(line):
+
+                # Пропуск записи если в полях меньше 2 не пустых значений
+                count_not_empty_values = sum(map(lambda x: bool(x), fields_data.values()))
+                if fields_data['algorithm']:
+                    if count_not_empty_values < 3:
+                        continue
+                else:
+                    if count_not_empty_values < 2:
+                        continue
+
+                # Запись полей в файл
+                self.writer.write(fields_data)

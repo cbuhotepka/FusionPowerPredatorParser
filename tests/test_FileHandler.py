@@ -6,7 +6,13 @@ from engine_modul.file_handler import FileHandler
 class TestFileHAndler(unittest.TestCase):
 
     def setUp(self):
-        self.autoparser = FileHandler(Mock())
+        self.autoparser = FileHandler(
+            "tests/test_um_upp.csv", 
+            {"base_type": "db", "base_name": "name", "base_source": "source", "base_date": "0000-00-00"},
+        )
+        self.autoparser.file_path = Mock()
+        self.autoparser.reader = Mock()
+        self.autoparser.writer = Mock()
 
     def test_get_keys_good(self):
         input_keys = '1=um,2=un,3=ipaddress,4=a'

@@ -4,7 +4,6 @@ from pathlib import Path
 
 from reader.reader import Reader
 from validator.validator import Validator
-from engine_modul.file_handler import FileHandler
 from writer.writer import Writer
 
 
@@ -21,9 +20,8 @@ def daemon_parse(
     validator = Validator(keys, num_columns, delimiter)
     read_file = Reader(file_path)
     writer = Writer(**writer_data)
-    file_handler = FileHandler(read_file, read_file.file_path)
 
-    count_rows_in_file = file_handler.get_count_rows()
+    count_rows_in_file = read_file.get_count_rows()
     console.print(f'[yellow]Строк в файле: {count_rows_in_file}')
 
     read_file.open(skip=skip)
