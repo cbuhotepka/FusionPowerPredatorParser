@@ -1,7 +1,6 @@
 from folder_parser.store import ERROR_EXTENSIONS
 import os
 import subprocess
-import re
 
 from rich.console import Console
 from rich.progress import track
@@ -10,12 +9,14 @@ from rich.prompt import Prompt, Confirm
 from engine_modul.file_handler import FileHandler
 from engine_modul.interface import UserInterface
 from engine_modul.store import PATTERN_TEL_PASS, PATTERN_USERMAIL_USERNAME_PASS, PATTERN_UID_UN_IP_UM_PASS
-from folder_parser.folder_parser import Directory, FolderParser, Status
+from folder_parser.folder_parser import FolderParser
+from folder_parser.directory_class import Directory, DirStatus
 from json_parser.json_parser import ConvertorJSON
 from reader.reader import Reader
 from validator.validator import Validator
 from writer.writer import Writer
 from engine_modul.celery_parse import daemon_parse
+
 
 user = os.environ.get('USER_NAME')
 password = os.environ.get('USER_PASSWORD')
@@ -33,6 +34,7 @@ class Engine:
         self.full_auto = full_auto
         self.error_mode = error_mode
         self.daemon = daemon
+        self.daemon_processes = {}
         self.file_handler = None
         self.handler_folders = None
         self.interface = UserInterface()
@@ -253,7 +255,7 @@ class Engine:
         _reparse_file_state = self.interface.ask_reparse_file()
         self.handler_folders = FolderParser(self.type_base)
         for dir in self.handler_folders.iterate(_reparse_file_state):
-            if dir.status == Status.PARSE:
+            if dir.status == DirStatus.PARSE:
                 self.interface.print_dirs_status(str(dir.path), dir.status)
                 if self.check_error_extensions(dir):
                     try:
@@ -307,7 +309,7 @@ class Engine:
                 command_path = os.path.join(dir.path, '_command_.txt')
                 is_other_command = os.path.getsize(command_path) > 2 if os.path.exists(command_path) else True
                 all_trash = self.handler_folders.current_folder.all_files_status == {'trash'}
-                dir_not_skip = self.handler_folders.current_folder.status != Status.SKIP
+                dir_not_skip = self.handler_folders.current_folder.status != DirStatus.SKIP
 
                 # Если все файлы пропущены, статус папки не SKIP и нет других распарсенных файлов, то в трэш
                 if all_trash and dir_not_skip and is_other_command:
@@ -321,7 +323,7 @@ class Engine:
                             raise ex
                         break
                 self.writer.finish()
-                status_is_parse = self.handler_folders.current_folder.status == Status.PARSE
+                status_is_parse = self.handler_folders.current_folder.status == DirStatus.PARSE
                 files_status_contains_parse = 'parse' in self.handler_folders.current_folder.all_files_status
                 if status_is_parse and files_status_contains_parse:
                     dir.write_commands(self.writer.commands)
