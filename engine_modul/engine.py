@@ -7,7 +7,7 @@ from rich.prompt import Prompt, Confirm
 
 from engine_modul.file_handler import FileHandler
 from engine_modul.interface import UserInterface
-from engine_modul.store import PATTERN_TEL_PASS, PATTERN_USERMAIL_USERNAME_PASS, PATTERN_UID_UN_IP_UM_PASS, FileMode
+from engine_modul.store import FileMode
 from folder_parser.folder_parser import FolderParser
 from folder_parser.directory_class import Directory, DirStatus
 from reader.reader import Reader
@@ -29,34 +29,9 @@ class Engine:
         self.full_auto = full_auto
         self.error_mode = error_mode
         self.daemon = daemon
-        self.daemon_processes = {}
         self.file_handler = None
         self.handler_folders = None
         self.interface = UserInterface()
-
-    def autoparse(self):
-        if self.auto_parse and self.file_handler.delimiter and (
-                self.file_handler.is_simple_file(PATTERN_TEL_PASS, self.file_handler.reader)):
-            self.file_handler.get_keys('1=tel, 2=password')
-            self.handler_folders.current_folder.all_files_status.add('parse')
-            self.file_handler.num_columns = 1
-            console.print('[cyan]' + 'Автопарсинг tel password')
-            return True
-        elif self.auto_parse and self.file_handler.delimiter and (
-                self.file_handler.is_simple_file(PATTERN_USERMAIL_USERNAME_PASS, self.file_handler.reader)):
-            self.file_handler.get_keys(f'1=user_mail_name, 2=password')
-            self.handler_folders.current_folder.all_files_status.add('parse')
-            self.file_handler.num_columns = 1
-            console.print('[cyan]' + f'Автопарсинг umn password')
-            return True
-        elif self.auto_parse and self.file_handler.delimiter and ('1:Anonymous:::' in self.file_handler.reader.open().readline()):
-            self.file_handler.get_keys(f'1=uid, 2=un, 3=ip, 4=um, 5=p')
-            self.handler_folders.current_folder.all_files_status.add('parse')
-            self.file_handler.num_columns = 4
-            console.print('[cyan]' + f'Автопарсинг uid un ip um pass')
-            return True
-        else:
-            return False
 
     def manual_parsing_menu(self) -> FileMode:
         """
@@ -161,7 +136,12 @@ class Engine:
     def parsing_file(self):
         mode = None
         self.file_handler.rehandle_file_parameters()
-        if not self.auto_parse or self.file_handler.num_columns == 0 or not self.autoparse():
+
+        parse_automaticly = self.file_handler.autoparse()
+        if parse_automaticly:
+            self.handler_folders.current_folder.all_files_status.add('parse')
+            
+        if not self.auto_parse or self.file_handler.num_columns == 0 or not parse_automaticly:
             if self.full_auto:
                 mode = FileMode.PASS_DIR
                 return mode
@@ -169,7 +149,7 @@ class Engine:
             if mode in [FileMode.SKIP_FILE, FileMode.PASS_DIR, FileMode.TRASH_DIR, FileMode.ERROR_DIR, FileMode.JSON_PARSER]:
                 return mode
 
-        self.file_handler.parse_file(self.daemon)
+        self.file_handler.parse_file()
 
     def check_error_extensions(self, dir: Directory):
         """ Возвращает True если есть error-файлы или файлов слишком много """
@@ -217,7 +197,7 @@ class Engine:
                 }
                 for file in dir.iterate(self.auto_parse):
                     
-                    self.file_handler = FileHandler(file, self.writer_data)
+                    self.file_handler = FileHandler(file, self.writer_data, self.auto_parse, self.full_auto, self.daemon)
                     # Отлов ошибок для непрерывания full_auto
                     try:
                         self.interface.show_left_dirs(self.handler_folders.left_dirs)

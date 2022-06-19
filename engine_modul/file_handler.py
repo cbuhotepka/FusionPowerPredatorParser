@@ -15,6 +15,7 @@ from engine_modul.utils import find_delimiter
 from validator.validator import Validator
 from engine_modul.celery_parse import daemon_parse
 from rich.progress import track
+from engine_modul.store import PATTERN_TEL_PASS, PATTERN_USERMAIL_USERNAME_PASS, PATTERN_UID_UN_IP_UM_PASS
 
 console = Console()
 
@@ -24,11 +25,15 @@ class FileHandler:
     Класс для хранения параметров и методов файла
     """
 
-    def __init__(self, file_path, writer_data):
+    def __init__(self, file_path, writer_data, auto_parse, full_auto, daemon=False):
         self.file_path = Path(file_path)
         self.writer_data = writer_data
         self.reader = Reader(file_path)
         self.writer = Writer(**writer_data)
+
+        self.auto_parse = auto_parse
+        self.full_auto = full_auto
+        self.daemon = daemon
 
         self.delimiter = None
         self.num_columns = None
@@ -193,9 +198,9 @@ class FileHandler:
             return self.column_names
 
     # =================================================================================
-    def parse_file(self, daemon=False):
+    def parse_file(self):
         self.writer.start_new_file(self.file_path, self.delimiter if self.delimiter != '\t' else ';')
-        if daemon:
+        if self.daemon:
             print("\nRUNNING IN DAEMON PARSING!\n")
             daemon_parse(
                 keys=self.keys,
@@ -245,4 +250,25 @@ class FileHandler:
         convertor = ConvertorJSON(file=self.file_path)
         converted_file = convertor.run()
         return converted_file
+
+    def autoparse(self) -> bool:
+        if self.auto_parse and self.delimiter and (
+                self.is_simple_file(PATTERN_TEL_PASS, self.reader)):
+            self.get_keys('1=tel, 2=password')
+            self.num_columns = 1
+            console.print('[cyan]' + 'Автопарсинг tel password')
+            return True
+        elif self.auto_parse and self.delimiter and (
+                self.is_simple_file(PATTERN_USERMAIL_USERNAME_PASS, self.reader)):
+            self.get_keys(f'1=user_mail_name, 2=password')
+            self.num_columns = 1
+            console.print('[cyan]' + f'Автопарсинг umn password')
+            return True
+        elif self.auto_parse and self.delimiter and ('1:Anonymous:::' in self.reader.open().readline()):
+            self.get_keys(f'1=uid, 2=un, 3=ip, 4=um, 5=p')
+            self.num_columns = 4
+            console.print('[cyan]' + f'Автопарсинг uid un ip um pass')
+            return True
+        else:
+            return False
         
