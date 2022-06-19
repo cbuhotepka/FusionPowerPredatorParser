@@ -21,7 +21,15 @@ class FolderParser:
 
         self.get_complete_dirs()  # устанавливает: complete_dirs_name, complete_dirs
         self.get_passed_dirs()  # устанавливает: passed_dirs_name, passed_dirs
+        self.pending_dirs = []
         self.left_dirs = self.count_left_dirs()
+
+    def add_current_to_pending_dirs(self):
+        self.current_folder.status = DirStatus.PENDING
+        self.pending_dirs.append(self.current_folder)
+
+    def check_pending_dirs(self):
+        print("\nPENDING:", self.pending_dirs)
 
     def get_complete_dirs(self):
         """ Читаем из файла все завершённые папки, открываем _dirs_complete_.txt для записи """

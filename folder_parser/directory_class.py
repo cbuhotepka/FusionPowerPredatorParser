@@ -45,6 +45,7 @@ class Directory:
         self.all_files_status = set()
         self.all_files = None
         self.pending_files = {}
+        self.commands = {}
 
         if self.status == DirStatus.PARSE:
             self.all_files = self._get_all_files()
@@ -83,11 +84,11 @@ class Directory:
     #     converted_file = convertor.run()
     #     return converted_file
 
-    def write_commands(self, commands: dict):
+    def write_commands(self):
         """ Принимает команды в виде словаря {rewrite_file: command} """
         if not self.command_file:
             raise AttributeError("У папки нет command-файла. Проверьте статус папки (PARSE)")
-        json.dump(commands, self.command_file)
+        json.dump(self.commands, self.command_file)
 
     def close(self):
         if self.command_file:

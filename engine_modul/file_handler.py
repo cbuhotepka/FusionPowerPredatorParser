@@ -199,7 +199,6 @@ class FileHandler:
 
     # =================================================================================
     def parse_file(self):
-        self.writer.start_new_file(self.file_path, self.delimiter if self.delimiter != '\t' else ';')
         if self.daemon:
             print("\nRUNNING IN DAEMON PARSING!\n")
             daemon_parse(
@@ -214,6 +213,7 @@ class FileHandler:
             self.simple_parse()
 
     def simple_parse(self):
+        self.writer.start_new_file(self.file_path, self.delimiter if self.delimiter != '\t' else ';')
         with console.status('[bold blue]Подсчет строк...', spinner='point', spinner_style="bold blue") as status:
             count_rows_in_file = self.reader.get_count_rows()
             console.print(f'[yellow]Строк в файле: {count_rows_in_file}')

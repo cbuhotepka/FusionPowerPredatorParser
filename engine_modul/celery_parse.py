@@ -20,6 +20,7 @@ def daemon_parse(
     validator = Validator(keys, num_columns, delimiter)
     read_file = Reader(file_path)
     writer = Writer(**writer_data)
+    writer.start_new_file(file_path, delimiter if delimiter != '\t' else ';')
 
     count_rows_in_file = read_file.get_count_rows()
     console.print(f'[yellow]Строк в файле: {count_rows_in_file}')
