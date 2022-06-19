@@ -46,6 +46,7 @@ class Directory:
         self.all_files = None
         self.pending_files = {}
         self.commands = {}
+        self.file_handler = None
 
         if self.status == DirStatus.PARSE:
             self.all_files = self._get_all_files()
@@ -278,4 +279,7 @@ class Directory:
         return _name, _source, _date
 
     def __str__(self):
-        return f"[{self.status.value}] {self.path}"
+        return f"<{self.status.value}> {self.path}"
+
+    def __repr__(self):
+        return self.__str__()

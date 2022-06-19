@@ -29,7 +29,6 @@ class Engine:
         self.full_auto = full_auto
         self.error_mode = error_mode
         self.daemon = daemon
-        self.file_handler = None
         self.handler_folders = None
         self.interface = UserInterface()
 
@@ -39,6 +38,7 @@ class Engine:
         @return:
         """
         menu = True
+        dir = self.handler_folders.current_folder
         while menu:
             mode = self.interface.ask_mode_handle()
             if mode == FileMode.JSON_PARSER:
@@ -47,37 +47,38 @@ class Engine:
             if mode in [FileMode.PASS_DIR, FileMode.SKIP_FILE, FileMode.ERROR_DIR, FileMode.TRASH_DIR, FileMode.JSON_PARSER]:
                 return mode
 
-            self.file_handler.get_column_names(self.full_auto)
-            self.interface.show_num_columns(self.file_handler.num_columns + 1)
-            _init_cols_keys = self.file_handler.column_names
+            dir.file_handler.get_column_names(self.full_auto)
+            self.interface.show_num_columns(dir.file_handler.num_columns + 1)
+            _init_cols_keys = dir.file_handler.column_names
 
             while True:
-                self.file_handler.num_columns = self.interface.ask_num_cols(self.file_handler.num_columns)
-                if self.file_handler.num_columns != -1:
+                dir.file_handler.num_columns = self.interface.ask_num_cols(dir.file_handler.num_columns)
+                if dir.file_handler.num_columns != -1:
                     menu = False
                 else:
                     break
-                _cols_keys = self.interface.ask_cols_keys(self.file_handler.column_names)
+                _cols_keys = self.interface.ask_cols_keys(dir.file_handler.column_names)
                 if not _cols_keys:
-                    self.file_handler.column_names = ''
+                    dir.file_handler.column_names = ''
                     _init_cols_keys = ''
                     continue
                 else:
-                    self.file_handler.column_names = _cols_keys
+                    dir.file_handler.column_names = _cols_keys
                 try:
-                    self.file_handler.get_keys()
+                    dir.file_handler.get_keys()
                 except Exception as ex:
                     print(f'Ошибка в ключах: {ex}')
                     continue
-                max_key = max(self.file_handler.keys, key=lambda x: int(x[0]))
+                max_key = max(dir.file_handler.keys, key=lambda x: int(x[0]))
                 if not max_key:
                     continue
-                self.file_handler.skip = self.interface.ask_skip_lines(self.file_handler.skip)
-                if (self.file_handler.num_columns + 1) >= int(max_key[0]) and self.file_handler.skip != -1:
+                dir.file_handler.skip = self.interface.ask_skip_lines(dir.file_handler.skip)
+                if (dir.file_handler.num_columns + 1) >= int(max_key[0]) and dir.file_handler.skip != -1:
                     break
-                self.file_handler.column_names = _init_cols_keys
+                dir.file_handler.column_names = _init_cols_keys
 
     def handler_mode(self, mode) -> FileMode:
+        dir = self.handler_folders.current_folder
         while True:
             if mode == FileMode.PASS_DIR:
                 self.handler_folders.current_folder.all_files_status.add('pass')
@@ -88,21 +89,21 @@ class Engine:
                 return mode
             elif mode == FileMode.OPEN_FILE:
                 # Открыть в EmEditor
-                subprocess.run(f'Emeditor "{self.file_handler.file_path}"')
+                subprocess.run(f'Emeditor "{dir.file_handler.file_path}"')
                 self.interface.pause()
-                self.file_handler.rehandle_file_parameters()
+                dir.file_handler.rehandle_file_parameters()
             elif mode == FileMode.OPEN_IN_NOTEPAD:
                 # Открыть в Notepad++
-                subprocess.run(f'notepad++ "{self.file_handler.file_path}"')
-                self.file_handler.rehandle_file_parameters()
+                subprocess.run(f'notepad++ "{dir.file_handler.file_path}"')
+                dir.file_handler.rehandle_file_parameters()
             elif mode == FileMode.DELIMITER:
-                self.file_handler.delimiter = self.interface.ask_delimiter()
-                self.file_handler.get_num_columns()
+                dir.file_handler.delimiter = self.interface.ask_delimiter()
+                dir.file_handler.get_num_columns()
             elif mode == FileMode.ERROR_DIR:
                 # Перенести папку в ERROR
                 self.handler_folders.current_folder.all_files_status.add('error')
                 try:
-                    self.file_handler.reader.close()
+                    dir.file_handler.reader.close()
                     self.handler_folders.skip_folder(move_to='Error')
                     return mode
                 except Exception as ex:
@@ -114,7 +115,7 @@ class Engine:
                     raise ex
             elif mode == FileMode.TRASH_DIR:
                 try:
-                    self.file_handler.reader.close()
+                    dir.file_handler.reader.close()
                     self.handler_folders.current_folder.all_files_status.add('trash')
                     self.handler_folders.skip_folder(move_to='Trash')
                     return mode
@@ -135,13 +136,14 @@ class Engine:
 
     def parsing_file(self):
         mode = None
-        self.file_handler.rehandle_file_parameters()
+        dir = self.handler_folders.current_folder
+        dir.file_handler.rehandle_file_parameters()
 
-        parse_automaticly = self.file_handler.autoparse()
+        parse_automaticly = dir.file_handler.autoparse()
         if parse_automaticly:
             self.handler_folders.current_folder.all_files_status.add('parse')
 
-        if not self.auto_parse or self.file_handler.num_columns == 0 or not parse_automaticly:
+        if not self.auto_parse or dir.file_handler.num_columns == 0 or not parse_automaticly:
             if self.full_auto:
                 mode = FileMode.PASS_DIR
                 return mode
@@ -149,7 +151,7 @@ class Engine:
             if mode in [FileMode.SKIP_FILE, FileMode.PASS_DIR, FileMode.TRASH_DIR, FileMode.ERROR_DIR, FileMode.JSON_PARSER]:
                 return mode
 
-        self.file_handler.parse_file()
+        dir.file_handler.parse_file()
 
     def check_error_extensions(self, dir: Directory):
         """ Возвращает True если есть error-файлы или файлов слишком много """
@@ -197,20 +199,20 @@ class Engine:
                 }
                 for file in dir.iterate(self.auto_parse):
                     
-                    self.file_handler = FileHandler(file, self.writer_data, self.auto_parse, self.full_auto, self.daemon)
+                    dir.file_handler = FileHandler(file, self.writer_data, self.auto_parse, self.full_auto, self.daemon)
                     # Отлов ошибок для непрерывания full_auto
                     try:
                         self.interface.show_left_dirs(self.handler_folders.left_dirs)
                         self.interface.show_left_files(dir.left_files)
                         mode = self.parsing_file()
                         if mode == FileMode.JSON_PARSER:
-                            converted_file = self.file_handler.convert_json()
+                            converted_file = dir.file_handler.convert_json()
                             if not converted_file:
                                 mode = FileMode.SKIP_FILE
                             else:
                                 dir.insert_in_done_parsed_file(file)
                                 file = converted_file
-                                self.file_handler.reader = Reader(converted_file)
+                                dir.file_handler.reader = Reader(converted_file)
                                 mode = self.parsing_file()
                     except Exception as e:
                         if self.full_auto:
@@ -224,8 +226,8 @@ class Engine:
                         break
                     if not self.daemon:
                         dir.insert_in_done_parsed_file(file)
-                        self.file_handler.writer.finish()
-                        dir.commands.update(self.file_handler.writer.commands)
+                        dir.file_handler.writer.finish()
+                        dir.commands.update(dir.file_handler.writer.commands)
 
                 # Определение условий
                 command_path = os.path.join(dir.path, '_command_.txt')
@@ -236,7 +238,7 @@ class Engine:
                 # Если все файлы пропущены, статус папки не SKIP и нет других распарсенных файлов, то в трэш
                 if all_trash and dir_not_skip and is_other_command:
                     try:
-                        self.file_handler.reader.close()
+                        dir.file_handler.reader.close()
                         self.handler_folders.skip_folder(move_to='Trash')
                     except Exception as ex:
                         console.print(f'[magenta]Не могу переместить[/magenta]: "[red]{ex}[/red]"')
@@ -246,10 +248,10 @@ class Engine:
                         break
 
                 if self.daemon:
-                    self.handler_folders.current_folder.status = DirStatus.PENDING
+                    self.handler_folders.add_current_to_pending_dirs()
                     self.handler_folders.check_pending_dirs()
 
-                if self.file_handler:
+                if dir.file_handler:
                     status_is_parse = self.handler_folders.current_folder.status == DirStatus.PARSE
                     files_status_contains_parse = 'parse' in self.handler_folders.current_folder.all_files_status
                     if status_is_parse and files_status_contains_parse:
