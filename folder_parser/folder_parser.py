@@ -32,10 +32,17 @@ class FolderParser:
         self.pending_dirs.append(self.current_folder)
 
     def check_pending_dirs(self):
-        console.print("\nCHECKING PENDING DIRS:")
+        console.print("[pink]\nCHECKING PENDING DIRS:[/pink]")
+        still_pending: list[Directory] = []
         for dir in self.pending_dirs:
-            console.print("\n -", dir)
+            console.print(f"\n{dir}:")
             dir.check_pending_files()
+            if dir.status == DirStatus.PENDING:
+                still_pending.append(dir)
+            else:
+                self.done_folder(dir)
+        self.pending_dirs = still_pending
+        console.print()
 
     def get_complete_dirs(self):
         """ Читаем из файла все завершённые папки, открываем _dirs_complete_.txt для записи """

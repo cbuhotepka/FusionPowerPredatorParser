@@ -1,6 +1,7 @@
 from rich.console import Console
 from rich.progress import track
 from pathlib import Path
+from pydantic import BaseModel
 
 from reader.reader import Reader
 from validator.validator import Validator
@@ -8,6 +9,11 @@ from writer.writer import Writer
 
 
 console = Console()
+
+
+class ParserResponse(BaseModel):
+    commands: dict
+
 
 def daemon_parse(
     keys: list, 
@@ -42,4 +48,7 @@ def daemon_parse(
             # Запись полей в файл
             writer.write(fields_data)
 
-    return False
+    writer.finish()
+
+    res = ParserResponse(commands=writer.commands)
+    return res

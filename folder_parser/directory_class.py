@@ -96,29 +96,41 @@ class Directory:
             raise AttributeError("У папки нет command-файла. Проверьте статус папки (PARSE)")
         json.dump(self.commands, self.command_file)
 
-    def finish_file(self, file_handler=None):
+    def finish_file(self, file_handler: FileHandler = None):
         """Завершает обработку файла, закрывает Writer добавляет команды файла"""
-        file_handler = self.file_handler if not file_handler else file_handler
+        file_handler = file_handler if file_handler else self.file_handler
         if not file_handler:
             raise AttributeError("У папки нет FileHandler'а")
         self.insert_in_done_parsed_file(file_handler.file_path)
         file_handler.writer.finish()
         self.commands.update(file_handler.writer.commands)
 
+        if file_handler.daemon_res:
+            self.commands.update(file_handler.daemon_res.commands)
+
     def add_pending_file(self):
         self.pending_files.append(self.file_handler)
 
     def check_pending_files(self):
+        still_pending = []
         for file_handler in self.pending_files:
             if file_handler.daemon_res is None:
                 raise AttributeError(f"У FileHandler {file_handler} отсутствует daemon_res. Проверьте запуск daemon_parse()")
             if file_handler.daemon_res:
                 console.print(f"[yellow]{file_handler} - DONE[/yellow]")
+                self.finish_file(file_handler)
+
             elif not file_handler.daemon_res:
                 console.print(f"[green]{file_handler} - PENDING[/green]")
+                still_pending.append(file_handler)
                 file_handler.daemon_res = True
+
             else:
                 console.print(f"[red]{file_handler} - ERROR[/red]")
+                still_pending.append(file_handler)
+        self.pending_files = still_pending
+        if not still_pending:
+            self.status = DirStatus.DONE
 
     def close(self):
         if self.command_file:
