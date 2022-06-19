@@ -36,6 +36,7 @@ class Directory:
         self.base_type = base_type
         self.status = status
         self.done_parse = False
+        self.pending_files = []
 
         self.base_info = None
         self.files_extensions = {}
@@ -44,7 +45,6 @@ class Directory:
         self.done_parsed_file = []
         self.all_files_status = set()
         self.all_files = None
-        self.pending_files = {}
         self.commands = {}
         self.file_handler = None
 
@@ -90,6 +90,18 @@ class Directory:
         if not self.command_file:
             raise AttributeError("У папки нет command-файла. Проверьте статус папки (PARSE)")
         json.dump(self.commands, self.command_file)
+
+    def finish_file(self, file_handler=None):
+        """Завершает обработку файла, закрывает Writer добавляет команды файла"""
+        file_handler = self.file_handler if not file_handler else file_handler
+        if not file_handler:
+            raise AttributeError("У папки нет FileHandler'а")
+        self.insert_in_done_parsed_file(file_handler.file_path)
+        file_handler.writer.finish()
+        self.commands.update(file_handler.writer.commands)
+
+    def add_pending_file(self):
+        self.pending_files.append(self.file_handler)
 
     def close(self):
         if self.command_file:

@@ -29,7 +29,9 @@ class FolderParser:
         self.pending_dirs.append(self.current_folder)
 
     def check_pending_dirs(self):
-        print("\nPENDING:", self.pending_dirs)
+        for dir in self.pending_dirs:
+            print("\n", dir)
+            print("PENDING:", dir.pending_files)
 
     def get_complete_dirs(self):
         """ Читаем из файла все завершённые папки, открываем _dirs_complete_.txt для записи """
@@ -103,12 +105,14 @@ class FolderParser:
         if move_to:
             self.current_folder.move_to(move_to)
 
-    def done_folder(self):
-        self.complete_dirs.append(str(self.current_folder.path.absolute()))
+    def done_folder(self, dir=None):
+        dir = dir if dir else self.current_folder
+        dir.write_commands()
+        self.complete_dirs.append(str(dir.path.absolute()))
         with open(self.complete_dirs_name, 'a+', encoding='utf-8', errors='replace') as _f:
-            _f.write(str(self.current_folder.path.absolute()) + '\n')
-        self.current_folder.status = DirStatus.DONE
-        self.current_folder.close()
+            _f.write(str(dir.path.absolute()) + '\n')
+        dir.status = DirStatus.DONE
+        dir.close()
 
     def finish(self):
         if self.complete_dirs_file:

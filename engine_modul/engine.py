@@ -145,8 +145,7 @@ class Engine:
 
         if not self.auto_parse or dir.file_handler.num_columns == 0 or not parse_automaticly:
             if self.full_auto:
-                mode = FileMode.PASS_DIR
-                return mode
+                return FileMode.PASS_DIR
             mode = self.manual_parsing_menu()
             if mode in [FileMode.SKIP_FILE, FileMode.PASS_DIR, FileMode.TRASH_DIR, FileMode.ERROR_DIR, FileMode.JSON_PARSER]:
                 return mode
@@ -223,11 +222,13 @@ class Engine:
                             else:
                                 continue
                     if mode in [FileMode.PASS_DIR, FileMode.TRASH_DIR, FileMode.ERROR_DIR]:
+                        dir.pending_files = []
                         break
+
                     if not self.daemon:
-                        dir.insert_in_done_parsed_file(file)
-                        dir.file_handler.writer.finish()
-                        dir.commands.update(dir.file_handler.writer.commands)
+                        dir.finish_file()
+                    else:
+                        dir.add_pending_file()
 
                 # Определение условий
                 command_path = os.path.join(dir.path, '_command_.txt')
@@ -251,11 +252,10 @@ class Engine:
                     self.handler_folders.add_current_to_pending_dirs()
                     self.handler_folders.check_pending_dirs()
 
-                if dir.file_handler:
+                elif dir.file_handler:
                     status_is_parse = self.handler_folders.current_folder.status == DirStatus.PARSE
                     files_status_contains_parse = 'parse' in self.handler_folders.current_folder.all_files_status
                     if status_is_parse and files_status_contains_parse:
-                        dir.write_commands()
                         self.handler_folders.done_folder()
             else:
                 self.interface.print_dirs_status(str(dir.path), dir.status.value)
