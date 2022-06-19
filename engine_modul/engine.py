@@ -249,7 +249,8 @@ class Engine:
                         break
 
                 if self.daemon:
-                    self.handler_folders.add_current_to_pending_dirs()
+                    if dir.pending_files:
+                        self.handler_folders.add_current_to_pending_dirs()
                     self.handler_folders.check_pending_dirs()
 
                 elif dir.file_handler:

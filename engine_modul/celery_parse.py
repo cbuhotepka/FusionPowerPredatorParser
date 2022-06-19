@@ -41,3 +41,5 @@ def daemon_parse(
 
             # Запись полей в файл
             writer.write(fields_data)
+
+    return False

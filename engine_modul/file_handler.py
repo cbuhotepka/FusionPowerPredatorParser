@@ -201,7 +201,6 @@ class FileHandler:
     # =================================================================================
     def parse_file(self):
         if self.daemon:
-            print("\nRUNNING IN DAEMON PARSING!\n")
             self.daemon_res = daemon_parse(
                 keys=self.keys,
                 num_columns=self.num_columns,
@@ -274,7 +273,7 @@ class FileHandler:
             return False
         
     def __str__(self):
-        return str(self.file_path)
+        return str(self.file_path.name)
 
     def __repr__(self):
         return self.__str__()

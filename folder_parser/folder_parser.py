@@ -1,6 +1,7 @@
 from logging import ERROR
 import os
 from pathlib import Path
+from rich.console import Console
 
 from .directory_class import Directory, DirStatus
 from .store import (
@@ -8,6 +9,8 @@ from .store import (
     PARSING_DISK,
 
 )
+
+console = Console()
 
 
 class FolderParser:
@@ -21,7 +24,7 @@ class FolderParser:
 
         self.get_complete_dirs()  # устанавливает: complete_dirs_name, complete_dirs
         self.get_passed_dirs()  # устанавливает: passed_dirs_name, passed_dirs
-        self.pending_dirs = []
+        self.pending_dirs: list[Directory] = []
         self.left_dirs = self.count_left_dirs()
 
     def add_current_to_pending_dirs(self):
@@ -29,9 +32,10 @@ class FolderParser:
         self.pending_dirs.append(self.current_folder)
 
     def check_pending_dirs(self):
+        console.print("\nCHECKING PENDING DIRS:")
         for dir in self.pending_dirs:
-            print("\n", dir)
-            print("PENDING:", dir.pending_files)
+            console.print("\n -", dir)
+            dir.check_pending_files()
 
     def get_complete_dirs(self):
         """ Читаем из файла все завершённые папки, открываем _dirs_complete_.txt для записи """

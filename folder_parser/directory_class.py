@@ -7,14 +7,19 @@ import re
 import shutil
 import time
 from pathlib import Path
+from rich.console import Console
 
 from dpath.util import new
 
 from pyunpack import Archive
 from cronos_dump import is_cronos, convert_to_csv
+from engine_modul.file_handler import FileHandler
 
 from . import utils
 from .store import BASE_TYPES, PARSING_DISK, SOURCE_DISK, ERROR_EXTENSIONS
+
+
+console = Console()
 
 
 class DirStatus(enum.Enum):
@@ -36,7 +41,7 @@ class Directory:
         self.base_type = base_type
         self.status = status
         self.done_parse = False
-        self.pending_files = []
+        self.pending_files: list[FileHandler] = []
 
         self.base_info = None
         self.files_extensions = {}
@@ -102,6 +107,18 @@ class Directory:
 
     def add_pending_file(self):
         self.pending_files.append(self.file_handler)
+
+    def check_pending_files(self):
+        for file_handler in self.pending_files:
+            if file_handler.daemon_res is None:
+                raise AttributeError(f"У FileHandler {file_handler} отсутствует daemon_res. Проверьте запуск daemon_parse()")
+            if file_handler.daemon_res:
+                console.print(f"[yellow]{file_handler} - DONE[/yellow]")
+            elif not file_handler.daemon_res:
+                console.print(f"[green]{file_handler} - PENDING[/green]")
+                file_handler.daemon_res = True
+            else:
+                console.print(f"[red]{file_handler} - ERROR[/red]")
 
     def close(self):
         if self.command_file:
