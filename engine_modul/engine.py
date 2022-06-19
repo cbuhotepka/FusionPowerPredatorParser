@@ -7,7 +7,7 @@ from rich.prompt import Prompt, Confirm
 
 from engine_modul.file_handler import FileHandler
 from engine_modul.interface import UserInterface
-from engine_modul.store import PATTERN_TEL_PASS, PATTERN_USERMAIL_USERNAME_PASS, PATTERN_UID_UN_IP_UM_PASS
+from engine_modul.store import PATTERN_TEL_PASS, PATTERN_USERMAIL_USERNAME_PASS, PATTERN_UID_UN_IP_UM_PASS, FileMode
 from folder_parser.folder_parser import FolderParser
 from folder_parser.directory_class import Directory, DirStatus
 from json_parser.json_parser import ConvertorJSON
@@ -37,14 +37,14 @@ class Engine:
 
     def autoparse(self):
         if self.auto_parse and self.file_handler.delimiter and (
-                self.file_handler.is_simple_file(PATTERN_TEL_PASS, self.file_handler.file_path)):
+                self.file_handler.is_simple_file(PATTERN_TEL_PASS, self.file_handler.reader)):
             self.file_handler.get_keys('1=tel, 2=password')
             self.handler_folders.current_folder.all_files_status.add('parse')
             self.file_handler.num_columns = 1
             console.print('[cyan]' + 'Автопарсинг tel password')
             return True
         elif self.auto_parse and self.file_handler.delimiter and (
-                self.file_handler.is_simple_file(PATTERN_USERMAIL_USERNAME_PASS, self.file_handler.file_path)):
+                self.file_handler.is_simple_file(PATTERN_USERMAIL_USERNAME_PASS, self.file_handler.reader)):
             self.file_handler.get_keys(f'1=user_mail_name, 2=password')
             self.handler_folders.current_folder.all_files_status.add('parse')
             self.file_handler.num_columns = 1
@@ -69,7 +69,7 @@ class Engine:
         self.interface.show_delimiter(self.file_handler.delimiter)
         self.interface.show_num_columns(self.file_handler.num_columns + 1)
 
-    def manual_parsing_menu(self):
+    def manual_parsing_menu(self) -> FileMode:
         """
         Ручной парсинг
         @return:
@@ -77,10 +77,10 @@ class Engine:
         menu = True
         while menu:
             mode = self.interface.ask_mode_handle()
-            if mode == 'jp':
+            if mode == FileMode.JSON_PARSER:
                 return mode
             mode = self.handler_mode(mode)
-            if mode in ['p', 'l', 'e', 't', 'jp']:
+            if mode in [FileMode.PASS_DIR, FileMode.SKIP_FILE, FileMode.ERROR_DIR, FileMode.TRASH_DIR, FileMode.JSON_PARSER]:
                 return mode
 
             self.file_handler.get_column_names(self.full_auto)
@@ -113,29 +113,28 @@ class Engine:
                     break
                 self.file_handler.column_names = _init_cols_keys
 
-    def handler_mode(self, input_mode):
-        mode = input_mode
+    def handler_mode(self, mode) -> FileMode:
         while True:
-            if mode == 'p':
+            if mode == FileMode.PASS_DIR:
                 self.handler_folders.current_folder.all_files_status.add('pass')
                 self.handler_folders.skip_folder()
                 return mode
-            elif mode == 'l':
+            elif mode == FileMode.SKIP_FILE:
                 self.handler_folders.current_folder.all_files_status.add('trash')
                 return mode
-            elif mode == 'o':
+            elif mode == FileMode.OPEN_FILE:
                 # Открыть в EmEditor
                 subprocess.run(f'Emeditor "{self.file_handler.file_path}"')
                 self.interface.pause()
                 self.rehandle_file_parameters()
-            elif mode == 'n':
+            elif mode == FileMode.OPEN_IN_NOTEPAD:
                 # Открыть в Notepad++
                 subprocess.run(f'notepad++ "{self.file_handler.file_path}"')
                 self.rehandle_file_parameters()
-            elif mode == 'd':
+            elif mode == FileMode.DELIMITER:
                 self.file_handler.delimiter = self.interface.ask_delimiter()
                 self.file_handler.get_num_columns()
-            elif mode == 'e':
+            elif mode == FileMode.ERROR_DIR:
                 # Перенести папку в ERROR
                 self.handler_folders.current_folder.all_files_status.add('error')
                 try:
@@ -146,10 +145,10 @@ class Engine:
                     console.print(f'[magenta]Не могу переместить[/magenta]: "[red]{ex}[/red]"')
                     answer = Prompt.ask(f"[green]Если все ОК нажмите Enter", choices=['y', 'n'], default='y')
                     if answer == 'y':
-                        mode = 'p'
+                        mode = FileMode.PASS_DIR
                         return mode
                     raise ex
-            elif mode == 't':
+            elif mode == FileMode.TRASH_DIR:
                 try:
                     self.file_handler.reader.close()
                     self.handler_folders.current_folder.all_files_status.add('trash')
@@ -159,26 +158,26 @@ class Engine:
                     console.print(f'[magenta]Не могу переместить[/magenta]: "[red]{ex}[/red]"')
                     answer = Prompt.ask(f"[green]Если все ОК нажмите Enter", choices=['y', 'n'], default='y')
                     if answer == 'y':
-                        mode = 'p'
+                        mode = FileMode.PASS_DIR
                         return mode
                     raise ex
-            elif mode == 'start':
+            elif mode == FileMode.START:
                 self.handler_folders.current_folder.all_files_status.add('parse')
                 break
             mode = self.interface.ask_mode_handle()
-            if mode in ('jp', ):
+            if mode in (FileMode.JSON_PARSER, ):
                 break
         return mode
 
     def parsing_file(self):
-        mode = ''
+        mode = None
         self.rehandle_file_parameters()
         if not self.auto_parse or self.file_handler.num_columns == 0 or not self.autoparse():
             if self.full_auto:
-                mode = 'p'
+                mode = FileMode.PASS_DIR
                 return mode
             mode = self.manual_parsing_menu()
-            if mode in ['l', 'p', 't', 'e', 'jp']:
+            if mode in [FileMode.SKIP_FILE, FileMode.PASS_DIR, FileMode.TRASH_DIR, FileMode.ERROR_DIR, FileMode.JSON_PARSER]:
                 return mode
 
         self.file_handler.parse_file(self.daemon)
@@ -241,10 +240,10 @@ class Engine:
                         self.interface.show_left_dirs(self.handler_folders.left_dirs)
                         self.interface.show_left_files(dir.left_files)
                         mode = self.parsing_file()
-                        if mode == 'jp':
+                        if mode == FileMode.JSON_PARSER:
                             converted_file = self.convert_json(file)
                             if not converted_file:
-                                mode = 'l'
+                                mode = FileMode.SKIP_FILE
                             else:
                                 dir.insert_in_done_parsed_file(file)
                                 file = converted_file
@@ -252,13 +251,13 @@ class Engine:
                                 mode = self.parsing_file()
                     except Exception as e:
                         if self.full_auto:
-                            mode = 'p'
+                            mode = FileMode.PASS_DIR
                         else:
                             if not Confirm.ask(f'Ошибка при парсинге файла [magenta]{file.name}[/], пропустить его?'):
                                 raise e
                             else:
                                 continue
-                    if mode in ['p', 't', 'e']:
+                    if mode in [FileMode.PASS_DIR, FileMode.TRASH_DIR, FileMode.ERROR_DIR]:
                         break
                     if not self.daemon:
                         dir.insert_in_done_parsed_file(file)

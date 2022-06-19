@@ -1,3 +1,22 @@
+from enum import Enum
+
+
+class FileMode(Enum):
+    PASS_DIR = "p"
+    SKIP_FILE = "l"
+    OPEN_FILE = "o"
+    OPEN_IN_NOTEPAD = "n"
+    DELIMITER = "d"
+    ERROR_DIR = "e"
+    TRASH_DIR = "t"
+    JSON_PARSER = "jp"
+    START = "start"
+
+    @classmethod
+    def choices(cls):
+        return [a.value for a in cls]
+
+
 PATTERN_TEL_PASS = r'^[\"\'\s]?[+]?[\d\.\s\(]{2,}[_\-]?\d+[_\-]?[\d\.\)\s]+[\"\'\s]?[:; ,|\t]{1}[\"\'\s]?[^:; ,|\t]{5,50}[\"\'\s]?$'
 PATTERN_USERMAIL_USERNAME_PASS = r'^(([\"\'\s]?[\w\d_\.+\-@!#/$*\^]+@[\d\w.\-_]+\.[\w]{2,5})|([^|/\\\[\]\(\):;,@]{3,16}))[\"\'\s]?[:; ,|\t]{1}[\"\'\s]?[^;:,| \t]{3,60}[\"\'\s]?$'
 PATTERN_UID_UN_IP_UM_PASS = r'1:Anonymous:::'

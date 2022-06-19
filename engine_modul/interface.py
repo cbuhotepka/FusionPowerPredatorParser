@@ -4,7 +4,7 @@ from rich.highlighter import RegexHighlighter
 from rich.prompt import Prompt, IntPrompt, Confirm
 
 from rich.console import Console
-import os
+from .store import FileMode
 
 from rich.theme import Theme
 
@@ -64,10 +64,10 @@ class UserInterface:
         _answer = Confirm.ask('[magenta]Все правильно?', default=True)
         return _answer
 
-    def ask_mode_handle(self):
-        answer = Prompt.ask(f"[green]Если все ОК нажмите Enter",
-                            choices=['p', 'l', 'o', 'n', 'd', 'e', 't', 'jp'],
-                            default='start')
+    def ask_mode_handle(self) -> FileMode:
+        answer = FileMode(Prompt.ask(f"[green]Если все ОК нажмите Enter",
+                            choices=FileMode.choices(),
+                            default=FileMode.START.value))
         return answer
 
     def show_delimiter(self, delimiter):
