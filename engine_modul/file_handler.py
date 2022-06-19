@@ -8,6 +8,7 @@ from pathlib import Path
 from engine_modul.interface import UserInterface
 from engine_modul.normalize_col_names import normalize_col_names
 from engine_modul.store import ASSERT_NAME, COLUMN_NAME_TRIGGERS
+from json_parser.json_parser import ConvertorJSON
 from reader import Reader
 from writer import Writer
 from engine_modul.utils import find_delimiter
@@ -238,4 +239,10 @@ class FileHandler:
         self.handle_file()
         self.interface.show_delimiter(self.delimiter)
         self.interface.show_num_columns(self.num_columns + 1)
+
+    def convert_json(self) -> str:
+        """Запускает конвертор JSON"""
+        convertor = ConvertorJSON(file=self.file_path)
+        converted_file = convertor.run()
+        return converted_file
         

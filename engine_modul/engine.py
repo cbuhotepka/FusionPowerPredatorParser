@@ -10,7 +10,6 @@ from engine_modul.interface import UserInterface
 from engine_modul.store import PATTERN_TEL_PASS, PATTERN_USERMAIL_USERNAME_PASS, PATTERN_UID_UN_IP_UM_PASS, FileMode
 from folder_parser.folder_parser import FolderParser
 from folder_parser.directory_class import Directory, DirStatus
-from json_parser.json_parser import ConvertorJSON
 from reader.reader import Reader
 
 
@@ -192,12 +191,6 @@ class Engine:
 
         return error
 
-    def convert_json(self, file_path) -> str:
-        """Запускает конвертор JSON"""
-        convertor = ConvertorJSON(file=file_path)
-        converted_file = convertor.run()
-        return converted_file
-
     def start(self):
         self.type_base = self.interface.ask_type_base()
         _reparse_file_state = self.interface.ask_reparse_file()
@@ -231,7 +224,7 @@ class Engine:
                         self.interface.show_left_files(dir.left_files)
                         mode = self.parsing_file()
                         if mode == FileMode.JSON_PARSER:
-                            converted_file = self.convert_json(file)
+                            converted_file = self.file_handler.convert_json()
                             if not converted_file:
                                 mode = FileMode.SKIP_FILE
                             else:
