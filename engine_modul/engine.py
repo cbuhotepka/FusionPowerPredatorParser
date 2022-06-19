@@ -59,16 +59,6 @@ class Engine:
         else:
             return False
 
-    def rehandle_file_parameters(self):
-        """
-        Получение параметров файла: разделитель, количество столбцов, название столбцов
-        @return:
-        """
-        self.interface.show_file(self.file_handler.reader)
-        self.file_handler.handle_file()
-        self.interface.show_delimiter(self.file_handler.delimiter)
-        self.interface.show_num_columns(self.file_handler.num_columns + 1)
-
     def manual_parsing_menu(self) -> FileMode:
         """
         Ручной парсинг
@@ -126,11 +116,11 @@ class Engine:
                 # Открыть в EmEditor
                 subprocess.run(f'Emeditor "{self.file_handler.file_path}"')
                 self.interface.pause()
-                self.rehandle_file_parameters()
+                self.file_handler.rehandle_file_parameters()
             elif mode == FileMode.OPEN_IN_NOTEPAD:
                 # Открыть в Notepad++
                 subprocess.run(f'notepad++ "{self.file_handler.file_path}"')
-                self.rehandle_file_parameters()
+                self.file_handler.rehandle_file_parameters()
             elif mode == FileMode.DELIMITER:
                 self.file_handler.delimiter = self.interface.ask_delimiter()
                 self.file_handler.get_num_columns()
@@ -171,7 +161,7 @@ class Engine:
 
     def parsing_file(self):
         mode = None
-        self.rehandle_file_parameters()
+        self.file_handler.rehandle_file_parameters()
         if not self.auto_parse or self.file_handler.num_columns == 0 or not self.autoparse():
             if self.full_auto:
                 mode = FileMode.PASS_DIR

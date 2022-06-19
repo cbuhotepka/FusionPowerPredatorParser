@@ -228,3 +228,14 @@ class FileHandler:
 
                 # Запись полей в файл
                 self.writer.write(fields_data)
+
+    def rehandle_file_parameters(self):
+        """
+        Получение параметров файла: разделитель, количество столбцов, название столбцов
+        @return:
+        """
+        self.interface.show_file(self.reader)
+        self.handle_file()
+        self.interface.show_delimiter(self.delimiter)
+        self.interface.show_num_columns(self.num_columns + 1)
+        
