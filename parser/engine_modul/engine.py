@@ -1,6 +1,7 @@
 from folder_parser.store import ERROR_EXTENSIONS
 import os
 import subprocess
+from time import sleep
 
 from rich.console import Console
 from rich.prompt import Prompt, Confirm
@@ -259,3 +260,10 @@ class Engine:
                         self.handler_folders.done_folder()
             else:
                 self.interface.print_dirs_status(str(dir.path), dir.status.value)
+
+        # Wait for all the pending directories
+        if self.daemon:
+            while self.handler_folders.pending_dirs:
+                print()
+                self.handler_folders.check_pending_dirs()
+                sleep(10)
