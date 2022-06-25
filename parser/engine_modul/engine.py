@@ -264,6 +264,6 @@ class Engine:
         # Wait for all the pending directories
         if self.daemon:
             while self.handler_folders.pending_dirs:
-                print()
                 self.handler_folders.check_pending_dirs()
+                console.print(f"\n[pink]Pending DIRS left: {len(self.handler_folders.pending_dirs)}[/pink]\n")
                 sleep(10)

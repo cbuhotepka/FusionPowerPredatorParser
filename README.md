@@ -20,3 +20,11 @@ RUN:
     2. Start Celery worker: 'celery -A celery_parser worker --pool=solo -l info'
         (--pool-solo - workaround for starting celery on Windows)
     3. Start Parser with the key '-d'
+
+
+WORKING WITH REDIS:
+    Start server: 'sudo service redis-server start'
+    Stop server: 'sudo service redis-server stop'
+    Open redis-cli: 'redis-cli'
+        - Flush all the keys: 'flushall'
+        
