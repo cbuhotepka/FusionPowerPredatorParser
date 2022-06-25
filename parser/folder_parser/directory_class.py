@@ -8,6 +8,7 @@ import shutil
 import time
 from pathlib import Path
 from rich.console import Console
+from celery.states import SUCCESS, PENDING, FAILURE
 
 from dpath.util import new
 
@@ -105,8 +106,13 @@ class Directory:
         file_handler.writer.finish()
         self.commands.update(file_handler.writer.commands)
 
-        if file_handler.daemon_res:
-            self.commands.update(file_handler.daemon_res.commands)
+        if file_handler.daemon_task:
+            if file_handler.daemon_task.status == SUCCESS:
+                self.commands.update(file_handler.daemon_task.result["commands"])
+            else:
+                raise ValueError(
+                    f"Не могу завершить {file_handler}: daemon_task статус {file_handler.daemon_task.status}"
+                )
 
     def add_pending_file(self):
         self.pending_files.append(self.file_handler)
@@ -114,20 +120,27 @@ class Directory:
     def check_pending_files(self):
         still_pending = []
         for file_handler in self.pending_files:
-            if file_handler.daemon_res is None:
-                raise AttributeError(f"У FileHandler {file_handler} отсутствует daemon_res. Проверьте запуск daemon_parse()")
-            if file_handler.daemon_res:
+            if file_handler.daemon_task is None:
+                raise AttributeError(f"У FileHandler {file_handler} отсутствует daemon_task. Проверьте запуск daemon_parse()")
+            if file_handler.daemon_task.status == SUCCESS:
                 console.print(f"[yellow]{file_handler} - DONE[/yellow]")
                 self.finish_file(file_handler)
 
-            elif not file_handler.daemon_res:
+            elif file_handler.daemon_task.status == PENDING:
                 console.print(f"[green]{file_handler} - PENDING[/green]")
                 still_pending.append(file_handler)
-                file_handler.daemon_res = True
+
+            elif file_handler.daemon_task.status == FAILURE:
+                console.print(f"[red]{file_handler} - FAILURE[/red]")
+                raise Exception(f"Error in the daemon task: {file_handler.daemon_task.result}")
+                # still_pending.append(file_handler)
 
             else:
-                console.print(f"[red]{file_handler} - ERROR[/red]")
+                console.print(
+                    f"[red]{file_handler} - UNCKNOWN STATUS: {file_handler.daemon_task.status}, Please check[/red]"
+                )
                 still_pending.append(file_handler)
+
         self.pending_files = still_pending
         if not still_pending:
             self.status = DirStatus.DONE

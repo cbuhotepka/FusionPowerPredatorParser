@@ -247,7 +247,6 @@ class Engine:
                         if answer != 'y':
                             raise ex
                         break
-
                 if self.daemon:
                     if dir.pending_files:
                         self.handler_folders.add_current_to_pending_dirs()

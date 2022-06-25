@@ -4,6 +4,7 @@ from collections import Counter
 
 from rich.console import Console
 from pathlib import Path
+from celery.result import AsyncResult
 
 from engine_modul.interface import UserInterface
 from engine_modul.normalize_col_names import normalize_col_names
@@ -13,7 +14,7 @@ from reader import Reader
 from writer import Writer
 from engine_modul.utils import find_delimiter
 from validator.validator import Validator
-from engine_modul.celery_parse import daemon_parse, ParserResponse
+from celery_parser import daemon_parse, ParserResponse
 from rich.progress import track
 from engine_modul.store import PATTERN_TEL_PASS, PATTERN_USERMAIL_USERNAME_PASS, PATTERN_UID_UN_IP_UM_PASS
 
@@ -34,7 +35,7 @@ class FileHandler:
         self.auto_parse = auto_parse
         self.full_auto = full_auto
         self.daemon = daemon
-        self.daemon_res: ParserResponse = None
+        self.daemon_task: AsyncResult = None
 
         self.delimiter = None
         self.num_columns = None
@@ -201,12 +202,12 @@ class FileHandler:
     # =================================================================================
     def parse_file(self):
         if self.daemon:
-            self.daemon_res = daemon_parse(
+            self.daemon_task = daemon_parse.delay(
                 keys=self.keys,
                 num_columns=self.num_columns,
                 delimiter=self.delimiter,
                 skip=self.skip,
-                file_path=self.file_path,
+                file_path=str(self.file_path),
                 writer_data=self.writer_data,
             )
         else:
