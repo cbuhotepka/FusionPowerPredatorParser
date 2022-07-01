@@ -7,6 +7,7 @@ import re
 import shutil
 import time
 from pathlib import Path
+import pandas as pd
 
 from dpath.util import new
 
@@ -171,15 +172,14 @@ class Directory:
                         self.status = ERROR
                         return None
                     return self._get_all_files(paths_for_pass=paths_for_pass + [f])
-                # if f not in paths_for_pass and not utils.is_escape_file(f) and f.endswith('.json'):
-                #     print('JSON CONVERTING:', f)
-                #     try:
-                #         conv = ConvertorJSON(str(file.absolute()))
-                #         conv.run()
-                #     except ImportError:
-                #         self.status = ERROR
-                #         return None
-                #     return self._get_all_files(paths_for_pass=paths_for_pass + [f])
+                if f not in paths_for_pass and not utils.is_escape_file(f) and f.endswith('.xlsx'):
+                    print('XLSX CONVERTING:', f)
+                    new_name = os.path.splitext(str(file))[0] + '-converted.txt'
+                    with open(new_name, 'w', encoding='utf-8', errors='ignore', newline='') as new_file:
+                        df = pd.read_excel(str(file))
+                        for key in df:
+                            df[key] = df[key].astype('str').apply(lambda x: x.replace('\n', ' '))
+                        df.to_csv(new_file, index=False)
 
                 if not utils.is_escape_file(f) and not is_archive:
                     all_files.append(file)
