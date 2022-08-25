@@ -27,7 +27,7 @@ COLUMN_NAME_TRIGGERS = ['username', 'password', 'name', 'userid', 'имя', 'п�
 
 POSSIBLE_EXCHANGES = {
     'uid': ['id', 'userid', 'ID', 'uid', 'memberid', '№', '#'],
-    'un': ['nick', 'nickname', 'ник', 'username'],
+    'un': ['nick', 'nickname', 'ник', 'username', 'linkedinusernam'],
     'um': ['usermail', 'email', 'e-mail', 'useremail', 'emailaddress', 'майл', 'е-мейл', 'е-мэйл', 'e-mailaddress'],
     't': ['tel', 'phone', 'mobile', 'mobilenumber', 'mobilephone', 'telephone', 'phonenumber', 'телефон', 'telefono', 'тел'],
     'ufn': ['userfname', 'fname', 'firstname', 'имя', 'fullname', 'фамилияиимя', 'имяифамилия', 'фио',
@@ -48,6 +48,10 @@ POSSIBLE_EXCHANGES = {
     'uai': ['address2', 'address3', 'position',  'organization', 'gender'],
     'uai+company': ['company', 'company_name'],
     'uai+dob': ['birthdate', 'birthday', 'dob', 'birthday'],
-    'uai+url': ['website'],
+    'uai+url': ['website', 'url'],
+    'uai+twitter_url': ['twitterurl'],
+    'uai+facebook_url': ['facebookurl'],
+    'uai+linkedin_url': ['linkedinurl'],
+    'uai+facebook_id': ['facebookid'],
 
 }

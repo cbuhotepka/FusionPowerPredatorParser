@@ -124,8 +124,8 @@ def start():
 if __name__ == '__main__':
     TYPE_BASE = Prompt.ask('Тип папки', choices=['combo', 'db'])
     log.setLevel('DEBUG')
-    START_PATH = os.path.join(f'{PD}:\\errors_do_not_touch\\Sorted\\CSV', TYPE_BASE)
-    DESTINATION = os.path.join(f'{PD}:\\errors_do_not_touch\\Sorted\\CSV\\Split\\', TYPE_BASE)
+    START_PATH = os.path.join(f'{PD}:\\errors_do_not_touch\\Sorted\\XLS', TYPE_BASE)
+    DESTINATION = os.path.join(f'{PD}:\\errors_do_not_touch\\Sorted\\XLS\\Split\\', TYPE_BASE)
     SIZE_DIR = 25
     file_handler = logging.FileHandler(filename=os.path.join(START_PATH, 'splitting.log'), encoding='utf-8')
     log.addHandler(file_handler)

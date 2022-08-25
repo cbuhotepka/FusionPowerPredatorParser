@@ -79,8 +79,8 @@ def client(cmd, path=None):
 def show_progress(done, left):
     a = int(round(done / (left + done), 2) * 100)
     bar = Colors.OKGREEN + '#' * a + Colors.ENDC + '-' * (100 - a)
-    stat = f"Выполнено - {done}\n" \
-           f"Осталось - {left}"
+    stat = f"Finished - {done}\n" \
+           f"Left - {left}"
     print(f"<{bar}>" + f' {a}%')
     print(Colors.HEADER + stat)
 
@@ -105,11 +105,10 @@ def create_command_file():
             # пропуск если в готово или фейле)
             continue
         if os.path.exists(os.path.join(line, 'OLD-command.txt')):
-            continue
+            os.remove(os.path.join(line, 'OLD-command.txt'))
         for file in search_command_files(line):
 
             command_file = open(file, 'r', encoding='utf-8')
-            os.remove(os.path.join(line, 'OLD-command.txt'))
             cmds = get_cmds(command_file)
             command_file.close()
             os.rename(file, os.path.join(os.path.split(file)[0], 'OLD-command.txt'))
@@ -123,12 +122,12 @@ def create_command_file():
                         clr = Colors.FAIL
                         print(*open(path, encoding='utf-8').readlines()[:5])
                         print(path)
-                        cmd += ' --algorithm ' + f"'{Prompt.ask('Введите тип хеша: ')}'"
+                        cmd += ' --algorithm ' + f"'{Prompt.ask('Enter type of hash: ')}'"
                         is_send = None
                     elif "--algorithm 'unknown'" in cmd:
                         print(*open(path, encoding='utf-8').readlines()[:5])
                         print(path)
-                        cmd.replace("--algorithm 'unknown'", '--algorithm ' + f"'{Prompt.ask('Введите тип хеша: ')}'")
+                        cmd.replace("--algorithm 'unknown'", '--algorithm ' + f"'{Prompt.ask('Enter type of hash: ')}'")
                         is_send = None
                     else:
                         clr = Colors.WARNING
@@ -146,7 +145,7 @@ def create_command_file():
 def start():
     # all_command_file = open(dir + '\\all_command_sender.txt', 'r', encoding='utf-8')
     # all_cmds = get_cmds(all_command_file.readlines())
-    _resend = Confirm.ask('Перезаливаем готовые?', default='n')
+    _resend = Confirm.ask('Repeat send files?', default='n')
 
     for line in done_parse:
         line = line.replace('\n', '')
@@ -170,13 +169,13 @@ def start():
 
         if os.path.exists(done_command_path) and _resend == 'n' and os.path.getsize(done_command_path) > 5:
             done_command_file = open(done_command_path, 'r', encoding='utf-8')
-            done_command = get_cmds(done_command_file)
+            done_command = done_command_file.readlines()
             done_command_file.close()
+            ready_cmd = [cm[0] for cm in done_command]
         else:
-            done_command = []
+            ready_cmd = []
         done_command_file = open(done_command_path, 'a', encoding='utf-8')
 
-        ready_cmd = [cm[0] for cm in done_command]
 
         for cmd, path in cmds:
             cmd = re.sub(r'main.py', 'fix.py', cmd)
@@ -200,23 +199,23 @@ def start():
             print(tabulate([[clr + cmd], [path]]))
             # if clr == Colors.FAIL:
             #   continue
-            is_send = Prompt.ask('Отправляем?', choices=['hash', 'command', 'pass'],
+            is_send = Prompt.ask('Continue?', choices=['hash', 'command', 'pass'],
                                  default='') if clr == Colors.FAIL else ''
             print(str(path))
             # Prompt.ask('Продолжаем: ')
             if is_send:
                 if is_send == 'command':
-                    cmd = Prompt.ask('Введите команду: ')
+                    cmd = Prompt.ask('Enter the command: ')
                     is_send = None
                 elif is_send == 'hash':
                     print(*open(path, encoding='utf-8').readlines()[:5])
-                    cmd += ' --algorithm ' + f"'{Prompt.ask('Введите тип хеша: ')}'"
+                    cmd += ' --algorithm ' + f"'{Prompt.ask('Enter type of hash: ')}'"
                     is_send = None
                 else:
                     continue
             # subprocess.run(f'python {client_path} --cmd "{cmd}" --path "{path}"')
             # print(cmd)
-            with console.status('[bold green]Отправка...', spinner='point', spinner_style="bold blue"):
+            with console.status('[bold green]Importing...', spinner='point', spinner_style="bold blue"):
 
                 answer = client(cmd, path)
 
@@ -280,12 +279,12 @@ def start():
                 if os.path.exists(_base_rm) and not os.listdir(_base_rm):
                     shutil.rmtree(_base_rm)
             except Exception as ex:
-                print(Colors.WARNING + f'Не получается перместить - {ex}')
+                print(Colors.WARNING + f"Can't move folder - {ex}")
                 # _answer = Confirm.ask('Продолжаем?', default='y')
                 # if _answer == 'n':
                 #     exit()
 
-            print('\033[32m ' + 'Перенос завершен')
+            print('\033[32m ' + 'Move done')
 
         else:
             with open(f"{dir}/fail_send.txt", 'a', encoding='utf-8') as f:
@@ -296,7 +295,7 @@ if __name__ == '__main__':
     start_path = f'{PD}:\\Source\\'
 
     list_files = []
-    combo = Confirm.ask('Комбо?')
+    combo = Confirm.ask('Combo?')
     dir = start_path + 'combo' if combo else start_path + 'db'
     done_parse = open(f'{dir}\\_dirs_complete_.txt', 'r', encoding='utf-8').readlines()
     done_parse = list(filter(lambda x: x != '\n', done_parse))
@@ -311,7 +310,7 @@ if __name__ == '__main__':
     done_send_file.close()
 
     # show_progress(complete, left)
-    print(Colors.WARNING + f'В ошибках - {len(fail_send)}')
+    print(Colors.WARNING + f'In errors - {len(fail_send)}')
     # preparation()
     create_command_file()
     start()

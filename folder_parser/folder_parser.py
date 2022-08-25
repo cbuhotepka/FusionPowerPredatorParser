@@ -62,7 +62,8 @@ class Directory:
                 self.status = Status.ERROR
             try:
                 self.base_info = self._get_base_info()
-            except:
+            except Exception as ex:
+                print(ex)
                 self.status = Status.ERROR
 
     def iterate(self, auto_parse):

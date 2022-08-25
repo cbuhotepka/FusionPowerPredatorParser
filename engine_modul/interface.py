@@ -24,31 +24,34 @@ console_for_show = Console(highlighter=DelimiterHighlighter(), theme=theme)
 
 class UserInterface:
 
+    def __init__(self):
+        self.dont_repeat_error = None
+
     def ask_type_base(self):
-        type_base = Prompt.ask('Тип папки', choices=['combo', 'db'])
+        type_base = Prompt.ask('Type of folder', choices=['combo', 'db'])
         return type_base
 
     def ask_reparse_file(self):
-        _answer = Confirm.ask('[green]Перепарсить готовые файлы?', default=False)
+        _answer = Confirm.ask('[green]Parse finished files?', default=False)
         return _answer
 
     def ask_delimiter(self):
-        _delimiter = Prompt.ask('[magenta]Разделитель', choices=[':', ',', ';', r'\t', '|'])
+        _delimiter = Prompt.ask('[magenta]Delimiter', choices=[':', ',', ';', r'\t', '|'])
         _delimiter = '\t' if _delimiter == '\\t' else _delimiter
-        console.print(f'[magenta]Разделитель[/magenta]: "[red]{_delimiter}[/red]"')
+        console.print(f'[magenta]Delimiter[/magenta]: "[red]{_delimiter}[/red]"')
         return _delimiter
 
     def ask_num_cols(self, num_columns):
-        input_num_columns = IntPrompt.ask('Количество столбцов', default=num_columns + 1) - 1
+        input_num_columns = IntPrompt.ask('Number of columns', default=num_columns + 1) - 1
         return input_num_columns
 
     def ask_skip_lines(self, skip):
-        answer = IntPrompt.ask('Пропустить строк', default=skip)
+        answer = IntPrompt.ask('Pass strings', default=skip)
         return answer
 
     def ask_cols_keys(self, find_keys):
         if find_keys:
-            _keys = Prompt.ask(f'[cyan]Колонки {find_keys}')
+            _keys = Prompt.ask(f'[cyan]Columns {find_keys}')
             if not _keys:
                 keys = find_keys
             elif _keys == 'e':
@@ -56,34 +59,34 @@ class UserInterface:
             else:
                 keys = f'{find_keys},{_keys}'
         else:
-            keys = Prompt.ask(f'[cyan]Колонки ')
+            keys = Prompt.ask(f'[cyan]Columns ')
         return keys
 
     def ask_column_names(self, column_names):
-        console.print(f'[magenta]Определены столбцы[/magenta]: "[green]{column_names}[/green]"')
-        _answer = Confirm.ask('[magenta]Все правильно?', default=True)
+        console.print(f'[magenta]Found name of column[/magenta]: "[green]{column_names}[/green]"')
+        _answer = Confirm.ask('[magenta]Ok?', default=True)
         return _answer
 
     def ask_mode_handle(self):
-        answer = Prompt.ask(f"[green]Если все ОК нажмите Enter",
+        answer = Prompt.ask(f"[green]If ОК press Enter",
                             choices=['p', 'l', 'o', 'n', 'd', 'e', 't', 'jp'],
                             default='start')
         return answer
 
     def show_delimiter(self, delimiter):
         if delimiter:
-            console.print(f'[magenta]Разделитель[/magenta]: "[red]{delimiter}[/red]"')
+            console.print(f'[magenta]Delimiter[/magenta]: "[red]{delimiter}[/red]"')
         else:
-            console.print(f'[magenta]Разделитель[/magenta]: [red]Отсутствует![/red]')
+            console.print(f'[magenta]Delimiter[/magenta]: [red]Not found![/red]')
 
     def show_num_columns(self, num_columns):
-        console.print(f'[magenta]Количество столбцов[/magenta]: "[green]{num_columns}[/green]"')
+        console.print(f'[magenta]Number of columns[/magenta]: "[green]{num_columns}[/green]"')
 
     def show_left_dirs(self, left_dirs):
-        console.print(f'[cyan]Папок осталось[/cyan]: "[green]{left_dirs}[/green]"')
+        console.print(f'[cyan]Folders left[/cyan]: "[green]{left_dirs}[/green]"')
 
     def show_left_files(self, left_files):
-        console.print(f'[cyan]Файлов осталось[/cyan]: "[green]{left_files}[/green]"')
+        console.print(f'[cyan]Files left[/cyan]: "[green]{left_files}[/green]"')
 
     def print_dirs_status(self, path, status):
         if status == 'for parsing':
@@ -134,11 +137,11 @@ class UserInterface:
         # l - корневой список данных
         # jl - в каждой строке отдельный JSON
         while True:
-            mode = Prompt.ask(f"[green]Выберите режим парсинга JSON",
+            mode = Prompt.ask(f"[green]Select the JSON parsing mode",
                                 choices=['p', 'o', 'k', 'l', 'jl'],
                                 default='k')
             if mode == 'k':
-                answer = Prompt.ask(f'[cyan]Введите ключ: ')
+                answer = Prompt.ask(f'[cyan]Enter key: ')
                 if answer == "error":
                     continue
             else:
@@ -147,15 +150,20 @@ class UserInterface:
 
     def pause(self):
         """Запрос подтверждения продолжения"""
-        answer = Confirm.ask('[magenta]Продолжаем?', default=True)
+        answer = Confirm.ask('[magenta]Continue?', default=True)
         return answer
 
     def error(self, err):
         """Вывод ошибки"""
+        if self.dont_repeat_error:
+            return True
+
         print()
         console.print(f'[bold red]{"-" * 25}')
         console.print(f'[red]{err}')
         console.print(f'[bold red]{"-" * 25}')
         print()
-        answer = Confirm.ask('[magenta]Продолжаем?', default=True)
+        if self.dont_repeat_error is None:
+            self.dont_repeat_error = Confirm.ask('[magenta]Dont repeat error?', default=True)
+            answer = Confirm.ask('[magenta]Continue?', default=True)
         return answer

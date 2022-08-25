@@ -12,6 +12,8 @@ from engine_modul.interface import UserInterface
 
 class ConvertorJSON:
     """Конвертор JSON"""
+    encoding = 'utf-8'
+    # encoding = 'utf-8'
 
     def __init__(self, file):
         self.json_file = file
@@ -27,7 +29,7 @@ class ConvertorJSON:
 
     def _read_json_file(self):
         """Чтение JSON файла"""
-        with open(self.json_file, 'r', encoding='utf-8') as json_file:
+        with open(self.json_file, 'r', encoding=self.encoding, errors='ignore') as json_file:
             try:
                 self.json_data = json.load(json_file)
             except json.decoder.JSONDecodeError as ex:
@@ -41,7 +43,7 @@ class ConvertorJSON:
 
     def _get_string_from_json_file(self):
         """Чтение JSON файла построчно"""
-        with open(self.json_file, 'r', encoding='utf-8') as json_file:
+        with open(self.json_file, 'r', encoding=self.encoding, errors='ignore') as json_file:
             for line in json_file:
                 try:
                     dc = json.loads(line)

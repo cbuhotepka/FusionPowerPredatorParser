@@ -184,12 +184,12 @@ class Engine:
                 return mode
 
         self.writer.start_new_file(self.file_handler.file_path, self.file_handler.delimiter if self.file_handler.delimiter != '\t' else ';')
-        with console.status('[bold blue]Подсчет строк...', spinner='point', spinner_style="bold blue") as status:
+        with console.status('[bold blue]Counting rows...', spinner='point', spinner_style="bold blue") as status:
             count_rows_in_file = self.file_handler.get_count_rows()
-            console.print(f'[yellow]Строк в файле: {count_rows_in_file}')
+            console.print(f'[yellow]number of rows in the file: {count_rows_in_file}')
         validator = Validator(self.file_handler.keys, self.file_handler.num_columns, self.file_handler.delimiter)
         self.read_file.open(skip=self.file_handler.skip)
-        for line in track(self.read_file, description='[bold blue]Парсинг файла...', total=count_rows_in_file):
+        for line in track(self.read_file, description='[bold blue]File parsing...', total=count_rows_in_file):
 
             for fields_data in validator.get_fields(line):
 
@@ -209,7 +209,7 @@ class Engine:
         """ Возвращает True если есть error-файлы или файлов слишком много """
         error = False
         if not self.error_mode and dir.error_files_count:
-            console.print(f'Error-файлы в папке: [red]{dir.error_files_count}[/red]/{dir.files_count}')
+            console.print(f'Error-number of files in dir: [red]{dir.error_files_count}[/red]/{dir.files_count}')
             console.print(
                 ', '.join(
                     [f"{'[red]'*(k in ERROR_EXTENSIONS)}'{k}': {v}{'[/red]'*(k in ERROR_EXTENSIONS)}" 
@@ -218,10 +218,10 @@ class Engine:
             )
             error = True
         elif not self.error_mode and dir.files_count >= TOO_MANY_FILES_TRESHOLD:
-            console.print(f'[red]Слишком много файлов: {dir.files_count}')
+            console.print(f'[red]To match files: {dir.files_count}')
             error = True
         else:
-            console.print(f'\n\n[cyan]Количество файлов: {dir.files_count}')
+            console.print(f'\n\n[cyan]Number of files: {dir.files_count}')
 
         return error
 

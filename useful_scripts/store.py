@@ -11,7 +11,7 @@ BANNED_SYMBOL = {'Ў', 'Ў', 'º', '˜', 'š', 'ž', 'њ', '¬', 'ˆ', '¶',
 
 POSSIBLE_EXCHANGES = {
     'uid': ['id', 'userid', 'ID', 'uid', 'memberid', '№', '#'],
-    'un': ['nick', 'nickname', 'ник', 'username'],
+    'un': ['nick', 'nickname', 'ник', 'username', 'twitter_username', 'linkedin_username', 'facebook_username'],
     'um': ['usermail', 'email', 'e-mail', 'useremail', 'emailaddress', 'майл', 'е-мейл', 'е-мэйл', 'e-mailaddress'],
     't': ['tel', 'phone', 'mobile', 'mobilenumber', 'mobilephone', 'telephone', 'phonenumber', 'телефон', 'telefono', 'тел'],
     'ufn': ['userfname', 'fname', 'firstname', 'имя', 'firstname', 'fullname', 'фамилияиимя', 'имяифамилия', 'фио',
@@ -23,13 +23,18 @@ POSSIBLE_EXCHANGES = {
     's': ['passwordsalt', 'passsalt', 'salt'],
 
     'ip': ['ipaddress', 'ip'],
-    'a': ['address', 'streetaddress', 'адрес', 'address1', 'homeaddress', 'adres'],
+    'a': ['address', 'streetaddress', 'адрес', 'address1', 'homeaddress', 'adres', 'street_address'],
     'c': ['city', 'town', 'city/town', 'город', 'homecity', 'addressaddress'],
     'st': ['регион', 'область', 'обл', 'homestate', 'addressstate', 'state'],
     'cn': ['country', 'страна', 'homecountry', 'addresscountry'],
-    'z': ['zipcode', 'postcode', 'addresszip', 'postalcode', 'zip'],
+    'z': ['zipcode', 'postcode', 'addresszip', 'postalcode', 'zip', 'postal_code'],
 
     'uai': ['address2', 'address3', 'company', 'position', 'birthdate', 'birthday', 'organization'],
+    'uai+twitter_url': ['twitterurl'],
+    'uai+facebook_url': ['facebookurl'],
+    'uai+linkedin_url': ['linkedinurl'],
+    'uai+url': ['url'],
+
 }
 
 COLUMN_NAME_TRIGGERS = ['username', 'password', 'name', 'userid', 'имя', 'пароль', 'address', 'ipaddress', 'ip_address',
