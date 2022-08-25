@@ -20,6 +20,8 @@ ASSERT_NAME = {
     'z': 'zip',
     'uai': 'user_additional_info',
     'p': 'password',
+    'ps': 'passport',
+    'dob': 'dob'
 }
 
 COLUMN_NAME_TRIGGERS = ['username', 'password', 'name', 'userid', 'имя', 'пароль', 'address', 'ipaddress', 'ip_address',
@@ -39,15 +41,16 @@ POSSIBLE_EXCHANGES = {
     's': ['secret', 'passwordsalt', 'passsalt', 'salt'],
 
     'ip': ['ipaddress', 'ip'],
-    'a': ['address', 'streetaddress', 'адрес', 'address1', 'homeaddress', 'adres'],
+    'a': ['address', 'streetaddress', 'адрес', 'address1', 'homeaddress', 'adres', 'address2', 'address3',],
     'c': ['city', 'town', 'city/town', 'город', 'homecity', 'addressaddress'],
     'st': ['регион', 'область', 'обл', 'homestate', 'addressstate', 'state'],
     'cn': ['country', 'страна', 'homecountry', 'addresscountry'],
     'z': ['zipcode', 'postcode', 'addresszip', 'postalcode', 'zip'],
+    'dob': ['birthdate', 'birthday', 'dob', 'birthday'],
+    'ps': ['passport'],
 
-    'uai': ['address2', 'address3', 'position',  'organization', 'gender'],
+    'uai': [ 'position',  'organization', 'gender'],
     'uai+company': ['company', 'company_name'],
-    'uai+dob': ['birthdate', 'birthday', 'dob', 'birthday'],
     'uai+url': ['website', 'url'],
     'uai+twitter_url': ['twitterurl'],
     'uai+facebook_url': ['facebookurl'],
