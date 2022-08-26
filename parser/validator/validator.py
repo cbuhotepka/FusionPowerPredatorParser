@@ -137,8 +137,17 @@ class Validator:
                                     f'((?:\"[^\"]*?\")|(?:[^{self.delimiter}]*))')
         match_fields = re.match(pattern_fields, line)
         if match_fields:
-            _fields = list(match_fields.groups())
+            _fields = [self.__clear_field(f) for f in match_fields.groups()]
         return _fields
+
+    def __clear_field(self, field: str) -> str:
+        field = re.sub(r"^[\"' ]+", "", field)
+        field = re.sub(r"[\"' ]+$", "", field)
+        if self.delimiter == ",":
+            field = field.replace(self.delimiter, ".")
+        else:
+            field = field.replace(self.delimiter, ",")
+        return field
 
     def _delete_blank_of_line(self, input_string: str) -> str:
 

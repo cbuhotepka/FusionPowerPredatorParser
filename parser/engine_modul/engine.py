@@ -228,7 +228,7 @@ class Engine:
 
                     if not self.daemon:
                         dir.finish_file()
-                    else:
+                    elif mode != FileMode.SKIP_FILE:
                         dir.add_pending_file()
 
                 # Определение условий

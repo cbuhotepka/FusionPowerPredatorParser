@@ -3,7 +3,7 @@ import os
 from writer.store import COLS_LONG
 
 USER = os.environ.get('USER_NAME', 'er')
-PASSWORD = os.environ.get('USER_PASSWORD', 'qwerty123')
+PASSWORD = os.environ.get('USER_PASSWORD', 'ASI0qYe2H')
 FIXPY = os.environ.get('FIXPY', 'fix.py')
 PARSING_DISK = os.environ.get('PARSING_DISK_NAME', 'C')
 SOURCE_DISK = os.environ.get('SOURCE_DISK_NAME', 'W')
