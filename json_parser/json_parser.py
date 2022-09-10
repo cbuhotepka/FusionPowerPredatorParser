@@ -4,6 +4,7 @@ import os
 import subprocess
 from itertools import repeat
 from pathlib import Path
+from folder_parser.utils import get_encoding_file
 
 import dpath.util
 
@@ -12,7 +13,6 @@ from engine_modul.interface import UserInterface
 
 class ConvertorJSON:
     """Конвертор JSON"""
-    encoding = 'utf-8'
     # encoding = 'utf-8'
 
     def __init__(self, file):
@@ -26,6 +26,7 @@ class ConvertorJSON:
             'str': lambda string, key: {key: string},
         }
         self.headers = set()
+        self.encoding = get_encoding_file(file) or 'utf-8'
 
     def _read_json_file(self):
         """Чтение JSON файла"""

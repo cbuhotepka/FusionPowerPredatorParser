@@ -257,7 +257,7 @@ class Engine:
                 }
                 self.writer = Writer(**writer_data)
                 for file in dir.iterate(self.auto_parse):
-                    
+
                     self.read_file = Reader(file)
                     # Отлов ошибок для непрерывания full_auto
                     try:

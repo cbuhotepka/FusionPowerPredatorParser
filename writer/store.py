@@ -50,6 +50,9 @@ COLS_SHORT = {
     'z': 'zip',
     'uai': 'user_additional_info',
     'p': 'password',
+    'dob': 'dob',
+    'ps': 'passport',
+
 }
 COLS_LONG = dict((v,k) for k,v in COLS_SHORT.items())
 
