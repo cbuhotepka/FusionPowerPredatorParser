@@ -23,7 +23,7 @@ class Validator:
             'password': self._p_handler,
             'hash': self._h_handler,
             'tel': self._t_handler,
-            'ipaddress': self._ip_handler
+            'ipaddress': self._ip_handler,
         }
         self.domains = DOMAINS
 
@@ -183,10 +183,28 @@ class Validator:
         algorithms = identify_hashes(value)
         return algorithms[0] if algorithms else ''
 
+    def _get_user_fullname(self, generete_fields: dict) -> str:
+        """Compare user last name, first name and mid name"""
+        gf = generete_fields
+        uln = gf.get("user_lname", "").replace("\"", "")
+        ufn = gf.get("user_fname", "").replace("\"", "")
+        umdn = gf.get("user_midname", "").replace("\"", "")
+        full_name = " ".join([uln, ufn, umdn])
+        return full_name
+
     def handler_fields(self, fields) -> list:
         _result_fields = []
         for generete_fields in self.generator.get_generate_fields(fields, self.add_info_for_uai):
             output_data = OrderedDict({'algorithm': None})
+            if generete_fields.get('user_fname'):
+                full_name = self._get_user_fullname(generete_fields)
+
+                generete_fields.pop("user_fname", None)
+                generete_fields.pop("user_lname", None)
+                generete_fields.pop("user_midname", None)
+                generete_fields.pop("user_fullname", None)
+
+                output_data.update({"user_fullname": full_name})
             for cols_name, value in generete_fields.items():
                 if cols_name in self.handlers_dict.keys():
                     output_data.update(self.handlers_dict[cols_name](value))
@@ -217,7 +235,7 @@ class FieldsGenerator:
         self.columns_name_index = self.input_columns_name_index.copy()
         if username_index:
             username_value = fields[username_index[0]]
-            if username_index and self.is_usermail(username_value):
+            if self.is_usermail(username_value):
                 self.columns_name_index.pop('username')
                 if not self.columns_name_index.get('usermail'):
                     self.columns_name_index['usermail'] = username_index

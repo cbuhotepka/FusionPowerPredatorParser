@@ -37,6 +37,8 @@ COLS_SHORT = {
     'uid': 'user_ID',
     'un': 'username',
     'ufn': 'user_fname',
+    'umdn': 'user_midname',
+    'ufln': 'user_fullname',
     'uln': 'user_lname',
     'upp': 'userpass_plain',
     's': 'salt',
@@ -54,6 +56,6 @@ COLS_SHORT = {
     'ps': 'passport',
 
 }
-COLS_LONG = dict((v,k) for k,v in COLS_SHORT.items())
+COLS_LONG = dict((v, k) for k, v in COLS_SHORT.items())
 
 ALLOW_EXTENSION = ['.txt', '.csv', '', '.zip', '.rar', '.tsv']
