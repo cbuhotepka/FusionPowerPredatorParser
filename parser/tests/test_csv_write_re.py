@@ -46,8 +46,8 @@ class CsvWriteReTestCase(unittest.TestCase):
     def test_file_test_ufn_uln_t_a_uai(self):
         self.check_file(
             file_name='test_ufn_uln_t_a_uai.csv', 
-            keys=((1, 'user_fname'), (2, 'user_lname'), (3, 'user_additional_info'), (4, 'user_additional_info'), (6, 'tel'), (7, 'user_additional_info'), (9, 'user_additional_info'), (12, 'address')),
-            colsnames=['user_fname', 'user_lname', 'tel', 'address', 'uai'],
+            keys=((1, 'user_fullname'), (2, 'user_lname'), (3, 'user_additional_info'), (4, 'user_additional_info'), (6, 'tel'), (7, 'user_additional_info'), (9, 'user_additional_info'), (12, 'address')),
+            colsnames=['user_fullname', 'user_lname', 'tel', 'address', 'uai'],
             delimiter=',',
             skip=1,
         )      

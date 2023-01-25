@@ -40,7 +40,7 @@ ASSERT_NAME = {
     'umn': 'user_mail_name',
     'uid': 'user_ID',
     'un': 'username',
-    'ufn': 'user_fname',
+    'ufn': 'user_fullname',
     'uln': 'user_lname',
     'upp': 'userpass_plain',
     's': 'salt',

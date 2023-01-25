@@ -3,13 +3,17 @@ import shutil
 import time
 from pathlib import Path
 from typing import Generator
+from py_dotenv import read_dotenv
 
 from rich.console import Console
 from rich.prompt import Prompt
 
 import logging
 
-PD = 'E'
+dotenv_path = Path('../CONFIG.env')
+assert dotenv_path.exists()
+read_dotenv(dotenv_path)
+SD = os.environ.get('SOURCE_DISK_NAME')
 console = Console()
 
 TYPE_BASE = ''
@@ -76,10 +80,11 @@ def move_dir(base_dir, src_dir, dest_path):
         log.debug(f'Перемещение {src_dir} -> {dest_path}')
         with console.status('[bold blue]Перемещение папки...', spinner='point', spinner_style="bold blue"):
             shutil.move(src_dir, dest_path)
-            if os.path.exists(base_dir) and not os.listdir(base_dir):
-                log.debug(f'Папка пуста.\n Удаляю -> {base_dir}')
-                console.print(f"[yellow]Папка пуста!.\n Удаляю -> {base_dir}")
-                shutil.rmtree(base_dir)
+            dir_to_delete = Path(base_dir).parent
+            if os.path.exists(dir_to_delete) and not os.listdir(dir_to_delete):
+                log.debug(f'Папка пуста.\n Удаляю -> {dir_to_delete}')
+                console.print(f"[yellow]Папка пуста!.\n Удаляю -> {dir_to_delete}")
+                shutil.rmtree(dir_to_delete)
     except OSError as ex:
         log.debug(f'Ошибка перемещения {ex}')
         console.print(f"[bold red]{src_dir} - Не могу переместить!")
@@ -119,7 +124,7 @@ def start_check(all_dirs: Generator):
         #     continue
         # else:
         if TYPE_BASE == 'db':
-            base_name = Path(base_dir).parts[-1]
+            base_name = Path(base_dir).parts[-2]
             dest_path = os.path.join(DESTINATION, type_files, TYPE_BASE, base_name)
         else:
             dest_path = os.path.join(DESTINATION, type_files, TYPE_BASE)
@@ -194,8 +199,8 @@ if __name__ == '__main__':
     TYPE_BASE = Prompt.ask('Тип папки', choices=['combo', 'db'])
     log.setLevel('DEBUG')
     for i in range(4, 5):
-        START_PATH = os.path.join(f'{PD}:\\errors_do_not_touch\\{i}', TYPE_BASE)
-        DESTINATION = os.path.join(f'{PD}:\\errors_do_not_touch\\{i}\\sorted\\')
+        START_PATH = os.path.join(f'{SD}:\\Error', TYPE_BASE)
+        DESTINATION = os.path.join(f'{SD}:\\sorted_error\\')
         file_handler = logging.FileHandler(filename=os.path.join(START_PATH, 'sorting.log'), encoding='utf-8')
         log.addHandler(file_handler)
         start()

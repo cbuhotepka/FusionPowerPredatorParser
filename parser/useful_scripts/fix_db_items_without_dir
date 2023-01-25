@@ -1,0 +1,28 @@
+import re
+import shutil
+import os
+
+PATH = 'W:/Error/db'
+
+
+def get_dirs_from_log():
+    dirs = []
+    with open(PATH + '/sorting.log', 'r', encoding='utf-8') as log_file:
+        for line in log_file:
+            line = line[:-1]
+            if line.startswith('Проверка папки -> '):
+                current_dir = re.findall(r'(W:\\.+\\)[^\\]+$', line)
+            elif line.startswith('Создание папок '):
+                current_dir += re.findall(r'(W:\\.+)$', line)
+                dirs.append(current_dir)
+    return dirs
+
+
+
+if __name__ == '__main__':
+    dirs = get_dirs_from_log()
+    for folder in dirs:
+        file_names = os.listdir(folder[1])
+        for file_name in file_names:
+            shutil.move(os.path.join(folder[1], file_name), folder[0])
+        print(folder)

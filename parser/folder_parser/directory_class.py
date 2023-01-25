@@ -65,7 +65,8 @@ class Directory:
                 self.status = DirStatus.ERROR
             try:
                 self.base_info = self._get_base_info()
-            except:
+            except Exception as ex:
+                console.print(f'[red]Couldn`t parse readme.txt due to an error: {ex}[/red]')
                 self.status = DirStatus.ERROR
 
     def iterate(self, auto_parse):
@@ -318,8 +319,11 @@ class Directory:
         path_to_readme = os.path.join(self.path, 'readme.txt')
         if not os.path.exists(path_to_readme):
             return None, None, None
-        encoding = utils.get_encoding_file(path_to_readme)
-        readme_string = open(os.path.join(self.path, 'readme.txt'), encoding=encoding).readlines()
+        encoding = utils.get_encoding_file(path_to_readme) or 'utf-8'
+        try:
+            readme_string = open(os.path.join(self.path, 'readme.txt'), encoding=encoding).readlines()
+        except:
+            readme_string = open(os.path.join(self.path, 'readme.txt'), encoding='utf-8').readlines()
         _date = readme_string[0].replace("\n", "") if readme_string else ''
         _source = None
         _name = readme_string[1].replace("\n", "") if len(readme_string) > 1 else ''

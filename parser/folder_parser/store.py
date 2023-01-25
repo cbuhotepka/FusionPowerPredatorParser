@@ -15,4 +15,4 @@ BANNED_SYMBOL = ['Ð', 'œ', '\x9d', 'ž', '\x90', '˜', '—', '°', '±', 'Ñ'
                 '\x81', '‡', 'µ', 'º', '¡', 'Â', 'š', '²', 'ˆ', '¿', '§', '•', '¥', '¯', '®', '›', 
                 '¦', 'ð', 'Ÿ', '¹', 'â', '‹', 'Œ', '·']
 
-ERROR_EXTENSIONS = ['.sql', '.xml', '.xlsx', '.xls', '.doc', '.docx', '.html', '.jpg', '.pdf']
+ERROR_EXTENSIONS = ['.sql', '.xml', '.xlsx', '.xls', '.doc', '.docx', '.htm', '.html', '.jpg', '.pdf', '.mdb']

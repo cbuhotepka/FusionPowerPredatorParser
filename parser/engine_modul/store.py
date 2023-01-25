@@ -25,7 +25,7 @@ ASSERT_NAME = {
     'umn': 'user_mail_name',
     'uid': 'user_ID',
     'un': 'username',
-    'ufn': 'user_fname',
+    'ufn': 'user_fullname',
     'uln': 'user_lname',
     'upp': 'userpass_plain',
     's': 'salt',
@@ -39,6 +39,8 @@ ASSERT_NAME = {
     'z': 'zip',
     'uai': 'user_additional_info',
     'p': 'password',
+    'psp': 'passport',
+    'dob': 'dob',
 }
 
 COLUMN_NAME_TRIGGERS = ['username', 'password', 'name', 'userid', 'имя', 'пароль', 'address', 'ipaddress', 'ip_address',
@@ -63,10 +65,13 @@ POSSIBLE_EXCHANGES = {
     'st': ['регион', 'область', 'обл', 'homestate', 'addressstate', 'state'],
     'cn': ['country', 'страна', 'homecountry', 'addresscountry'],
     'z': ['zipcode', 'postcode', 'addresszip', 'postalcode', 'zip'],
+    'psp': ['psprt', 'passport', 'pasport', 'паспорт', 'pasportnumber', 'passportnumber'],
+    'dob': ['dateofbirth', 'datebirth', 'birthdate', 'birthday'],
+
+    'uai': ['address2', 'address3', 'company', 'position'],
 
     'uai': ['address2', 'address3', 'position',  'organization', 'gender'],
     'uai+company': ['company', 'company_name'],
-    'uai+dob': ['birthdate', 'birthday', 'dob', 'birthday'],
     'uai+url': ['website'],
 
 }

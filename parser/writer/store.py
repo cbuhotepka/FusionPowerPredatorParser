@@ -25,8 +25,10 @@ POSSIBLE_EXCHANGES = {
     'st': ['регион', 'область', 'обл', 'homestate', 'addressstate', 'state'],
     'cn': ['страна', 'homecountry', 'addresscountry'],
     'z': ['zipcode', 'postcode', 'addresszip', 'postalcode', 'zip'],
+    'psp': ['psprt', 'passport', 'pasport', 'паспорт', 'pasportnumber', 'passportnumber'],
+    'dob': ['dateofbirth', 'datebirth', 'birthdate', 'birthday'],
 
-    'uai': ['address2', 'address3', 'company', 'position', 'birthdate', 'birthday'],
+    'uai': ['address2', 'address3', 'company', 'position'],
 }
 
 COLUMN_NAME_TRIGGERS = ['username', 'password', 'name', 'userid', 'имя', 'пароль', 'address', 'ipaddress', 'ip_address',
@@ -36,7 +38,7 @@ COLS_SHORT = {
     'um': 'usermail',
     'uid': 'user_ID',
     'un': 'username',
-    'ufn': 'user_fname',
+    'ufn': 'user_fullname',
     'uln': 'user_lname',
     'upp': 'userpass_plain',
     's': 'salt',
@@ -50,6 +52,8 @@ COLS_SHORT = {
     'z': 'zip',
     'uai': 'user_additional_info',
     'p': 'password',
+    'psp': 'passport',
+    'dob': 'dob',
 }
 COLS_LONG = dict((v,k) for k,v in COLS_SHORT.items())
 

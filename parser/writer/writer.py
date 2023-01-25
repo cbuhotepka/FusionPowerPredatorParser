@@ -128,11 +128,15 @@ class Writer:
     def write(self, data: dict):
         """ Записывает информацию из словаря в соответствующий rewrite файл """
         # Проверка текущего файла и делимитра
+        if not self.current_file or not self.current_delimiter:
+            raise ChildProcessError("You have to start_new_file before calling write method")
+        
+        if "hash" in data and not data["hash"]:
+            del data["hash"]
+            del data["algorithm"]
         algorithm = data.get('algorithm')
         if 'algorithm' in data:
             del data['algorithm']
-        if not self.current_file or not self.current_delimiter:
-            raise ChildProcessError("You have to start_new_file before calling write method")
 
         # Создание уникального ключа исходя из колонок и алгоритма
         file_id = list(data.keys())
