@@ -10,8 +10,6 @@ from pathlib import Path
 from rich.console import Console
 from celery.states import SUCCESS, PENDING, FAILURE
 
-from dpath.util import new
-
 from pyunpack import Archive
 from ..cronos_dump import is_cronos, convert_to_csv
 from ..engine_modul.file_handler import FileHandler

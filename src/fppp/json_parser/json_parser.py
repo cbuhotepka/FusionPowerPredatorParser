@@ -188,5 +188,5 @@ class ConvertorJSON:
 
 
 if __name__ == '__main__':
-    conv = ConvertorJSON('tests\\test_file.json')
+    conv = ConvertorJSON('tests/test_file.json')
     conv.run()

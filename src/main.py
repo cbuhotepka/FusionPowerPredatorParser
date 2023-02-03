@@ -3,9 +3,9 @@ from rich.console import Console
 from pathlib import Path
 from py_dotenv import read_dotenv
 
-from parser import start_parsing
+from fppp import start_parsing
 
-dotenv_path = Path('parser/CONFIG.env')
+dotenv_path = Path('fppp/CONFIG.env')
 assert dotenv_path.exists()
 read_dotenv(dotenv_path)
 
