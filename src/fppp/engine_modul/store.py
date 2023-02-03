@@ -26,7 +26,6 @@ ASSERT_NAME = {
     'uid': 'user_ID',
     'un': 'username',
     'ufn': 'user_fullname',
-    'uln': 'user_lname',
     'upp': 'userpass_plain',
     's': 'salt',
     'h': 'hash',
