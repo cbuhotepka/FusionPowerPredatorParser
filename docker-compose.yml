@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  redis:
+    image: redis
+    restart: always
+    container_name: 'redis_broker'
+    command: redis-server
+    ports:
+      - '6379:6379'
+
+  celery:
+    build: .
+    container_name: 'celery_app'
+    command: celery -A celery_parser worker --loglevel=INFO
+    volumes:
+      - ./parser:/parser
+    links:
+      - redis
+
+  parser:
+    build: .
+    container_name: 'FusionPowerPredatorParser'
+    command: python main.py
+    volumes:
+      - ./parser:/parser
+    depends_on:
+      - redis
+      - celery
