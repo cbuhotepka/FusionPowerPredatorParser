@@ -3,10 +3,11 @@ from rich.console import Console
 from pathlib import Path
 from py_dotenv import read_dotenv
 
-from fppp import start_parsing
+from fppp import start_parsing, set_config_env
 
 dotenv_path = Path('fppp/CONFIG.env')
-assert dotenv_path.exists()
+if not dotenv_path.exists():
+    set_config_env.set_env()
 read_dotenv(dotenv_path)
 
 console = Console()
