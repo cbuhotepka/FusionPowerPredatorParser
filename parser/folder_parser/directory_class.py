@@ -18,7 +18,7 @@ from engine_modul.file_handler import FileHandler
 
 from . import utils
 from .store import BASE_TYPES, PARSING_DISK, SOURCE_DISK, ERROR_EXTENSIONS
-
+from .. import excel_parser
 
 console = Console()
 
@@ -220,14 +220,22 @@ class Directory:
             for f in files:
                 file = Path(os.path.join(root, f))
                 is_archive = utils.is_archive(f)
-                if f not in paths_for_pass and is_archive:
-                    print('ARCHIVE UNPACKING:', f)
-                    try:
-                        Archive(file).extractall(file.parent)
-                    except:
-                        self.status = ERROR
-                        return None
-                    return self._get_all_files(paths_for_pass=paths_for_pass + [f])
+                if f not in paths_for_pass:
+                    if is_archive:
+                        print('ARCHIVE UNPACKING:', f)
+                        try:
+                            Archive(file).extractall(file.parent)
+                        except:
+                            self.status = ERROR
+                            return None
+                        return self._get_all_files(paths_for_pass=paths_for_pass + [f])
+                    elif excel_parser.is_excel(str(file)):
+                        try:
+                            excel_parser.convert_to_csv(str(file))
+                        except:
+                            self.status = ERROR
+                            return None
+                        return self._get_all_files(paths_for_pass=paths_for_pass + [f])
                 # if f not in paths_for_pass and not utils.is_escape_file(f) and f.endswith('.json'):
                 #     print('JSON CONVERTING:', f)
                 #     try:
