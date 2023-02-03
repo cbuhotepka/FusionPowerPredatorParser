@@ -22,7 +22,7 @@ class Config:
 
 if __name__ == '__main__':
     # Example
-    variables = ['PARSING_DISK_NAME', 'USER_NAME', 'USER_PASSWORD', 'SOURCE_DISK_NAME', 'SERVER_PORT_FIX']
+    variables = ['PARSING_DISK_NAME', 'USER_NAME', 'USER_PASSWORD', 'SOURCE_DISK_NAME', 'SERVER_PORT_FIX', "TOO_MANY_FILES_TRESHOLD"]
     config = Config(*variables)
     config.input_config()
     config.save_config()
