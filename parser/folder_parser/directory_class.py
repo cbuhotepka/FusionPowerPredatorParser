@@ -13,8 +13,8 @@ from celery.states import SUCCESS, PENDING, FAILURE
 from dpath.util import new
 
 from pyunpack import Archive
-from cronos_dump import is_cronos, convert_to_csv
-from engine_modul.file_handler import FileHandler
+from ..cronos_dump import is_cronos, convert_to_csv
+from ..engine_modul.file_handler import FileHandler
 
 from . import utils
 from .store import BASE_TYPES, PARSING_DISK, SOURCE_DISK, ERROR_EXTENSIONS

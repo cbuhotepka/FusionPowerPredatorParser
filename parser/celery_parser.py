@@ -5,9 +5,9 @@ from pydantic import BaseModel
 from celery import Celery, exceptions, states
 import os
 
-from reader.reader import Reader
-from validator.validator import Validator
-from writer.writer import Writer
+from .reader.reader import Reader
+from .validator.validator import Validator
+from .writer.writer import Writer
 from py_dotenv import read_dotenv
 
 

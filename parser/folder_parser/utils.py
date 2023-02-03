@@ -1,6 +1,6 @@
 from chardet.universaldetector import UniversalDetector
 
-from folder_parser.store import BANNED_SYMBOL
+from .store import BANNED_SYMBOL
 
 
 def get_encoding_file(path):

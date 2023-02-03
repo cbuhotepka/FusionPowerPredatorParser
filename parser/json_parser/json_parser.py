@@ -7,7 +7,7 @@ from pathlib import Path
 
 import dpath.util
 
-from engine_modul.interface import UserInterface
+from ..engine_modul.interface import UserInterface
 
 
 class ConvertorJSON:

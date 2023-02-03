@@ -1,9 +1,11 @@
 import re
 from collections import OrderedDict
+from pathlib import Path
 
-from validator.hash_identifer import identify_hashes
+from .hash_identifer import identify_hashes
 
-DOMAINS = set(map(lambda x: x.strip(' \n'), open('validator/domains.txt', encoding='utf-8')))
+domains_path = str(Path(__file__).parent / 'domains.txt')
+DOMAINS = set(map(lambda x: x.strip(' \n'), open(domains_path, encoding='utf-8')))
 
 
 class Validator:
@@ -249,7 +251,8 @@ class FieldsGenerator:
             if 'user_additional_info' not in cols_name:
                 handlers[cols_name] = self._handler_fields(fields=fields, indexes=indexes)
             else:
-                handlers[cols_name] = self._handler_uai_fields(fields=fields, indexes=indexes, add_info=add_info_for_uai)
+                handlers[cols_name] = self._handler_uai_fields(fields=fields, indexes=indexes,
+                                                               add_info=add_info_for_uai)
         return handlers
 
     def _handler_fields(self, fields, indexes):

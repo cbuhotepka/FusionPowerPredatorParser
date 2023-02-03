@@ -6,17 +6,17 @@ from rich.console import Console
 from pathlib import Path
 from celery.result import AsyncResult
 
-from engine_modul.interface import UserInterface
-from engine_modul.normalize_col_names import normalize_col_names
-from engine_modul.store import ASSERT_NAME, COLUMN_NAME_TRIGGERS
-from json_parser.json_parser import ConvertorJSON
-from reader import Reader
-from writer import Writer
-from engine_modul.utils import find_delimiter
-from validator.validator import Validator
-from celery_parser import daemon_parse, ParserResponse
+from .interface import UserInterface
+from .normalize_col_names import normalize_col_names
+from .store import ASSERT_NAME, COLUMN_NAME_TRIGGERS
+from ..json_parser.json_parser import ConvertorJSON
+from ..reader import Reader
+from ..writer import Writer
+from .utils import find_delimiter
+from ..validator.validator import Validator
+from ..celery_parser import daemon_parse, ParserResponse
 from rich.progress import track
-from engine_modul.store import PATTERN_TEL_PASS, PATTERN_USERMAIL_USERNAME_PASS, PATTERN_UID_UN_IP_UM_PASS
+from .store import PATTERN_TEL_PASS, PATTERN_USERMAIL_USERNAME_PASS, PATTERN_UID_UN_IP_UM_PASS
 
 console = Console()
 

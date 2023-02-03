@@ -1,4 +1,3 @@
-from folder_parser.store import ERROR_EXTENSIONS
 import os
 import subprocess
 from time import sleep
@@ -6,12 +5,13 @@ from time import sleep
 from rich.console import Console
 from rich.prompt import Prompt, Confirm
 
-from engine_modul.file_handler import FileHandler
-from engine_modul.interface import UserInterface
-from engine_modul.store import FileMode
-from folder_parser.folder_parser import FolderParser
-from folder_parser.directory_class import Directory, DirStatus
-from reader.reader import Reader
+from .file_handler import FileHandler
+from .interface import UserInterface
+from .store import FileMode
+from ..folder_parser.folder_parser import FolderParser
+from ..folder_parser.directory_class import Directory, DirStatus
+from ..folder_parser.store import ERROR_EXTENSIONS
+from ..reader.reader import Reader
 
 
 user = os.environ.get('USER_NAME')

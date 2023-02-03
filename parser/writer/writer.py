@@ -1,6 +1,6 @@
 import os
 
-from writer.store import COLS_LONG
+from .store import COLS_LONG
 
 USER = os.environ.get('USER_NAME', 'er')
 PASSWORD = os.environ.get('USER_PASSWORD', 'ASI0qYe2H')

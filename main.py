@@ -1,27 +1,16 @@
-from loguru import logger
-from rich.prompt import Prompt
+import argparse
 from rich.console import Console
 from pathlib import Path
-import argparse
 from py_dotenv import read_dotenv
 
-dotenv_path = Path('CONFIG.env')
+from parser import start_parsing
+
+dotenv_path = Path('parser/CONFIG.env')
 assert dotenv_path.exists()
 read_dotenv(dotenv_path)
 
-from engine_modul.engine import Engine
-
-
 console = Console()
 parser = argparse.ArgumentParser(description="Fusion Power Predator Parser")
-
-
-@logger.catch()
-def start_parsing(auto_parse, full_auto, error_mode, daemon):
-    engine = Engine(auto_parse, full_auto, error_mode, daemon)
-    engine.start()
-
-
 if __name__ == '__main__':
     parser.add_argument("--auto-parse", dest="auto_parse", action='store_true')
     parser.add_argument("--full-auto", dest="full_auto", action='store_true')
@@ -31,8 +20,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
     try:
         start_parsing(
-            auto_parse=args.auto_parse, 
-            full_auto=args.full_auto, 
+            auto_parse=args.auto_parse,
+            full_auto=args.full_auto,
             error_mode=args.error_mode,
             daemon=args.daemon,
         )
