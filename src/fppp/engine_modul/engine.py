@@ -1,7 +1,6 @@
 import os
 import subprocess
 from time import sleep
-from configparser import ConfigParser
 
 from rich.console import Console
 from rich.prompt import Prompt, Confirm
@@ -13,9 +12,7 @@ from ..folder_parser.folder_parser import FolderParser
 from ..folder_parser.directory_class import Directory, DirStatus
 from ..folder_parser.store import ERROR_EXTENSIONS
 from ..reader.reader import Reader
-
-
-config = ConfigParser()
+from ..config import config
 
 user = config['CLICKHOUSE']['username']
 password = config['CLICKHOUSE']['password']

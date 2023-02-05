@@ -1,14 +1,7 @@
 import argparse
 from rich.console import Console
-from pathlib import Path
-from py_dotenv import read_dotenv
 
-from fppp import start_parsing, set_config_env
-
-dotenv_path = Path('fppp/CONFIG.env')
-if not dotenv_path.exists():
-    set_config_env.set_env()
-read_dotenv(dotenv_path)
+from fppp import start_parsing
 
 console = Console()
 parser = argparse.ArgumentParser(description="Fusion Power Predator Parser")

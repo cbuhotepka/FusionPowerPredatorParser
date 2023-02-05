@@ -9,9 +9,8 @@ from rich.console import Console
 from rich.prompt import Prompt
 
 import logging
-from configparser import ConfigParser
+from ..config import config
 
-config = ConfigParser()
 SD = config['PARSER']['local_drive']
 PD = config['PARSER']['remote_drive']
 

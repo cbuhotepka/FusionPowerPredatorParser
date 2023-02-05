@@ -27,8 +27,7 @@ import subprocess
 import sys
 import csv
 
-from configparser import ConfigParser
-config = ConfigParser()
+from ..config import config
 
 maxInt = sys.maxsize
 while True:

@@ -10,11 +10,9 @@ from rich.prompt import Prompt
 import json
 import utils
 
-from configparser import ConfigParser
-
 from store import ASSERT_NAME
+from ..config import config
 
-config = ConfigParser()
 user = config['CLICKHOUSE']['username']
 password = config['CLICKHOUSE']['password']
 PD = config['PARSER']['remote_drive']

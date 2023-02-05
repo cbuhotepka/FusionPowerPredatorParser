@@ -1,8 +1,7 @@
 import os
 
 from .store import COLS_LONG
-from configparser import ConfigParser
-config = ConfigParser()
+from ..config import config
 
 USER = config['CLICKHOUSE']['username']
 PASSWORD = config['CLICKHOUSE']['password']
@@ -132,7 +131,7 @@ class Writer:
         # Проверка текущего файла и делимитра
         if not self.current_file or not self.current_delimiter:
             raise ChildProcessError("You have to start_new_file before calling write method")
-        
+
         if "hash" in data and not data["hash"]:
             del data["hash"]
             del data["algorithm"]

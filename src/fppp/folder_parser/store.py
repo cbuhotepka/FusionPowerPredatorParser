@@ -1,7 +1,5 @@
 import os
-from configparser import ConfigParser
-
-config = ConfigParser()
+from ..config import config
 
 USER = config['CLICKHOUSE']['username']
 PASSWORD = config['CLICKHOUSE']['password']
