@@ -5,6 +5,7 @@ from fppp import start_parsing
 
 console = Console()
 parser = argparse.ArgumentParser(description="Fusion Power Predator Parser")
+
 if __name__ == '__main__':
     parser.add_argument("--auto-parse", dest="auto_parse", action='store_true')
     parser.add_argument("--full-auto", dest="full_auto", action='store_true')
