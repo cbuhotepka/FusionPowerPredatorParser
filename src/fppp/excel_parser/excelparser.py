@@ -4,21 +4,52 @@ import pandas as pd
 import os
 import shutil
 
-
-def convert_to_csv(file_path: str, output_dir=None, remove_if_exist=False) -> str:
-    _output_dir = output_dir or os.path.splitext(file_path)[0] + '__converted_to_csv'
-    if remove_if_exist and os.path.exists(_output_dir):
-        shutil.rmtree(_output_dir)
-    os.makedirs(_output_dir, exist_ok=True)
-
-    xl = pd.ExcelFile(file_path)
-
-    for sheet_name in xl.sheet_names:
-        df: pd.DataFrame = xl.parse(sheet_name)
-        df.to_csv(Path(_output_dir) / (sheet_name + '.csv'), index=False)
-
-    return _output_dir
+from rich.prompt import Confirm
 
 
-def is_excel(f: str):
-    return f.endswith('.xls') or f.endswith('.xlsx')
+class ExcelToCsvFileConverter:
+
+    def __init__(self,
+                 file_path: str,
+                 output_dir: str = None,
+                 ):
+        assert os.path.exists(file_path), 'File does not exists (try use absolute path)'
+        assert self.is_excel(file_path)
+        self._file_path = file_path
+        self._xl = pd.ExcelFile(self._file_path)
+
+        self._output_dir = output_dir or os.path.splitext(self._file_path)[0] + '__converted_to_csv'
+        self._create_output_dir(self._output_dir)
+
+    @staticmethod
+    def is_excel(file_path: str):
+        return file_path.endswith('.xls') or file_path.endswith('.xlsx')
+
+    def convert_to_csv(self, rewrite_if_exists: bool = False) -> str:
+        self._convert_to_csv(rewrite_if_exists=rewrite_if_exists)
+
+        return self._output_dir
+
+    def _convert_to_csv(self, rewrite_if_exists=False):
+        for sheet_name in self._xl.sheet_names:
+            output_file_path = Path(self._output_dir) / (sheet_name + '.csv')
+
+            if rewrite_if_exists or self._is_need_write_output_file(output_file_path):
+                df: pd.DataFrame = self._xl.parse(sheet_name)
+                df.to_csv(output_file_path, index=False)
+
+        return self._output_dir
+
+    @staticmethod
+    def _create_output_dir(output_dir_path):
+        os.makedirs(output_dir_path, exist_ok=True)
+
+    @staticmethod
+    def _output_file_exists(_file_path):
+        return os.path.exists(_file_path)
+
+    def _is_need_write_output_file(self, file_path):
+        return not os.path.exists(file_path) or \
+            Confirm.ask(
+                f'[yellow]Файл [bold]{file_path}[/] уже существует, перезаписать его?[/]',
+                default=False)
