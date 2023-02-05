@@ -11,7 +11,7 @@ import re
 import json
 from py_dotenv import read_dotenv
 
-dotenv_path = Path('../CONFIG.env')
+dotenv_path = Path(__file__).parent / 'CONFIG.env'
 assert dotenv_path.exists()
 read_dotenv(dotenv_path)
 
