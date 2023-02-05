@@ -9,12 +9,11 @@ from rich.console import Console
 import argparse
 import re
 import json
-from py_dotenv import read_dotenv
+from configparser import ConfigParser
 
-dotenv_path = Path(__file__).parent.parent / 'CONFIG.env'
-assert dotenv_path.exists()
-read_dotenv(dotenv_path)
-
+config = ConfigParser()
+SD = config['PARSER']['local_drive']
+PD = config['PARSER']['remote_drive']
 
 parser = argparse.ArgumentParser(description="Sender Flask")
 parser.add_argument("--auto-fail", dest="auto_fail", action='store_true')
@@ -28,9 +27,6 @@ Path(f"C:/Source/db/fail_send.txt").touch()
 Path(f"C:/Source/combo/send_done.txt").touch()
 Path(f"C:/Source/db/send_done.txt").touch()
 
-PD = os.environ['PARSING_DISK_NAME']
-SD = os.environ['SOURCE_DISK_NAME']
-
 
 class Colors:
     HEADER = '\033[95m'
@@ -43,7 +39,7 @@ class Colors:
     UNDERLINE = '\033[4m'
 
 
-HOST, PORT = '192.168.88.173', os.environ['SERVER_PORT_FIX']
+HOST, PORT = '192.168.88.173', config['FIXPY']['server_port']
 
 
 # combo = None
@@ -191,7 +187,6 @@ def start():
             print(answer)
             if answer and answer['returncode'] == 0:
                 path = None
-
 
             cmd = cmd.replace('\ufeff', '')
             clr = ''

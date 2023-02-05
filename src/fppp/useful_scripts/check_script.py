@@ -10,17 +10,15 @@ from rich.prompt import Prompt
 import json
 import utils
 
-from py_dotenv import read_dotenv
-
-dotenv_path = Path('CONFIG.env')
-assert dotenv_path.exists()
-read_dotenv(dotenv_path)
+from configparser import ConfigParser
 
 from store import ASSERT_NAME
 
-user = os.environ.get('USER_NAME')
-password = os.environ.get('USER_PASSWORD')
-PD = os.environ.get('PARSING_DISK_NAME')
+config = ConfigParser()
+user = config['CLICKHOUSE']['username']
+password = config['CLICKHOUSE']['password']
+PD = config['PARSER']['remote_drive']
+
 console = Console()
 
 TYPE_BASE = ''

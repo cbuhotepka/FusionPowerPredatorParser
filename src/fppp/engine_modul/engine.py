@@ -1,6 +1,7 @@
 import os
 import subprocess
 from time import sleep
+from configparser import ConfigParser
 
 from rich.console import Console
 from rich.prompt import Prompt, Confirm
@@ -14,11 +15,14 @@ from ..folder_parser.store import ERROR_EXTENSIONS
 from ..reader.reader import Reader
 
 
-user = os.environ.get('USER_NAME')
-password = os.environ.get('USER_PASSWORD')
-PD = os.environ.get('PARSING_DISK_NAME')
-SD = os.environ.get('SOURCE_DISK_NAME')
-TOO_MANY_FILES_TRESHOLD = int(os.environ.get('TOO_MANY_FILES_TRESHOLD', 100))
+config = ConfigParser()
+
+user = config['CLICKHOUSE']['username']
+password = config['CLICKHOUSE']['password']
+
+SD = config['PARSER']['local_drive']
+PD = config['PARSER']['remote_drive']
+TOO_MANY_FILES_THRESHOLD = config['PARSER']['files_count_threshold']
 console = Console()
 
 
@@ -165,7 +169,7 @@ class Engine:
                 )
             )
             error = True
-        elif not self.error_mode and dir.files_count >= TOO_MANY_FILES_TRESHOLD:
+        elif not self.error_mode and dir.files_count >= TOO_MANY_FILES_THRESHOLD:
             console.print(f'[red]Слишком много файлов: {dir.files_count}')
             error = True
         else:

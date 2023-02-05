@@ -9,17 +9,19 @@ from rich.console import Console
 from rich.prompt import Prompt
 
 import logging
+from configparser import ConfigParser
 
-dotenv_path = Path('../CONFIG.env')
-assert dotenv_path.exists()
-read_dotenv(dotenv_path)
-SD = os.environ.get('SOURCE_DISK_NAME')
+config = ConfigParser()
+SD = config['PARSER']['local_drive']
+PD = config['PARSER']['remote_drive']
+
 console = Console()
 
 TYPE_BASE = ''
 
-
 log = logging.getLogger(__name__)
+
+
 # logging.basicConfig(filename='sorted_debug.log', encoding='utf-8', level=logging.DEBUG)
 
 
@@ -204,4 +206,3 @@ if __name__ == '__main__':
         file_handler = logging.FileHandler(filename=os.path.join(START_PATH, 'sorting.log'), encoding='utf-8')
         log.addHandler(file_handler)
         start()
-

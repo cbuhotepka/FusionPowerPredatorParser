@@ -27,6 +27,9 @@ import subprocess
 import sys
 import csv
 
+from configparser import ConfigParser
+config = ConfigParser()
+
 maxInt = sys.maxsize
 while True:
     # decrease the maxInt value by factor 10
@@ -47,9 +50,10 @@ class DelimiterHighlighter(RegexHighlighter):
 theme = Theme({"text.delimiter": "bold red", "text.all": "yellow"})
 console = Console()
 console_for_show = Console(highlighter=DelimiterHighlighter(), theme=theme)
-PD = os.environ.get('PARSING_DISK_NAME')
-SD = os.environ.get('SOURCE_DISK_NAME')
-FIXPY = os.environ.get('FIXPY')
+
+SD = config['PARSER']['local_drive']
+PD = config['PARSER']['remote_drive']
+FIXPY = config['FIXPY']['file_name']
 
 
 def get_encoding_file(path):

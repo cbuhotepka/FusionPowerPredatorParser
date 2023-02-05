@@ -1,12 +1,14 @@
 import os
 
 from .store import COLS_LONG
+from configparser import ConfigParser
+config = ConfigParser()
 
-USER = os.environ.get('USER_NAME', 'er')
-PASSWORD = os.environ.get('USER_PASSWORD', 'ASI0qYe2H')
-FIXPY = os.environ.get('FIXPY', 'fix.py')
-PARSING_DISK = os.environ.get('PARSING_DISK_NAME', 'C')
-SOURCE_DISK = os.environ.get('SOURCE_DISK_NAME', 'W')
+USER = config['CLICKHOUSE']['username']
+PASSWORD = config['CLICKHOUSE']['password']
+FIXPY = config['FIXPY']['file_name']
+PARSING_DISK = config['PARSER']['local_drive']
+SOURCE_DISK = config['PARSER']['remote_drive']
 
 BASE_TYPES = ['db', 'combo']
 
