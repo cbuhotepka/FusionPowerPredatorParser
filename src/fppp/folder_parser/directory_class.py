@@ -16,7 +16,7 @@ from ..engine_modul.file_handler import FileHandler
 
 from . import utils
 from .store import BASE_TYPES, PARSING_DISK, SOURCE_DISK, ERROR_EXTENSIONS
-from .. import excel_parser
+from ..excel_converter import ExcelToCsvFileConverter
 
 console = Console()
 
@@ -227,9 +227,9 @@ class Directory:
                             self.status = ERROR
                             return None
                         return self._get_all_files(paths_for_pass=paths_for_pass + [f])
-                    elif excel_parser.is_excel(str(file)):
+                    elif ExcelToCsvFileConverter.is_excel(file_path=str(file)):
                         try:
-                            excel_parser.convert_to_csv(str(file))
+                            ExcelToCsvFileConverter(file_path=str(file)).convert_to_csv()
                         except:
                             self.status = ERROR
                             return None
