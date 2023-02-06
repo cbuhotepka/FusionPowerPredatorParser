@@ -11,6 +11,8 @@ from rich.console import Console
 from celery.states import SUCCESS, PENDING, FAILURE
 
 from pyunpack import Archive
+from rich.prompt import Confirm
+
 from ..cronos_dump import is_cronos, convert_to_csv
 from ..engine_modul.file_handler import FileHandler
 
@@ -224,16 +226,18 @@ class Directory:
                         try:
                             Archive(file).extractall(file.parent)
                         except:
-                            self.status = ERROR
-                            return None
+                            if not Confirm.ask('[red]ARCHIVE UNPUCKING ERROR, continue?[/]'):
+                                self.status = ERROR
+                                return None
                         return self._get_all_files(paths_for_pass=paths_for_pass + [f])
                     elif ExcelToCsvFileConverter.is_excel(file_path=str(file)):
                         print(f'{file} is excel. Converting to csv...')
                         try:
                             ExcelToCsvFileConverter(file_path=str(file)).convert_to_csv()
                         except:
-                            self.status = ERROR
-                            return None
+                            if not Confirm.ask('[red]Excel convert error, continue?[/]'):
+                                self.status = ERROR
+                                return None
                         return self._get_all_files(paths_for_pass=paths_for_pass + [f])
                 # if f not in paths_for_pass and not utils.is_escape_file(f) and f.endswith('.json'):
                 #     print('JSON CONVERTING:', f)
