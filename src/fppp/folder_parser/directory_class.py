@@ -228,6 +228,7 @@ class Directory:
                             return None
                         return self._get_all_files(paths_for_pass=paths_for_pass + [f])
                     elif ExcelToCsvFileConverter.is_excel(file_path=str(file)):
+                        print(f'{file} is excel. Converting to csv...')
                         try:
                             ExcelToCsvFileConverter(file_path=str(file)).convert_to_csv()
                         except:
