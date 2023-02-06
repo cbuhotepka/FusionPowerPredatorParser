@@ -243,24 +243,24 @@ def start():
         if not is_fatal_error and is_success:
             command_file.close()
             line_source = line
-            base_source = line.replace(f'{PD}:\\Source', f'{SD}:\\Source')
+            base_source = line.replace(f'{SD}:\\Source', f'{PD}:\\Source')
             # basedir = C:\Source\db\database
             base_dir = os.path.join(*Path(line_source).parts[:4])
-            line_imported = line_source.replace(f'{PD}:\\Source', f'{PD}:\\Imported')
+            line_imported = line_source.replace(f'{SD}:\\Source', f'{SD}:\\Imported')
             if combo:
                 # path_source = C:\Source\combo\database
                 path_source = Path(os.path.join(*Path(line_source).parts[:4]))
                 # path_imported = C:\Imported\combo
                 path_imported = Path(os.path.join(*Path(line_imported).parts[:3]))
                 # base_imported = S:\Imported\combo
-                base_imported = str(path_imported).replace(f'{PD}:\\', f'{SD}:\\')
+                base_imported = str(path_imported).replace(f'{SD}:\\', f'{PD}:\\')
             else:
                 # path_source = C:\Source\db\database\item
                 path_source = Path(os.path.join(*Path(line_source).parts[:5]))
                 # path_imported = C:\Imported\db\database
                 path_imported = Path(os.path.join(*Path(line_imported).parts[:4]))
                 # base_imported = S:\Imported\db\database
-                base_imported = str(path_imported).replace(f'{PD}:\\', f'{SD}:\\')
+                base_imported = str(path_imported).replace(f'{SD}:\\', f'{PD}:\\')
 
             with open(f'{dir}\\send_done.txt', 'a', encoding='utf-8') as f:
                 f.write(line_source + "\n")
@@ -290,7 +290,7 @@ def start():
 
 
 if __name__ == '__main__':
-    start_path = f'{PD}:\\Source\\'
+    start_path = f'{SD}:\\Source\\'
 
     list_files = []
     combo = Confirm.ask('Комбо?')
