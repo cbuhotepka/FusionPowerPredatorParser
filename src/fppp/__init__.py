@@ -1,6 +1,5 @@
 from loguru import logger
 from .engine_modul.engine import Engine
-from .sender import sender_new as sender
 
 
 @logger.catch()
