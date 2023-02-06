@@ -37,7 +37,6 @@ class ExcelToCsvFileConverter:
             if rewrite_if_exists or self._is_need_write_output_file(output_file_path):
                 df: pd.DataFrame = self._xl.parse(sheet_name)
                 if not df.empty:
-                    print(df)
                     df.to_csv(output_file_path, index=False)
 
         return self._output_dir
