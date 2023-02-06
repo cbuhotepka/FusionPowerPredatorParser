@@ -11,8 +11,9 @@ import re
 import json
 from ..config import config
 
-SD = config['PARSER']['local_drive']
-PD = config['PARSER']['remote_drive']
+
+PD = config['PARSER']['local_drive']
+SD = config['PARSER']['remote_drive']
 
 parser = argparse.ArgumentParser(description="Sender Flask")
 parser.add_argument("--auto-fail", dest="auto_fail", action='store_true')
