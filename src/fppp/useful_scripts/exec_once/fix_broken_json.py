@@ -10,12 +10,15 @@ from ...reader import Reader
 regex = '\"([\w_]+)\":\"?([\w\d\.+-]+)\"?(,|$)'
 
 
-def execute(file_path: str):
+def execute(file_path: str, limit = None):
     writefile_path = file_path + '__.jsonlist'
     with Reader(file_path) as readfile, open(writefile_path, 'w', encoding='utf-8') as writefile:
         for i, row in enumerate(readfile):
+            data = []
             for key, value, _ in re.findall(regex, row):
-                writefile.write('{"%s":"%s"}\n' % (key, value))
+                data.append('"%s":"%s"' % (key, value))
+            writefile.write('{%s}\n' % ', '.join(data))
+
     return writefile_path
 
 
