@@ -11,11 +11,12 @@ regex = '\"([\w_]+)\":\"?([\w\d\.+-]+)\"?(,|$)'
 
 
 def execute(file_path: str):
-    with Reader(file_path) as readfile, open(file_path + '__.jsonlist', 'w') as writefile:
+    writefile_path = file_path + '__.jsonlist'
+    with Reader(file_path) as readfile, open(writefile_path, 'w', encoding='utf-8') as writefile:
         for i, row in enumerate(readfile):
             for key, value, _ in re.findall(regex, row):
                 writefile.write('{"%s":"%s"}\n' % (key, value))
-    return file_path + '__.jsonlist'
+    return writefile_path
 
 
 def test():
