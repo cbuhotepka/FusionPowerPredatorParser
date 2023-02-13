@@ -12,12 +12,12 @@ from rich.theme import Theme
 class DelimiterHighlighter(RegexHighlighter):
     base_style = "text."
     highlights = [r"(?P<all>.)", r"(?P<delimiter>[,:;|])",
-    r"(?P<email>[a-zA-Z0-9_]+([a-zA-Z0-9_.-]+)?[a-zA-Z0-9_]+\@[a-zA-Z0-9]([a-zA-Z0-9._-]+)?\.[a-zA-Z]+)"]
+                  r"(?P<email>[a-zA-Z0-9_]+([a-zA-Z0-9_.-]+)?[a-zA-Z0-9_]+\@[a-zA-Z0-9]([a-zA-Z0-9._-]+)?\.[a-zA-Z]+)"]
 
 
 theme = Theme({"text.delimiter": "bold red",
-                "text.email": "bold cyan",
-                "text.all": "yellow"})
+               "text.email": "bold cyan",
+               "text.all": "yellow"})
 console = Console()
 console_for_show = Console(highlighter=DelimiterHighlighter(), theme=theme)
 
@@ -66,8 +66,8 @@ class UserInterface:
 
     def ask_mode_handle(self) -> FileMode:
         answer = FileMode(Prompt.ask(f"[green]Если все ОК нажмите Enter",
-                            choices=FileMode.choices(),
-                            default=FileMode.START.value))
+                                     choices=FileMode.choices(),
+                                     default=FileMode.START.value))
         return answer
 
     def show_delimiter(self, delimiter):
@@ -103,14 +103,15 @@ class UserInterface:
         console.print(f'[bold magenta]{file.file_path}')
         console.print("[magenta]" + '-' * 200, overflow='crop')
         file.open()
-        for i, line in enumerate(file):
-            line_to_show = line[:1000] if len(line) > 3000 else line
+        i = 0
+        while i < 15:
+            line = file.readline(8000)
+            if not line:
+                break
             try:
-                console_for_show.print(line_to_show)
-                if i > 15:
-                    break
-            except:
-                continue
+                console_for_show.print(line)
+            finally:
+                i += 1
         print('\n')
 
     def print_key_value_JSON(self, json_path: str, limit: int) -> None:
@@ -135,8 +136,8 @@ class UserInterface:
         # jl - в каждой строке отдельный JSON
         while True:
             mode = Prompt.ask(f"[green]Выберите режим парсинга JSON",
-                                choices=['p', 'o', 'k', 'l', 'jl'],
-                                default='k')
+                              choices=['p', 'o', 'k', 'l', 'jl'],
+                              default='k')
             if mode == 'k':
                 answer = Prompt.ask(f'[cyan]Введите ключ: ')
                 if answer == "error":
