@@ -35,16 +35,16 @@ class Reader:
         self._skip_rows(skip)
         return self
 
-    def readline(self):
+    def readline(self, size=-1):
         try:
-            _line = self._readline()
+            _line = self._readline(size=size)
             _res_line = self._swipe_by_list_middleware(_line)
         except StopIteration:
             _res_line = None
         return _res_line
 
-    def _readline(self):
-        return next(self._fix_nulls_file_generator)
+    def _readline(self, size):
+        return self._file.readline(size)
 
     def _skip_rows(self, skip: int):
         for _ in range(skip):
@@ -52,7 +52,7 @@ class Reader:
         return skip
 
     @staticmethod
-    def _fix_nulls(f, hit=math.inf):
+    def _fix_nulls(f, size=None, hit=math.inf):
         while hit > 0:
             try:
                 s = f.readline()
