@@ -43,7 +43,7 @@ class Reader:
             _res_line = None
         return _res_line
 
-    def _readline(self, size):
+    def _readline(self, size=-1):
         return self._file.readline(size)
 
     def _skip_rows(self, skip: int):
