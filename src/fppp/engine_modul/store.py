@@ -51,26 +51,21 @@ POSSIBLE_EXCHANGES = {
     'um': ['usermail', 'email', 'e-mail', 'useremail', 'emailaddress', 'майл', 'е-мейл', 'е-мэйл', 'e-mailaddress'],
     't': ['tel', 'phone', 'mobile', 'mobilenumber', 'mobilephone', 'telephone', 'phonenumber', 'телефон', 'telefono', 'тел'],
     'ufn': ['userfname', 'fname', 'firstname', 'имя', 'fullname', 'фамилияиимя', 'имяифамилия', 'фио',
-            'фио', 'pib', 'name'],
-    'uln': ['lname', 'userlname', 'lastname', 'фамилия', 'фам', 'familia', 'lastname', 'surname'],
-
+            'фио', 'pib', 'name'] + ['lname', 'userlname', 'lastname', 'фамилия', 'фам', 'familia', 'lastname', 'surname'],
     'password': ['password', 'passwd'],
     'h': ['passwordhash', 'passhash', 'token'],
     's': ['secret', 'passwordsalt', 'passsalt', 'salt'],
 
     'ip': ['ipaddress', 'ip'],
-    'a': ['address', 'streetaddress', 'адрес', 'address1', 'homeaddress', 'adres'],
+    'a': ['address', 'address2', 'address3', 'streetaddress', 'адрес', 'адреcс', 'address1', 'homeaddress', 'adres'],
     'c': ['city', 'town', 'city/town', 'город', 'homecity', 'addressaddress'],
     'st': ['регион', 'область', 'обл', 'homestate', 'addressstate', 'state'],
     'cn': ['country', 'страна', 'homecountry', 'addresscountry'],
     'z': ['zipcode', 'postcode', 'addresszip', 'postalcode', 'zip'],
     'psp': ['psprt', 'passport', 'pasport', 'паспорт', 'pasportnumber', 'passportnumber'],
     'dob': ['dateofbirth', 'datebirth', 'birthdate', 'birthday'],
-
-    'uai': ['address2', 'address3', 'company', 'position'],
-
-    'uai': ['address2', 'address3', 'position',  'organization', 'gender'],
-    'uai+company': ['company', 'company_name'],
+    'uai': ['position', 'gender'],
+    'uai+company': ['company', 'company_name',  'organization'],
     'uai+url': ['website'],
 
 }
