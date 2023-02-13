@@ -36,11 +36,10 @@ class Reader:
         return self
 
     def readline(self, size=-1):
-        try:
-            _line = self._readline(size=size)
-            _res_line = self._swipe_by_list_middleware(_line)
-        except StopIteration:
-            _res_line = None
+        _line = self._readline(size=size)
+        if not _line:
+            return None
+        _res_line = self._swipe_by_list_middleware(_line)
         return _res_line
 
     def _readline(self, size=-1):
