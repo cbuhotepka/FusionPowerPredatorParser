@@ -105,7 +105,7 @@ class UserInterface:
         file.open()
         i = 0
         while i < 15:
-            line = file.readline(size=100)
+            line = file.readline(size=190)
             if not line:
                 break
             try:
