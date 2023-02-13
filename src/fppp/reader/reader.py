@@ -105,6 +105,8 @@ class Reader:
 
     def __next__(self):
         _line = self._readline()
+        if not _line:
+            raise StopIteration
         _result_line = self._swipe_by_list_middleware(_line)
         return _result_line
 
