@@ -36,6 +36,7 @@ class Reader:
         return self
 
     def readline(self, size=-1):
+        print('Call readline with size: {}'.format(size))
         try:
             _line = self._readline(size=size)
             _res_line = self._swipe_by_list_middleware(_line)
