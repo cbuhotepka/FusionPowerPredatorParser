@@ -213,8 +213,8 @@ class Engine:
                             else:
                                 dir.insert_in_done_parsed_file(file)
                                 file = converted_file
-                                dir.file_handler.reader = Reader(file)
-                                dir.file_handler.file_path = file
+                                self.handler_folders.current_folder.file_handler.reader = Reader(file)
+                                self.handler_folders.current_folder.file_handler.file_path = file
                                 mode = self.parsing_file()
                     except Exception as e:
                         if self.full_auto:
