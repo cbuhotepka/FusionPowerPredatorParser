@@ -70,7 +70,10 @@ class Reader:
     def _encoding(self):
         _detector = UniversalDetector()
         with self._path.open(mode='rb') as fh:
-            for line in fh.readlines(self._NUM_LINES_FOR_CHECK_ENCODING):
+            for _ in range(self._NUM_LINES_FOR_CHECK_ENCODING):
+                line = fh.readline(1024)
+                if line is None:
+                    break
                 _detector.feed(line)
                 if _detector.done:
                     break
