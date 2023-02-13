@@ -265,7 +265,7 @@ class FileHandler:
             self.num_columns = 1
             console.print('[cyan]' + f'Автопарсинг umn password')
             return True
-        elif self.auto_parse and self.delimiter and ('1:Anonymous:::' in self.reader.open().readline()):
+        elif self.auto_parse and self.delimiter and ('1:Anonymous:::' in self.reader.open().readline(500)):
             self.get_keys(f'1=uid, 2=un, 3=ip, 4=um, 5=p')
             self.num_columns = 4
             console.print('[cyan]' + f'Автопарсинг uid un ip um pass')
