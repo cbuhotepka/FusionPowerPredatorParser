@@ -9,7 +9,7 @@ def search_words_in_files(folder_path, words_list):
             # Получаем полный путь до файла
             file_path = os.path.join(root, file_name)
             # Ищем нужные слова в файле Excel
-            if file_name.endswith('.xlsx') or file_name.endswith('.xlsm') or file_name.endswith('.xls'):
+            if file_name.endswith('.xlsx') or file_name.endswith('.xlsm'):
                 try:
                     workbook = openpyxl.load_workbook(file_path)
                     for sheet_name in workbook.sheetnames:
