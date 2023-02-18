@@ -14,7 +14,7 @@ DEFAULT_WORDS = ['nick', 'nickname', 'ник', 'username', 'usermail', 'email', 
                  'datebirth']
 
 
-def search_words_in_files(folder_path, words_list=DEFAULT_WORDS):
+def search_words_in_files(folder_path, words_list=DEFAULT_WORDS, treshold=5):
     result = []
 
     # Перебираем все файлы в папке
@@ -45,7 +45,7 @@ def search_words_in_files(folder_path, words_list=DEFAULT_WORDS):
                         for word in words_list:
                             if word in line:
                                 matched_words.append(word)
-            if len(matched_words) > 1:
+            if len(matched_words) > treshold:
                 print(
                     f'Слова "{matched_words}" найдены в файле {file_path}')
                 result.append((file_path, matched_words))
