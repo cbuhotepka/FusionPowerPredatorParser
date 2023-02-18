@@ -35,7 +35,7 @@ def search_words_in_files(folder_path, words_list=DEFAULT_WORDS):
                                 for word in words_list:
                                     if word in str(cell.value):
                                         matched_words.append(word)
-                finally:
+                except Exception as e:
                     pass
             # Ищем нужные слова в остальных файлах
             else:
