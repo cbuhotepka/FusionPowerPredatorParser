@@ -10,16 +10,19 @@ def search_words_in_files(folder_path, words_list):
             file_path = os.path.join(root, file_name)
             # Ищем нужные слова в файле Excel
             if file_name.endswith('.xlsx') or file_name.endswith('.xlsm') or file_name.endswith('.xls'):
-                workbook = openpyxl.load_workbook(file_path)
-                for sheet_name in workbook.sheetnames:
-                    sheet = workbook[sheet_name]
-                    for row in sheet.iter_rows():
-                        for cell in row:
-                            # Проверяем, содержит ли ячейка нужное слово
-                            for word in words_list:
-                                if word in str(cell.value):
-                                    print(
-                                        f'Слово "{word}" найдено в ячейке {cell.coordinate} на листе {sheet_name} в файле {file_path}')
+                try:
+                    workbook = openpyxl.load_workbook(file_path)
+                    for sheet_name in workbook.sheetnames:
+                        sheet = workbook[sheet_name]
+                        for row in sheet.iter_rows():
+                            for cell in row:
+                                # Проверяем, содержит ли ячейка нужное слово
+                                for word in words_list:
+                                    if word in str(cell.value):
+                                        print(
+                                            f'Слово "{word}" найдено в ячейке {cell.coordinate} на листе {sheet_name} в файле {file_path}')
+                finally:
+                    pass
             # Ищем нужные слова в остальных файлах
             else:
                 with open(file_path, 'r', encoding='utf-8', errors='replace') as file:
