@@ -67,5 +67,4 @@ POSSIBLE_EXCHANGES = {
     'uai': ['position', 'gender'],
     'uai+company': ['company', 'company_name',  'organization'],
     'uai+url': ['website'],
-
 }

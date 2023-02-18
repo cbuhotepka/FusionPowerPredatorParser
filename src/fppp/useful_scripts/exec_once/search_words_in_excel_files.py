@@ -22,7 +22,7 @@ def search_words_in_files(folder_path, words_list):
                                         f'Слово "{word}" найдено в ячейке {cell.coordinate} на листе {sheet_name} в файле {file_path}')
             # Ищем нужные слова в остальных файлах
             else:
-                with open(file_path, 'r', encoding='utf-8') as file:
+                with open(file_path, 'r', encoding='utf-8', errors='replace') as file:
                     for line in file:
                         # Проверяем, содержит ли строка нужное слово
                         for word in words_list:
