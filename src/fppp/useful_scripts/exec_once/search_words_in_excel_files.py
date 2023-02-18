@@ -1,8 +1,20 @@
 import os
 import openpyxl
 
+DEFAULT_WORDS = ['nick', 'nickname', 'ник', 'username', 'usermail', 'email', 'e-mail', 'useremail', 'emailaddress',
+                 'майл', 'е-мейл', 'е-мэйл', 'e-mailaddress', 'tel', 'phone', 'mobile', 'mobilenumber', 'mobilephone',
+                 'telephone', 'phonenumber', 'телефон', 'telefono', 'тел', 'userfname', 'fname', 'firstname', 'имя',
+                 'fullname', 'фамилияиимя', 'имяифамилия', 'фио', 'фио', 'pib', 'name', 'lname', 'userlname',
+                 'lastname', 'фамилия', 'фам', 'familia', 'lastname', 'surname', 'password', 'passwd', 'passwordhash',
+                 'passhash', 'passwordsalt', 'passsalt', 'address', 'address2', 'address3', 'streetaddress', 'адрес',
+                 'адреcс', 'address1', 'homeaddress', 'adres', 'city', 'town', 'city/town', 'город', 'homecity',
+                 'addressaddress', 'регион', 'область', 'обл', 'homestate', 'addressstate', 'state', 'country',
+                 'страна', 'homecountry', 'addresscountry', 'zipcode', 'postcode', 'addresszip', 'postalcode', 'zip',
+                 'psprt', 'passport', 'pasport', 'паспорт', 'pasportnumber', 'passportnumber', 'dateofbirth',
+                 'datebirth']
 
-def search_words_in_files(folder_path, words_list):
+
+def search_words_in_files(folder_path, words_list=DEFAULT_WORDS):
     # Перебираем все файлы в папке
     for root, dirs, files in os.walk(folder_path):
         for file_name in files:
@@ -11,6 +23,7 @@ def search_words_in_files(folder_path, words_list):
             # Ищем нужные слова в файле Excel
             if file_name.endswith('.xlsx') or file_name.endswith('.xlsm'):
                 try:
+                    matched_words = []
                     workbook = openpyxl.load_workbook(file_path)
                     for sheet_name in workbook.sheetnames:
                         sheet = workbook[sheet_name]
@@ -19,8 +32,10 @@ def search_words_in_files(folder_path, words_list):
                                 # Проверяем, содержит ли ячейка нужное слово
                                 for word in words_list:
                                     if word in str(cell.value):
-                                        print(
-                                            f'Слово "{word}" найдено в ячейке {cell.coordinate} на листе {sheet_name} в файле {file_path}')
+                                        matched_words.append(word)
+                    if len(matched_words) > 1:
+                        print(
+                            f'Слова "{matched_words}" найдены в файле {file_path}')
                 finally:
                     pass
             # Ищем нужные слова в остальных файлах
