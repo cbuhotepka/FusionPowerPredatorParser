@@ -19,7 +19,7 @@ password = config['CLICKHOUSE']['password']
 
 SD = config['PARSER']['local_drive']
 PD = config['PARSER']['remote_drive']
-TOO_MANY_FILES_THRESHOLD = config['PARSER']['files_count_threshold']
+TOO_MANY_FILES_THRESHOLD = config['PARSER'].getint('files_count_threshold')
 console = Console()
 
 
