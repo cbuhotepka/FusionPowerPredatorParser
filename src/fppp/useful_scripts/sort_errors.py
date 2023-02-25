@@ -11,8 +11,8 @@ from rich.prompt import Prompt
 import logging
 from ..config import config
 
-SD = config['PARSER']['local_drive']
-PD = config['PARSER']['remote_drive']
+PD = config['PARSER']['local_drive']
+SD = config['PARSER']['remote_drive']
 
 console = Console()
 
