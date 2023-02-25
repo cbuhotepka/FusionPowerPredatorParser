@@ -196,12 +196,16 @@ def start():
     start_check(iter_dirs)
 
 
-if __name__ == '__main__':
+def main():
+    global START_PATH, TYPE_BASE, DESTINATION, file_handler, log
     TYPE_BASE = Prompt.ask('Тип папки', choices=['combo', 'db'])
     log.setLevel('DEBUG')
-    for i in range(4, 5):
-        START_PATH = os.path.join(f'{SD}:\\Error', TYPE_BASE)
-        DESTINATION = os.path.join(f'{SD}:\\sorted_error\\')
-        file_handler = logging.FileHandler(filename=os.path.join(START_PATH, 'sorting.log'), encoding='utf-8')
-        log.addHandler(file_handler)
-        start()
+    START_PATH = os.path.join(f'{SD}:\\Error', TYPE_BASE)
+    DESTINATION = os.path.join(f'{SD}:\\sorted_error\\')
+    file_handler = logging.FileHandler(filename=os.path.join(START_PATH, 'sorting.log'), encoding='utf-8')
+    log.addHandler(file_handler)
+    start()
+
+
+if __name__ == '__main__':
+    main()
