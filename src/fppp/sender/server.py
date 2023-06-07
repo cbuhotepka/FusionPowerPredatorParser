@@ -27,4 +27,4 @@ def reception():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=9088, host='192.168.88.173')
+    app.run(debug=True, port=9097, host='192.168.50.2')

@@ -38,7 +38,7 @@ class Colors:
     UNDERLINE = '\033[4m'
 
 
-HOST, PORT = '192.168.88.173', config['FIXPY']['server_port']
+HOST, PORT = '192.168.50.2', config['FIXPY']['server_port']
 
 
 # combo = None

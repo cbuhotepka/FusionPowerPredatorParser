@@ -13,3 +13,4 @@ __pycache__/
 /sender/sender_old_ar.py
 /sender/server_ar.py
 /json_parser/data/
+/src/fppp/config/config.ini

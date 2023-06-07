@@ -4,6 +4,7 @@ RUN LOCALLY:
     ARGS:
         --auto-parse - try to parse files automatically;
         --full-auto - fully auto mode, skipping all the files that couldn't parse automatically;
+        --error-mode - error mode;
         -d - daemon mode, run parsing in the background. Requires Redis server and Celery worker;
 
 
