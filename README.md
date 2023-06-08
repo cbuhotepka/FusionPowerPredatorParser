@@ -8,6 +8,17 @@ RUN LOCALLY:
         -d - daemon mode, run parsing in the background. Requires Redis server and Celery worker;
 
 
+PARSER COMMANDS:
+	p - Skip folder
+	l - Skip file
+	o - Open file in EM
+	n - ...
+	d - Set delimiter
+	e - Move to Error
+	t - Move to Trash
+	start - Start parsing
+
+
 RUN DAEMON-MODE ON DOCKER:
     docker-compose run --rm parser python main.py *ARGS
 

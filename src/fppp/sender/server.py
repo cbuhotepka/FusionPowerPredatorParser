@@ -25,6 +25,19 @@ def reception():
     result = json.dumps({'stdout': process.stdout, 'returncode': process.returncode, 'stderr': process.stderr})
     return result
 
+def read_env(env_file='.env'):
+    # TODO: dotenv is not working on server
+    env_vars = {}
+    with open(env_file) as f:
+        for line in f:
+            if line.startswith('#') or not line.strip():
+                continue
+            key, value = line.strip().split('=', 1)
+            env_vars[key] = value
+    return env_vars
+
 
 if __name__ == '__main__':
-    app.run(debug=True, port=9097, host='192.168.50.7')
+    env = read_env()
+    print(f"\nRUNNING SERVER: {env.get('HOST')}:{env.get('PORT')}")
+    app.run(debug=True, port=env.get('PORT'), host=env.get('HOST'))
