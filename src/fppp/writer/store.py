@@ -13,7 +13,7 @@ POSSIBLE_EXCHANGES = {
     't': ['tel', 'phone', 'mobile', 'mobilephone', 'telephone', 'phonenumber', 'телефон', 'telefono', 'тел'],
     'ufn': ['userfname', 'fname', 'firstname', 'имя', 'firstname', 'fullname', 'фамилияиимя', 'имяифамилия', 'фио',
             'фио', 'pib'],
-    'uln': ['lname', 'userlname', 'lastname', 'фамилия', 'фам', 'familia', 'lastname', 'surname'],
+    # 'uln': ['lname', 'userlname', 'lastname', 'фамилия', 'фам', 'familia', 'lastname', 'surname'],
 
     'password': ['password', 'passwd'],
     'h': ['secret', 'passwordhash', 'passhash', 'token'],
@@ -39,7 +39,7 @@ COLS_SHORT = {
     'uid': 'user_ID',
     'un': 'username',
     'ufn': 'user_fullname',
-    'uln': 'user_lname',
+    # 'uln': 'user_lname',
     'upp': 'userpass_plain',
     's': 'salt',
     'h': 'hash',
