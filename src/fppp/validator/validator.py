@@ -8,6 +8,10 @@ domains_path = str(Path(__file__).parent / 'domains.txt')
 DOMAINS = set(map(lambda x: x.strip(' \n'), open(domains_path, encoding='utf-8')))
 
 
+class SkipLine(BaseException):
+    pass
+
+
 class Validator:
 
     def __init__(self, keys_and_cols_name, num_columns, delimiter):
@@ -160,7 +164,10 @@ class Validator:
         return clean_string
 
     def _is_username(self, value: str) -> bool:
-        if re.match(r"^[^|/\\\[\]\(\):;,]{3,16}$", value.strip('"\t ')) and value.strip('"\t ') not in self.domains:
+        value = value.strip('"\t ')
+        if value in self.domains:
+            raise SkipLine
+        if re.match(r"^[^|/\\\[\]\(\):;,]{3,16}$", value):
             return True
         return False
 
@@ -211,8 +218,11 @@ class Validator:
         fields = self.split_line_to_fields(new_line)
         if not fields:
             return []
-        for output_data in self.handler_fields(fields):
-            yield output_data
+        try:
+            for output_data in self.handler_fields(fields):
+                yield output_data
+        except SkipLine:
+            return []
 
 
 class FieldsGenerator:
