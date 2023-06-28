@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # encoding: utf-8
 # Author: Psycho_Coder <https://psychocoder.github.io/>
-
-from re import match
-from sys import stdout, hexversion, exit, argv
+import logging
 import traceback
+from dataclasses import dataclass
+from re import match, search
+from sys import argv, exit, hexversion, stdout
 
 TITLE = """
   _    _           _       _____    _            _   _  __ _
@@ -80,6 +81,47 @@ HASHES = (
 )
 
 
+def get_complexity(line: str) -> int:
+    complexity = 0
+    groups = [r'\d+', r'[A-Z]+_?[A-Z]*', r'[a-z]+_?[a-z]*', r'[^a-zA-Z\d]+']
+    while line:
+        for group in groups:
+            res = match(f'^({group})(.*)', line)
+            if res:
+                complexity += 1
+                line = res.group(2)
+                break
+    return complexity
+
+
+@dataclass
+class Threshold:
+    length: int
+    complexity: float
+
+
+THRESHOLDS = [
+    Threshold(length=30, complexity=0.4),
+    Threshold(length=40, complexity=0.33),
+]
+
+
+def is_too_complex(line: str) -> bool:
+    if len(line) >= THRESHOLDS[0].length:
+        complexity = get_complexity(line)
+        for threshold in THRESHOLDS:
+            if len(line) >= threshold.length and complexity / len(line) >= threshold.complexity:
+                return True
+    return False
+
+
+def is_unknown_hash(line: str) -> bool:
+    avoid_pattern = r'[\s]'
+    if search(avoid_pattern, line):
+        return False
+    return is_too_complex(line)
+
+
 def identify_hashes(input_hash):
     """
     Function to identify all the hashes and return the results as list.
@@ -90,6 +132,12 @@ def identify_hashes(input_hash):
     for items in HASHES:
         if match(items[1], input_hash):
             res += [items[0]] if isinstance(items[0], str) else items[0]
+    # TODO: tune and check
+    logging.debug(
+        f'\n{input_hash}\n{get_complexity(input_hash)}/{len(input_hash)} = {get_complexity(input_hash) / len(input_hash)}\n'
+    )
+    if not res and is_unknown_hash(input_hash):
+        return ['unknown']
     return res
 
 
