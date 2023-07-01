@@ -168,6 +168,9 @@ class ValidatorTestAutoParse(unittest.TestCase):
             'long_test_mail+test@email.test.com',
             'Magnolija6magnolija6041MAGNOLIJA6MAGNOLIJA6041!',
             'Ranielle18_soulmates@yahseanal_20@yahoo.com',
+            '$HEX',
+            '[Julia_]',
+            '[James]Bond',
         ]:
             line = f'random_username:{password}'
             expected = [OrderedDict([('algorithm', ''), ('username', 'random_username'), ('userpass_plain', password)])]
