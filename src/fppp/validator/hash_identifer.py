@@ -128,6 +128,8 @@ def identify_hashes(input_hash):
     :rtype : list
     :param input_hash:
     """
+    if not input_hash:
+        return input_hash
     res = []
     for items in HASHES:
         if match(items[1], input_hash):
