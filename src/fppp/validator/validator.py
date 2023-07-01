@@ -196,7 +196,7 @@ class Validator:
 
     def _get_hash_type(self, value):
         # for pandas nan
-        if str(value) == 'nan' or value == None:
+        if not value or str(value) in ['nan', '']:
             return ''
         algorithms = identify_hashes(value)
         return algorithms[0] if algorithms else ''
