@@ -83,7 +83,7 @@ HASHES = (
 
 def get_complexity(line: str) -> int:
     complexity = 0
-    groups = [r'\d+', r'[A-Z]+_?[A-Z]*', r'[a-z]+_?[a-z]*', r'[^a-zA-Z\d]+']
+    groups = [r'\d+', r'[a-zA-Z@\./!*]+_?[a-zA-Z]*', r'[^a-zA-Z\d]+']
     while line:
         for group in groups:
             res = match(f'^({group})(.*)', line)
