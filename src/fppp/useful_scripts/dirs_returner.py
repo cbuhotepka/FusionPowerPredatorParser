@@ -20,6 +20,7 @@ class Mover:
             print(f'\n{len(left_dirs)} NOT FOUND DIRS:')
             for dir in left_dirs:
                 print(dir)
+        print(f'\n{len(self.found_dirs)} DIRS MOVED')
 
     def iterate_dirs(self):
         for base_type in ['combo', 'db']:
