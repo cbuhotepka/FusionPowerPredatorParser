@@ -1,8 +1,7 @@
 import os
 import shutil
 
-ROOT_PATH = '//192.168.50.210/blitz'
-ROOT_PATH = 'D:/'
+ROOT_PATH = '//192.168.50.60/blitz'
 DIRS_FILE = 'C:/move.txt'
 
 
