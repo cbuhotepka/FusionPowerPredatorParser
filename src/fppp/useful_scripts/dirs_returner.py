@@ -25,14 +25,14 @@ class Mover:
     def iterate_dirs(self):
         for base_type in ['combo', 'db']:
             for dir in self._get_dirs(base_type):
-                if self._is_error_dir(dir):
+                if self._is_error_dir(base_type, dir):
                     self._move(dir)
 
-    def _is_error_dir(self, dir_path) -> bool:
+    def _is_error_dir(self, base_type, dir_path) -> bool:
         dir_name = os.path.basename(dir_path)
         dir_name = dir_name.replace(' ', '_')
         for error_name in self.error_dirs:
-            if error_name in dir_name:
+            if (base_type == 'combo' and error_name in dir_name) or error_name == dir_name:
                 self.found_dirs.append(error_name)
                 return True
         return False
@@ -55,6 +55,7 @@ class Mover:
 
     @staticmethod
     def _move(base_path):
+        print(f'-> {base_path}')
         path_from = str(base_path)
         path_to = path_from.replace('Imported', 'Source')
         shutil.move(path_from, path_to)
