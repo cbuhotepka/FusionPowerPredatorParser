@@ -1,15 +1,15 @@
 import os
 import shutil
 
-ROOT_PATH = '//192.168.50.60/blitz'
+ROOT_PATH = 'Z:/'
 DIRS_FILE = 'C:/move.txt'
 
 
 class Mover:
     def __init__(self, user_number: int):
-        self.user_number = user_number
-        self.path_imported = os.path.join(ROOT_PATH, str(user_number), 'Imported')
-        self.path_source = os.path.join(ROOT_PATH, str(user_number), 'Source')
+        self.user_number = f'blitz{user_number}'
+        self.path_imported = os.path.join(ROOT_PATH, self.user_number, 'Imported')
+        self.path_source = os.path.join(ROOT_PATH, self.user_number, 'Source')
         self.error_dirs = self._get_error_dirs()
         self.found_dirs = []
 
@@ -62,6 +62,6 @@ class Mover:
 
 
 if __name__ == '__main__':
-    user_number = input('Enter user number:')
+    user_number = input('Enter user number: ')
     mover = Mover(int(user_number))
     mover.run()
