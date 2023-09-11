@@ -124,9 +124,17 @@ class NamesGetter:
 
     def _get_dirs(self, base_type: str) -> str:
         path = os.path.join(self.path_imported, base_type)
-        for item in os.listdir(path):
-            if not os.path.isfile(os.path.join(path, item)):
-                yield str(os.path.join(path, item))
+        if base_type == 'combo':
+            for item in os.listdir(path):
+                if not os.path.isfile(os.path.join(path, item)):
+                    yield str(os.path.join(path, item))
+        else:
+            for item in os.listdir(path):
+                if os.path.isfile(os.path.join(path, item)):
+                    inner_path = os.path.join(path, item)
+                    for inner_item in os.listdir(inner_path):
+                        if not os.path.isfile(os.path.join(inner_path, inner_item)):
+                            yield str(os.path.join(inner_path, inner_item))
 
 
 if __name__ == '__main__':
