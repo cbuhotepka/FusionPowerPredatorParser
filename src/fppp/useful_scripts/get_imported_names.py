@@ -36,6 +36,7 @@ class Dir:
         self.path = path if isinstance(path, Path) else Path(path)
         self.name = self.path.name
         self.base_type = base_type
+        self.all_files = self._get_all_files()
         self.base_info = self._get_base_info()
 
     def _get_base_info(self):
@@ -97,6 +98,14 @@ class Dir:
                 _source = re.match(r'OLD (D|C)[\w]+', line.replace("\n", "")).group(0)
                 break
         return _name, _source, _date
+
+    def _get_all_files(self):
+        all_files: list[Path] = []
+        for root, dirs, files in os.walk(self.path):
+            for f in files:
+                file = Path(os.path.join(root, f))
+                all_files.append(file)
+        return all_files
 
 
 class NamesGetter:
