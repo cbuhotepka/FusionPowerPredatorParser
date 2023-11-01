@@ -23,7 +23,7 @@ RUN DAEMON-MODE ON DOCKER:
     docker-compose run --rm parser python main.py *ARGS
 
 
-RUN DAEMON-MODE LOCALL:
+RUN DAEMON-MODE LOCAL:
 Requirements:
     Install and run Redis server: https://redis.io/docs/getting-started/installation/install-redis-on-windows/
 
