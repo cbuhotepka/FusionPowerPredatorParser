@@ -117,10 +117,12 @@ class NamesGetter:
         self.iterate_dirs()
 
     def iterate_dirs(self):
-        for base_type in ['db', 'combo']:
-            for folder in self._get_dirs(base_type):
-                directory = Dir(path=folder, base_type=base_type)
-                print(f"'{directory.base_info['name']}',")
+        with open(f"c:/output/imported_by_{self.user_number}.txt", "w+", encoding="utf-8") as f:
+            for base_type in ['db', 'combo']:
+                for folder in self._get_dirs(base_type):
+                    directory = Dir(path=folder, base_type=base_type)
+                    print(f"'{directory.base_info['name']}',")
+                    f.write(f"'{directory.base_info['name']}',\n")
 
     def _get_dirs(self, base_type: str) -> str:
         path = os.path.join(self.path_imported, base_type)
