@@ -2,7 +2,7 @@ import os
 import shutil
 
 ROOT_PATH = "Z:/"
-DIRS_FILE = "C:/move.txt"
+DIRS_FILE = "C:/dev/move.txt"
 
 
 class Mover:
@@ -10,7 +10,11 @@ class Mover:
         self.user_number = f"blitz{user_number}"
         self.path_imported = os.path.join(ROOT_PATH, self.user_number, "Imported")
         self.path_source = os.path.join(ROOT_PATH, self.user_number, "Source")
-        self.error_dirs = self.__get_error_dirs()
+        try:
+            self.error_dirs = self.__get_error_dirs()
+        except Exception as ex:
+            print(f"Couldn't get error_dirs: {ex}")
+            self.error_dirs = []
         self.found_dirs = []
         self.moved_dirs = set()
 
