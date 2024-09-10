@@ -31,7 +31,6 @@ class Mover:
         print("\nRETURNING DIRS:")
         for dir in self.moved_dirs:
             self._move(dir, returning=True)
-            print(f"-> {dir}")
         self.moved_dirs.clear()
 
     def _iterate_dirs(self):
