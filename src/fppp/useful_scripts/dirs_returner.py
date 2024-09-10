@@ -69,6 +69,7 @@ class Mover:
         if not returning:
             path_to = path_from.replace("Imported", "Source")
         else:
+            path_from = base_path.replace("Imported", "Source")
             path_to = path_from.replace("Source", "Imported")
         shutil.move(path_from, path_to)
 
