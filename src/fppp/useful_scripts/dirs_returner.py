@@ -103,9 +103,11 @@ class Mover:
         path_from = str(base_path)
         if not returning:
             path_to = path_from.replace("Imported", "Source")
+            path_to = path_to.replace("\\db\\", "\\db_error\\").replace("\\combo\\", "\\combo_error\\")
         else:
             path_from = base_path.replace("Imported", "Source")
             path_to = path_from.replace("Source", "Imported")
+            path_to = path_to.replace("\\db_error\\", "\\db\\").replace("\\combo_error\\", "\\combo\\")
         shutil.move(path_from, path_to)
 
 
