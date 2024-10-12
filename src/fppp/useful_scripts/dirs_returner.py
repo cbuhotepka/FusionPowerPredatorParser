@@ -1,14 +1,34 @@
 import os
-import sys
 import shutil
 from pathlib import Path
+from chardet.universaldetector import UniversalDetector
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from folder_parser.utils import check_bad_symbol, get_encoding_file
 
 ROOT_PATH = "Z:/"
 DIRS_FILE = "C:/dev/move.txt"
+
+
+BANNED_SYMBOL = ['Ð', 'œ', '\x9d', 'ž', '\x90', '˜', '—', '°', '±', 'Ñ', 'ƒ', '³', '¾',
+                 '\x81', '‡', 'µ', 'º', '¡', 'Â', 'š', '²', 'ˆ', '¿', '§', '•', '¥', '¯', '®', '›',
+                 '¦', 'ð', 'Ÿ', '¹', 'â', '‹', 'Œ', '·']
+
+
+def get_encoding_file(path):
+    detector = UniversalDetector()
+    with open(path, 'rb') as fh:
+        for line in fh.readlines(10000):
+            detector.feed(line)
+            if detector.done:
+                break
+        detector.close()
+    return detector.result['encoding']
+
+
+def check_bad_symbol(string: str):
+    for ch in BANNED_SYMBOL:
+        if ch in string:
+            return False
+    return True
 
 
 class Mover:
