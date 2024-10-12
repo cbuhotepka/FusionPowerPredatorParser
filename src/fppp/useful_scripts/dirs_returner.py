@@ -1,8 +1,11 @@
 import os
+import sys
 import shutil
 from pathlib import Path
 
-from ..folder_parser.utils import check_bad_symbol, get_encoding_file
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from folder_parser.utils import check_bad_symbol, get_encoding_file
 
 ROOT_PATH = "Z:/"
 DIRS_FILE = "C:/dev/move.txt"
