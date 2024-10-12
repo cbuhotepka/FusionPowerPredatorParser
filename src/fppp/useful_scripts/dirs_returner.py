@@ -1,5 +1,8 @@
 import os
 import shutil
+from pathlib import Path
+
+from ..folder_parser.utils import check_bad_symbol, get_encoding_file
 
 ROOT_PATH = "Z:/"
 DIRS_FILE = "C:/dev/move.txt"
@@ -41,13 +44,39 @@ class Mover:
                     self.moved_dirs.add(dir)
 
     def _is_error_dir(self, base_type, dir_path) -> bool:
-        dir_name = os.path.basename(dir_path)
-        dir_name = dir_name.replace(" ", "_")
-        for error_name in self.error_dirs:
-            if (base_type == "combo" and error_name in dir_name) or error_name == dir_name:
-                self.found_dirs.append(error_name)
-                return True
+        # dir_name = os.path.basename(dir_path)
+        # dir_name = dir_name.replace(" ", "_")
+        # for error_name in self.error_dirs:
+        #     if (base_type == "combo" and error_name in dir_name) or error_name == dir_name:
+        #         self.found_dirs.append(error_name)
+        #         return True
+        dir_name = self._get_dir_name(base_type, dir_path)
+        if dir_name in self.error_dirs:
+            self.found_dirs.append(dir_name)
+            return True
         return False
+
+    def _get_dir_name(self, base_type, dir_path: str) -> str | None:
+        dir_path = Path(dir_path)
+        if check_bad_symbol(dir_path.absolute().parent.name):
+            if base_type == "db":
+                if name := dir_path.absolute().parent.name:
+                    return name
+            else:
+                if name := dir_path.name.split("_", 2)[2].replace("_", " "):
+                    return name
+
+        path_to_readme = os.path.join(dir_path, "readme.txt")
+        if not os.path.exists(path_to_readme):
+            return None
+        encoding = get_encoding_file(path_to_readme) or "utf-8"
+        try:
+            readme_string = open(path_to_readme, encoding=encoding).readlines()
+        except:
+            readme_string = open(path_to_readme, encoding="utf-8").readlines()
+        if len(readme_string) > 1:
+            if name := readme_string[1].replace("\n", ""):
+                return name
 
     @staticmethod
     def __get_error_dirs() -> list[str]:
