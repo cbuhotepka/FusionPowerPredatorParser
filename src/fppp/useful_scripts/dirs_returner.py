@@ -79,7 +79,7 @@ class Mover:
             return True
         return False
 
-    def _get_dir_name(self, base_type, dir_path: str) -> str | None:
+    def _get_dir_name(self, base_type, dir_path: str) -> str:
         dir_path = Path(dir_path)
         if check_bad_symbol(dir_path.absolute().parent.name):
             if base_type == "db":
@@ -104,7 +104,7 @@ class Mover:
     @staticmethod
     def __get_error_dirs() -> list[str]:
         error_dirs = []
-        with open(DIRS_FILE, "r+") as f:
+        with open(DIRS_FILE, "r+", encoding="utf-8") as f:
             for line in f:
                 error_dir = line.strip().replace(" ", "_")
                 if error_dir and error_dir != "_":
