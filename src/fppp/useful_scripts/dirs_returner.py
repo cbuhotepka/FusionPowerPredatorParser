@@ -77,13 +77,21 @@ class Mover:
         if dir_name in self.error_dirs:
             self.found_dirs.append(dir_name)
             return True
+        
+        old_dir_name = os.path.basename(dir_path)
+        old_dir_name = dir_name.replace(" ", "_")
+        for error_name in self.error_dirs:
+            if (base_type == "combo" and error_name.strip().lower() in old_dir_name.strip().lower()) or error_name == dir_name:
+                print("- cant find:", dir_name, "<", old_dir_name)
+                print(error_name)
+                break
         return False
 
     def _get_dir_name(self, base_type, dir_path: str) -> str:
         dir_path = Path(dir_path)
         if check_bad_symbol(dir_path.absolute().parent.name):
             if base_type == "db":
-                if name := dir_path.absolute().parent.name:
+                if name := dir_path.absolute().name:
                     return name
             else:
                 if name := dir_path.name.split("_", 2)[2].replace("_", " "):
@@ -106,7 +114,7 @@ class Mover:
         error_dirs = []
         with open(DIRS_FILE, "r+", encoding="utf-8") as f:
             for line in f:
-                error_dir = line.strip().replace(" ", "_")
+                error_dir = line.strip()
                 if error_dir and error_dir != "_":
                     error_dirs.append(error_dir)
         return error_dirs
