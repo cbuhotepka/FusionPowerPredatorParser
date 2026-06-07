@@ -4,7 +4,7 @@ from pathlib import Path
 from chardet.universaldetector import UniversalDetector
 
 
-ROOT_PATH = "Z:/"
+ROOT_PATH = "Y:/"
 DIRS_FILE = "C:/dev/move.txt"
 
 
