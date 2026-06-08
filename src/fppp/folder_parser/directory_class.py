@@ -31,6 +31,10 @@ class DirStatus(enum.Enum):
     PENDING = 'pending'
 
 
+class MissingReadmeDateError(Exception):
+    pass
+
+
 class Directory:
 
     def __init__(self, path, base_type, status=DirStatus.PARSE, reparse_file_state=False):
@@ -65,6 +69,10 @@ class Directory:
                 self.status = DirStatus.ERROR
             try:
                 self.base_info = self._get_base_info()
+            except MissingReadmeDateError as ex:
+                console.print(f'[yellow]Skipping folder due to readme.txt: {ex}[/yellow]')
+                self.status = DirStatus.SKIP
+                self.close()
             except Exception as ex:
                 console.print(f'[red]Couldn`t parse readme.txt due to an error: {ex}[/red]')
                 self.status = DirStatus.ERROR
@@ -296,11 +304,14 @@ class Directory:
         if not source:
             source = 'OLD DATABASE' if self.base_type == 'db' else 'OLD COMBO'
         if not date:
-            if self.base_type == 'combo':
-                date = self._get_date_from_folder()
+            raise MissingReadmeDateError('date not found')
+        # if not date:
+        #     if self.base_type == 'combo':
+        #         date = self._get_date_from_folder()
 
         # Если дата в неверном формате, то взять дату создания файла
-        if not date or not re.search(r'\d{4}-\d{2}-\d{2}', date):
+        # if not date or not re.search(r'\d{4}-\d{2}-\d{2}', date):
+        if not re.search(r'\d{4}-\d{2}-\d{2}', date):
             date = self._get_oldest_file_date()
         return {'name': name, 'date': date, 'source': source}
 
@@ -309,7 +320,8 @@ class Directory:
             if self.base_type == 'db':
                 return self.path.absolute().parent.name
             else:
-                return self.name.split('_', 2)[2].replace('_', ' ')
+                # return self.name.split('_', 2)[2].replace('_', ' ')
+                return self.name
         return None
 
     def _get_date_from_folder(self):
@@ -332,20 +344,42 @@ class Directory:
             return None, None, None
         encoding = utils.get_encoding_file(path_to_readme) or 'utf-8'
         try:
-            readme_string = open(os.path.join(self.path, 'readme.txt'), encoding=encoding).readlines()
+            readme_string = open(path_to_readme, encoding=encoding).readlines()
         except:
-            readme_string = open(os.path.join(self.path, 'readme.txt'), encoding='utf-8').readlines()
-        _date = readme_string[0].replace("\n", "") if readme_string else ''
-        _source = None
-        _name = readme_string[1].replace("\n", "") if len(readme_string) > 1 else ''
-        for line in readme_string:
-            if re.match(r'https?://', line):
-                _source = re.match(r'https?://[\w\d\-=\\/._?#!]+', line.replace("\n", "")).group(0)
+            readme_string = open(path_to_readme, encoding='utf-8').readlines()
+
+        readme_lines = [line.strip() for line in readme_string if line.strip()]
+        _date = None
+        for line in readme_lines:
+            if re.fullmatch(r'\d{4}-\d{2}-\d{2}', line):
+                _date = line
+                readme_lines.remove(line)
                 break
-            elif re.match(r'OLD (D|C)', line):
-                _source = re.match(r'OLD (D|C)[\w]+', line.replace("\n", "")).group(0)
-                break
+
+        _name = readme_lines[0] if len(readme_lines) > 0 else ''
+        _source = readme_lines[1] if len(readme_lines) > 1 else None
         return _name, _source, _date
+
+    # def _get_info_from_readme(self):
+    #     path_to_readme = os.path.join(self.path, 'readme.txt')
+    #     if not os.path.exists(path_to_readme):
+    #         return None, None, None
+    #     encoding = utils.get_encoding_file(path_to_readme) or 'utf-8'
+    #     try:
+    #         readme_string = open(os.path.join(self.path, 'readme.txt'), encoding=encoding).readlines()
+    #     except:
+    #         readme_string = open(os.path.join(self.path, 'readme.txt'), encoding='utf-8').readlines()
+    #     _date = readme_string[0].replace("\n", "") if readme_string else ''
+    #     _source = None
+    #     _name = readme_string[1].replace("\n", "") if len(readme_string) > 1 else ''
+    #     for line in readme_string:
+    #         if re.match(r'https?://', line):
+    #             _source = re.match(r'https?://[\w\d\-=\\/._?#!]+', line.replace("\n", "")).group(0)
+    #             break
+    #         elif re.match(r'OLD (D|C)', line):
+    #             _source = re.match(r'OLD (D|C)[\w]+', line.replace("\n", "")).group(0)
+    #             break
+    #     return _name, _source, _date
 
     def __str__(self):
         return f"<{self.status.value}> {self.path}"
