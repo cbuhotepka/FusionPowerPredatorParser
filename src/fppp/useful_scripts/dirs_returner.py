@@ -1,4 +1,5 @@
 import os
+import re
 import shutil
 from pathlib import Path
 from chardet.universaldetector import UniversalDetector
@@ -79,9 +80,9 @@ class Mover:
             return True
         
         old_dir_name = os.path.basename(dir_path)
-        old_dir_name = dir_name.replace(" ", "_")
+        dir_name_for_compare = dir_name.replace(" ", "_") if dir_name else old_dir_name
         for error_name in self.error_dirs:
-            if (base_type == "combo" and error_name.strip().lower() in old_dir_name.strip().lower()) or error_name == dir_name:
+            if (base_type == "combo" and error_name.strip().lower() in dir_name_for_compare.strip().lower()) or error_name == dir_name:
                 print("- cant find:", dir_name, "<", old_dir_name)
                 print(error_name)
                 break
@@ -94,7 +95,10 @@ class Mover:
                 if name := dir_path.absolute().name:
                     return name
             else:
-                if name := dir_path.name.split("_", 2)[2].replace("_", " "):
+                if re.match(r"\d{4}-\d{2}-\d{2}_[^_]+_", dir_path.name):
+                    name = dir_path.name.split("_", 2)[2].replace("_", " ")
+                    return name
+                if name := dir_path.name.replace("_", " "):
                     return name
 
         path_to_readme = os.path.join(dir_path, "readme.txt")
@@ -114,7 +118,7 @@ class Mover:
         error_dirs = []
         with open(DIRS_FILE, "r+", encoding="utf-8") as f:
             for line in f:
-                error_dir = line.strip()
+                error_dir = line.strip().strip("'\"")
                 if error_dir and error_dir != "_":
                     error_dirs.append(error_dir)
         return error_dirs
